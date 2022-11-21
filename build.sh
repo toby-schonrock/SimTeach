@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 set -o errexit
@@ -8,7 +7,7 @@ USAGE="Usage: $(basename $0) [-v | --verbose] [ gcc | clang ] [ reset | clean | 
 CMAKE=cmake
 BUILD=./build
 TYPE=release
-COMPILER=clang
+COMPILER=gcc
 CLEAN=
 RESET=
 VERBOSE=
@@ -16,7 +15,7 @@ VERBOSE=
 for arg; do
   case "$arg" in
     --help|-h)    echo $USAGE; exit 0;;
-    -v|--verbose) VERBOSE='VERBOSE=1'  ;;
+    -v|--verbose) VERBOSE='-v';;
     debug)        TYPE=debug ;;
     release)      TYPE=release ;;
     clang)        COMPILER=clang ;;
@@ -33,9 +32,9 @@ BUILD_DIR=$BUILD/$COMPILER/$TYPE
 
 if [[ "$COMPILER" == "clang" ]]
 then
-    COMPILER_OPTIONS="-DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13"
+    COMPILER_OPTIONS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 else
-    COMPILER_OPTIONS="-DCMAKE_C_COMPILER=gcc-11 -DCMAKE_CXX_COMPILER=g++-11"
+    COMPILER_OPTIONS="-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++"
 fi
 
 [[ -n $RESET && -d $BUILD_DIR ]] && rm -rf $BUILD_DIR
