@@ -4,6 +4,7 @@
 #include <iostream>
 #include <numbers>
 #include <string>
+#include <array>
 
 
 #include "Matrix.hpp"
@@ -15,7 +16,7 @@
 #include "imgui.h"
 
 float vsScale = 0;
-extern unsigned char arial_ttf[];
+extern unsigned char arial_ttf[];     // NOLINT
 extern unsigned int arial_ttf_len;
 
 class SoftBody {
@@ -130,7 +131,7 @@ int main() {
     vsScale = 25.0F / 512.0F * static_cast<float>(screen.x); // window scaling
 
     sf::Font font;
-    if (!font.loadFromMemory(arial_ttf, arial_ttf_len)) {
+    if (!font.loadFromMemory(arial_ttf, arial_ttf_len)) { // NOLINT
         std::cout << "Font file not found";
         return (EXIT_FAILURE);
     }

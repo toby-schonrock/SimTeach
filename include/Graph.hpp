@@ -31,6 +31,6 @@ class Graph {
 
     float* arr(){
         v = {data.begin(), data.end()};
-        return &v[0];
+        return v.data();
     }
 };
