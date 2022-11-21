@@ -30,7 +30,7 @@ endif()
 
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
-add_subdirectory(SFML)
+add_subdirectory(ext/SFML)
 
 add_library(sfml INTERFACE)
 target_include_directories(sfml INTERFACE SFML/include)
@@ -55,15 +55,3 @@ add_executable(softbody main.cpp)
 target_include_directories(softbody PRIVATE include)
 target_link_libraries(softbody PRIVATE imgui-sfml ${PROJECT_STATIC_OPTIONS})
 target_compile_options(softbody PRIVATE ${PROJECT_COMPILE_OPTIONS})
-
-# add_executable(dangling dangling.cpp)
-# target_link_libraries(dangling PRIVATE imgui-sfml)
-
-# add_executable(derived derived.cpp)
-
-# add_executable(arch arch.cpp)
-# target_link_libraries(arch PRIVATE imgui-sfml)
-
-# add_subdirectory(test)
-
-# find_package(benchmark REQUIRED)
