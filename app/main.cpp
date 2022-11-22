@@ -1,23 +1,24 @@
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <iostream>
 #include <numbers>
 #include <string>
-#include <array>
 
-
-#include "Matrix.hpp"
 #include "Graph.hpp"
+#include "Matrix.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "implot.h"
 
-float vsScale = 0;
-extern unsigned char arial_ttf[];     // NOLINT
-extern unsigned int arial_ttf_len;
+float                vsScale = 0;
+extern unsigned char arial_ttf[]; // NOLINT
+extern unsigned int  arial_ttf_len;
+int bar_data[11] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 class SoftBody {
   public:
@@ -87,13 +88,25 @@ sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y)) * vsScale;
 }
 
-void displayFps(double Vfps, double Sfps, sf::RenderWindow& window, const sf::Font& font, Graph& fps) {
+void displayFps(double Vfps, double Sfps, sf::RenderWindow& window, const sf::Font& font,
+                Graph& fps) {
     ImGui::Begin("FPS");
     char overlay[32];
     sprintf(overlay, "Avg = %f", fps.avg());
-    ImGui::PlotLines("fps", fps.arr(), fps.data.size(), 0, overlay, 0.0f, 100.0f, ImVec2(0, 0), 4); // .his feels pretty evil
+    ImGui::PlotLines("fps", fps.arr(), fps.data.size(), 0, overlay, 0.0f, 100.0f, ImVec2(0, 0),
+                     4); // .his feels pretty evil
     ImGui::End();
-    
+    ImGui::Begin("test");
+    ImGui::CreateContext();
+    ImPlot::CreateContext();
+    if (ImPlot::BeginPlot("My Plot")) {
+        ImPlot::PlotBars("My Bar Plot", bar_data, 11);
+        ImPlot::EndPlot();
+    }
+    ImGui::End();
+    ImPlot::DestroyContext();
+    ImGui::DestroyContext();
+
     sf::Text text;
     text.setFont(font); // font is a sf::Font
     text.setString(std::to_string(static_cast<int>(Vfps)) + " " +
@@ -115,7 +128,7 @@ void displayImGui(SoftBody& sb, float& gravity) {
     if (ImGui::Button("Reset sim")) sb.reset();
     ImGui::SameLine();
     if (ImGui::Button("Default sim")) {
-        sb      = SoftBody(Vec2I(25, 25), 0.2F, Vec2(3, 0), 8000, 100);      
+        sb      = SoftBody(Vec2I(25, 25), 0.2F, Vec2(3, 0), 8000, 100);
         gravity = 2.0F;
     }
     ImGui::End();
@@ -123,11 +136,10 @@ void displayImGui(SoftBody& sb, float& gravity) {
 
 int main() {
     float gravity = 2;
-    Graph fps(std::pair<std::string, std::string>("time","fps"), 160);
+    Graph fps(std::pair<std::string, std::string>("time", "fps"), 160);
 
-    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-    const Vector2<unsigned int> screen(desktop.width,
-                       desktop.height);
+    sf::VideoMode               desktop = sf::VideoMode::getDesktopMode();
+    const Vector2<unsigned int> screen(desktop.width, desktop.height);
     vsScale = 25.0F / 512.0F * static_cast<float>(screen.x); // window scaling
 
     sf::Font font;
@@ -160,7 +172,7 @@ int main() {
             std::chrono::high_resolution_clock::now();
 
         // clear poll events for sfml and imgui
-        sf::Event event; //NOLINT
+        sf::Event event; // NOLINT
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
             if (event.type == sf::Event::Closed) window.close();
