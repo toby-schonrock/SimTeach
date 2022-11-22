@@ -13,6 +13,7 @@
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "implot.h"
 
 float                vsScale = 0;
@@ -97,15 +98,11 @@ void displayFps(double Vfps, double Sfps, sf::RenderWindow& window, const sf::Fo
                      4); // .his feels pretty evil
     ImGui::End();
     ImGui::Begin("test");
-    ImGui::CreateContext();
-    ImPlot::CreateContext();
     if (ImPlot::BeginPlot("My Plot")) {
         ImPlot::PlotBars("My Bar Plot", bar_data, 11);
         ImPlot::EndPlot();
     }
     ImGui::End();
-    ImPlot::DestroyContext();
-    ImGui::DestroyContext();
 
     sf::Text text;
     text.setFont(font); // font is a sf::Font
@@ -151,6 +148,8 @@ int main() {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
 
+    ImGui::CreateContext();
+    ImPlot::CreateContext();
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Soft Body Simulation",
                             sf::Style::Fullscreen, settings); //, sf::Style::Default);
     ImGui::SFML::Init(window);
@@ -216,5 +215,11 @@ int main() {
     }
     ImGui::SFML::Shutdown();
 
+    ImPlot::DestroyContext();
+    ImGui::DestroyContext();
+    
+    
+    // ImGui::SFML::Shutdown();
+    // ImGui::DestroyContext();
     return 0;
 }
