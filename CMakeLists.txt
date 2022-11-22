@@ -7,10 +7,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-message("type=" ${CMAKE_BUILD_TYPE})
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-message("flags=" ${CMAKE_CXX_FLAGS_RELEASE})
-
 if (MSVC)
   set(PROJECT_COMPILE_OPTIONS /Wall /analyze)
   string(APPEND CMAKE_CXX_FLAGS_DEBUG          " /fsanitize=address")
@@ -32,13 +28,21 @@ else()
   set(PROJECT_STATIC_OPTIONS "")
 endif()
 
+option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
+if (${FORCE_COLORED_OUTPUT})
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options (-fdiagnostics-color=always)
+  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_compile_options (-fcolor-diagnostics)
+  endif ()
+endif ()
+
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
 add_subdirectory(ext/SFML)
 
 add_library(sfml INTERFACE)
 target_include_directories(sfml INTERFACE ext/SFML/include)
-target_link_directories(sfml INTERFACE ext/SFML/build/lib)
 target_link_libraries(sfml INTERFACE sfml-graphics sfml-window sfml-system Threads::Threads)
 
 # imgui doesn't do cmake and doesn't need compiling
@@ -49,10 +53,15 @@ set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/imgui)
 set(IMGUI_SFML_FIND_SFML OFF)
 add_subdirectory(ext/imgui-sfml)
 
+add_library(implot ext/implot/implot.cpp ext/implot/implot_items.cpp)
+target_include_directories(implot INTERFACE ext/implot)
+target_link_libraries(implot PRIVATE imgui)
+
 add_library(imgui-sfml INTERFACE)
 target_include_directories(imgui-sfml INTERFACE ext/imgui-sfml)
-target_link_directories(imgui-sfml INTERFACE ext/imgui-sfml/build)
+target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui implot)
 target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui)
+
 
 find_package(Threads REQUIRED)
 add_executable(softbody assets/arial.cpp app/main.cpp)

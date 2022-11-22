@@ -1,402 +1,412 @@
 [
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/include -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Wshadow -Wextra-semi -Wmissing-noreturn -Wconversion -Wsign-conversion -std=c++20 -o CMakeFiles\\softbody.dir\\app\\main.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\app\\main.cpp",
-  "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\app\\main.cpp"
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o CMakeFiles\\implot.dir\\ext\\implot\\implot.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\implot\\implot.cpp",
+  "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\implot\\implot.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/include -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Wshadow -Wextra-semi -Wmissing-noreturn -Wconversion -Wsign-conversion -std=c++20 -o CMakeFiles\\softbody.dir\\assets\\arial.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\assets\\arial.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o CMakeFiles\\implot.dir\\ext\\implot\\implot_items.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\implot\\implot_items.cpp",
+  "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\implot\\implot_items.cpp"
+},
+{
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/include -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/implot -O3 -DNDEBUG -fdiagnostics-color=always -Wall -Wextra -Wpedantic -Wshadow -Wextra-semi -Wmissing-noreturn -Wconversion -Wsign-conversion -std=c++20 -o CMakeFiles\\softbody.dir\\assets\\arial.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\assets\\arial.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\assets\\arial.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Clock.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Clock.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/include -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/implot -O3 -DNDEBUG -fdiagnostics-color=always -Wall -Wextra -Wpedantic -Wshadow -Wextra-semi -Wmissing-noreturn -Wconversion -Wsign-conversion -std=c++20 -o CMakeFiles\\softbody.dir\\app\\main.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\app\\main.cpp",
+  "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\app\\main.cpp"
+},
+{
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Clock.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Clock.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Clock.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Err.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Err.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Err.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Err.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Err.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Lock.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Lock.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Lock.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Lock.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Lock.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Mutex.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Mutex.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Mutex.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Mutex.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Mutex.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Sleep.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Sleep.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Sleep.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Sleep.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Sleep.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\String.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\String.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\String.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\String.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\String.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Thread.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Thread.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Thread.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Thread.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Thread.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\ThreadLocal.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\ThreadLocal.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\ThreadLocal.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\ThreadLocal.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\ThreadLocal.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Time.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Time.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Time.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Time.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Time.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\FileInputStream.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\FileInputStream.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\FileInputStream.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\FileInputStream.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\FileInputStream.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\MemoryInputStream.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\MemoryInputStream.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\MemoryInputStream.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\MemoryInputStream.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\MemoryInputStream.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\ClockImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ClockImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\ClockImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ClockImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ClockImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\MutexImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\MutexImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\MutexImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\MutexImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\MutexImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\SleepImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\SleepImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\SleepImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\SleepImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\SleepImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\ThreadImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ThreadImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\ThreadImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ThreadImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ThreadImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\ThreadLocalImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ThreadLocalImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\System\\CMakeFiles\\sfml-system.dir\\Win32\\ThreadLocalImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ThreadLocalImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\System\\Win32\\ThreadLocalImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Main\\CMakeFiles\\sfml-main.dir\\MainWin32.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Main\\MainWin32.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Main\\CMakeFiles\\sfml-main.dir\\MainWin32.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Main\\MainWin32.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Main\\MainWin32.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Clipboard.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Clipboard.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Clipboard.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Clipboard.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Clipboard.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Context.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Context.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Context.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Context.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Context.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Cursor.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Cursor.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Cursor.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Cursor.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Cursor.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\GlContext.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\GlContext.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\GlContext.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\GlContext.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\GlContext.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\GlResource.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\GlResource.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\GlResource.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\GlResource.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\GlResource.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Joystick.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Joystick.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Joystick.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Joystick.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Joystick.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\JoystickManager.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\JoystickManager.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\JoystickManager.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\JoystickManager.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\JoystickManager.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Keyboard.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Keyboard.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Keyboard.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Keyboard.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Keyboard.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Mouse.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Mouse.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Mouse.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Mouse.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Mouse.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Touch.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Touch.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Touch.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Touch.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Touch.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Sensor.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Sensor.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Sensor.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Sensor.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Sensor.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\SensorManager.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\SensorManager.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\SensorManager.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\SensorManager.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\SensorManager.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\VideoMode.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\VideoMode.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\VideoMode.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\VideoMode.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\VideoMode.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Window.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Window.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Window.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Window.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Window.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\WindowImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\WindowImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\WindowImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\WindowImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\WindowImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\CursorImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\CursorImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\CursorImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\CursorImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\CursorImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\ClipboardImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\ClipboardImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\ClipboardImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\ClipboardImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\ClipboardImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\WglContext.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WglContext.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\WglContext.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WglContext.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WglContext.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\WglExtensions.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WglExtensions.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\WglExtensions.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WglExtensions.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WglExtensions.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\InputImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\InputImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\InputImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\InputImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\InputImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\JoystickImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\JoystickImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\JoystickImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\JoystickImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\JoystickImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\SensorImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\SensorImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\SensorImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\SensorImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\SensorImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\VideoModeImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\VideoModeImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\VideoModeImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\VideoModeImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\VideoModeImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\WindowImplWin32.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WindowImplWin32.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DUNICODE -D_UNICODE -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Window\\CMakeFiles\\sfml-window.dir\\Win32\\WindowImplWin32.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WindowImplWin32.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Window\\Win32\\WindowImplWin32.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\BlendMode.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\BlendMode.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\BlendMode.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\BlendMode.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\BlendMode.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Color.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Color.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Color.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Color.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Color.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Font.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Font.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Font.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Font.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Font.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Glsl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Glsl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Glsl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Glsl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Glsl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\GLCheck.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLCheck.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\GLCheck.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLCheck.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLCheck.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\GLExtensions.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLExtensions.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\GLExtensions.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLExtensions.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLExtensions.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Image.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Image.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Image.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Image.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Image.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -fno-strict-aliasing -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\ImageLoader.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\ImageLoader.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -fno-strict-aliasing -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\ImageLoader.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\ImageLoader.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\ImageLoader.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderStates.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderStates.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderStates.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderStates.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderStates.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTexture.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTexture.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTexture.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTexture.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTexture.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTarget.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTarget.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTarget.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTarget.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTarget.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderWindow.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderWindow.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderWindow.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderWindow.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderWindow.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Shader.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Shader.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Shader.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Shader.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Shader.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Texture.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Texture.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Texture.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Texture.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Texture.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\TextureSaver.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\TextureSaver.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\TextureSaver.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\TextureSaver.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\TextureSaver.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Transform.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Transform.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Transform.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Transform.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Transform.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Transformable.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Transformable.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Transformable.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Transformable.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Transformable.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\View.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\View.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\View.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\View.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\View.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Vertex.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Vertex.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Vertex.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Vertex.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Vertex.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\GLLoader.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLLoader.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\GLLoader.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLLoader.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\GLLoader.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Shape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Shape.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Shape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Shape.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Shape.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\CircleShape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\CircleShape.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\CircleShape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\CircleShape.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\CircleShape.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RectangleShape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RectangleShape.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RectangleShape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RectangleShape.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RectangleShape.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\ConvexShape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\ConvexShape.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\ConvexShape.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\ConvexShape.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\ConvexShape.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Sprite.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Sprite.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Sprite.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Sprite.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Sprite.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Text.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Text.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\Text.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Text.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\Text.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\VertexArray.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\VertexArray.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\VertexArray.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\VertexArray.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\VertexArray.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\VertexBuffer.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\VertexBuffer.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\VertexBuffer.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\VertexBuffer.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\VertexBuffer.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTextureImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImpl.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTextureImpl.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImpl.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImpl.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTextureImplFBO.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImplFBO.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTextureImplFBO.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImplFBO.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImplFBO.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTextureImplDefault.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImplDefault.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DSFML_STATIC -DSTBI_FAILURE_USERMSG -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/src -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/stb_image -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/extlibs/headers/freetype2 -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\SFML\\src\\SFML\\Graphics\\CMakeFiles\\sfml-graphics.dir\\RenderTextureImplDefault.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImplDefault.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\SFML\\src\\SFML\\Graphics\\RenderTextureImplDefault.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\imgui-SFML.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui-sfml\\imgui-SFML.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\imgui-SFML.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui-sfml\\imgui-SFML.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui-sfml\\imgui-SFML.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui_draw.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_draw.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui_draw.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_draw.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_draw.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui_tables.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_tables.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui_tables.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_tables.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_tables.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui_widgets.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_widgets.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\imgui_widgets.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_widgets.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\imgui_widgets.cpp"
 },
 {
-  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/release",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\misc\\cpp\\imgui_stdlib.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\misc\\cpp\\imgui_stdlib.cpp",
+  "directory": "C:/msys64/home/tobia/dev/physicssim/build/gcc/Release",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DIMGUI_USER_CONFIG=\\\"imconfig-SFML.h\\\" -DSFML_STATIC -IC:/msys64/home/tobia/dev/physicssim/ext/imgui -IC:/msys64/home/tobia/dev/physicssim/ext/imgui-sfml -IC:/msys64/home/tobia/dev/physicssim/ext/SFML/include -O3 -DNDEBUG -fdiagnostics-color=always -std=c++20 -o ext\\imgui-sfml\\CMakeFiles\\ImGui-SFML.dir\\__\\imgui\\misc\\cpp\\imgui_stdlib.cpp.obj -c C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\misc\\cpp\\imgui_stdlib.cpp",
   "file": "C:\\msys64\\home\\tobia\\dev\\physicssim\\ext\\imgui\\misc\\cpp\\imgui_stdlib.cpp"
 }
 ]
