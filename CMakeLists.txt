@@ -7,10 +7,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-message("type=" ${CMAKE_BUILD_TYPE})
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-message("flags=" ${CMAKE_CXX_FLAGS_RELEASE})
-
 if (MSVC)
   set(PROJECT_COMPILE_OPTIONS /Wall /analyze)
   string(APPEND CMAKE_CXX_FLAGS_DEBUG          " /fsanitize=address")
@@ -31,6 +27,15 @@ else()
   # on linux there is not much point being statically linked
   set(PROJECT_STATIC_OPTIONS "")
 endif()
+
+option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
+if (${FORCE_COLORED_OUTPUT})
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options (-fdiagnostics-color=always)
+  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_compile_options (-fcolor-diagnostics)
+  endif ()
+endif ()
 
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)

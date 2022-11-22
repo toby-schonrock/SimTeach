@@ -6,7 +6,7 @@ USAGE="Usage: $(basename $0) [-v | --verbose] [ gcc | clang ] [ reset | clean | 
 
 CMAKE=cmake
 BUILD=./build
-TYPE=release
+TYPE=Release
 COMPILER=gcc
 CLEAN=
 RESET=
@@ -15,9 +15,9 @@ VERBOSE=
 for arg; do
   case "$arg" in
     --help|-h)    echo $USAGE; exit 0;;
-    -v|--verbose) VERBOSE='-v';;
-    debug)        TYPE=debug ;;
-    release)      TYPE=release ;;
+    -v|--verbose) VERBOSE='VERBOSE=1';;
+    debug)        TYPE=Debug ;;
+    release)      TYPE=Release ;;
     clang)        COMPILER=clang ;;
     gcc)          COMPILER=gcc ;;
     clean)        CLEAN=1 ;;
@@ -39,10 +39,27 @@ fi
 
 [[ -n $RESET && -d $BUILD_DIR ]] && rm -rf $BUILD_DIR
     
+GENERATOR="$($CMAKE --help | grep '^\*' | awk '{print $2}')"
+
+if [[ "$GENERATOR" == "Ninja" ]]
+then
+    GENERATOR_OPTIONS=""
+  if [[ $VERBOSE != "" ]]
+  then
+    GENERATOR_OPTIONS="$GENERATOR_OPTIONS -v"
+  fi
+else
+  GENERATOR_OPTIONS="-j8"
+  if [[ $VERBOSE != "" ]]
+  then
+    GENERATOR_OPTIONS="$GENERATOR_OPTIONS VERBOSE=1"
+  fi
+fi
+
 $CMAKE -S . -B $BUILD_DIR $COMPILER_OPTIONS -DCMAKE_BUILD_TYPE=$TYPE 
 
 [[ -n $CLEAN ]] && $CMAKE --build $BUILD_DIR --target clean
 
-$CMAKE --build $BUILD_DIR -- -j8 $VERBOSE
+$CMAKE --build $BUILD_DIR -- $GENERATOR_OPTIONS
 
 cd $BUILD_DIR
