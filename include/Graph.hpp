@@ -7,15 +7,12 @@
 
 template <typename T>
 class Graph {
-    private:
+    public:
     std::vector<T> vx;
     std::vector<T> vy;
-
-    public:
-    std::deque<T> datax;
-    std::deque<T> datay;
     std::pair<std::string, std::string> axis;
     std::size_t buffer;
+    std::size_t pos = 0;
 
     Graph(std::pair<std::string, std::string> axis_, const std::size_t& buffer_) : axis(std::move(axis_)), buffer(buffer_) {
         vx.reserve(buffer);
@@ -23,22 +20,19 @@ class Graph {
     }
 
     void add(T x, T y) {
-        if (datax.size() == buffer) { // if full remove first item
-            datax.pop_front(); 
-            datay.pop_front(); 
+        if (datax.size() < buffer) { // if not full add new
+            vx.push_back(x); 
+            vy.push_back(y); 
+        } else { // if full increment pos and replace old data
+            pos++;
+            if (pos => buffer) pos = 0;
+            vx[pos] = x
+            vy[pos] = y
         }
-        datax.push_back(x);
-        datay.push_back(y);
     }
 
     float avg() const {
         if (datax.empty()) return 0.0F;
         return reduce(datax.begin(), datax.end()) / static_cast<T>(datax.size());
-    }
-
-    std::pair<T*, T*> arr(){
-        vx = {datax.begin(), datax.end()};
-        vy = {datax.begin(), datax.end()};
-        return {vx.data(), vy.data()};
     }
 };

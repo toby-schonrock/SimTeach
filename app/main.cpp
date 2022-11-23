@@ -17,7 +17,7 @@
 #include "imgui_internal.h"
 #include "implot.h"
 
-float                vsScale = 0; 
+float                vsScale = 0;
 extern unsigned char arial_ttf[]; // NOLINT
 extern const unsigned int  arial_ttf_len;
 
@@ -92,11 +92,18 @@ sf::Vector2f visualize(const Vec2& v) {
 void displayFps(double Vfps, double Sfps, sf::RenderWindow& window, const sf::Font& font,
                 Graph<double>& fps) {
     ImGui::Begin("FPS");
-    if (ImPlot::BeginPlot("fps", {-1.0F , -1.0F}, ImPlotFlags_NoLegend | ImPlotFlags_NoInputs | ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a binary bitwise operator" this is implots fault
-        ImPlot::SetupAxesLimits(0,160,0,100, ImGuiCond_Always);
+    if (ImPlot::BeginPlot("fps", {-1.0F , -1.0F}, ImPlotFlags_NoInputs | ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a binary bitwise operator" this is implots fault
         ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations);
-        // ImPlot::SetupAxisScale(ImAxis_Y1,)
-        ImPlot::PlotLine("fps", fps.arr().first, static_cast<int>(fps.datax.size()));
+        ImPlot::SetupAxis(ImAxis_Y1, "visual");
+        ImPlot::SetupAxesLimits(0,160,0,100, ImGuiCond_Always);
+        ImPlot::SetupAxis(ImAxis_Y2, "simulation");
+        ImPlot::SetupAxisScale(ImAxis_Y2, ImPlotScale_Log10);
+        ImPlot::SetupAxisLimits(ImAxis_Y2,1,100000);
+
+        // Implot::
+        ImPlot::PlotLine("visual", fps.vx.data(), static_cast<int>(fps.vx.size()));
+        ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+        ImPlot::PlotLine("simulation", fps.vy.data(), static_cast<int>(fps.vy.size()), 1, ImPlotLineFlags_None, fps.vy.pos());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -110,7 +117,7 @@ void displayFps(double Vfps, double Sfps, sf::RenderWindow& window, const sf::Fo
     window.draw(text);
 }
 
-void displayImGui(SoftBody& sb, float& gravity) {
+void displaySimSettings(SoftBody& sb, float& gravity) {
     ImGui::Begin("Settings");
     ImGui::DragFloat("Gravity", &gravity, 0.01F);
     ImGui::DragFloat("Gap", &sb.gap, 0.005F);
@@ -145,11 +152,10 @@ int main() {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
 
-    ImGui::CreateContext();
-    ImPlot::CreateContext();
-    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Soft Body Simulation",
+    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation",
                             sf::Style::Fullscreen, settings); //, sf::Style::Default);
     ImGui::SFML::Init(window);
+    ImPlot::CreateContext();
 
     SoftBody sb(Vec2I(25, 25), 0.2F, Vec2(3, 0), 10000, 100);
 
@@ -175,7 +181,7 @@ int main() {
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
-        displayImGui(sb, gravity);
+        displaySimSettings(sb, gravity);
 
         int simFrames = 0;
 
@@ -198,7 +204,7 @@ int main() {
 
         window.clear();
         displayFps(Vfps, Sfps, window, font, fps);
-        fps.add(Vfps, 0.0L);
+        fps.add(Vfps, Sfps);
 
         sb.draw(window);
         for (Polygon& poly: polys) poly.draw(window);
@@ -210,13 +216,9 @@ int main() {
         // std::cout << sinceVFrame.count() << "ns\n";
         Vfps = 1e9 / static_cast<double>(sinceVFrame.count());
     }
-    ImGui::SFML::Shutdown();
 
     ImPlot::DestroyContext();
-    ImGui::DestroyContext();
+    ImGui::SFML::Shutdown();
     
-    
-    // ImGui::SFML::Shutdown();
-    // ImGui::DestroyContext();
     return 0;
 }
