@@ -1,6 +1,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <iostream>
 #include <numbers>
@@ -16,10 +17,9 @@
 #include "imgui_internal.h"
 #include "implot.h"
 
-float                vsScale = 0;
+float                vsScale = 0; 
 extern unsigned char arial_ttf[]; // NOLINT
-extern unsigned int  arial_ttf_len;
-int bar_data[11] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+extern const unsigned int  arial_ttf_len;
 
 class SoftBody {
   public:
@@ -90,16 +90,13 @@ sf::Vector2f visualize(const Vec2& v) {
 }
 
 void displayFps(double Vfps, double Sfps, sf::RenderWindow& window, const sf::Font& font,
-                Graph& fps) {
+                Graph<double>& fps) {
     ImGui::Begin("FPS");
-    char overlay[32];
-    sprintf(overlay, "Avg = %f", fps.avg());
-    ImGui::PlotLines("fps", fps.arr(), fps.data.size(), 0, overlay, 0.0f, 100.0f, ImVec2(0, 0),
-                     4); // .his feels pretty evil
-    ImGui::End();
-    ImGui::Begin("test");
-    if (ImPlot::BeginPlot("My Plot")) {
-        ImPlot::PlotBars("My Bar Plot", bar_data, 11);
+    if (ImPlot::BeginPlot("fps", {-1.0F , -1.0F}, ImPlotFlags_NoLegend | ImPlotFlags_NoInputs | ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a binary bitwise operator" this is implots fault
+        ImPlot::SetupAxesLimits(0,160,0,100, ImGuiCond_Always);
+        ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations);
+        // ImPlot::SetupAxisScale(ImAxis_Y1,)
+        ImPlot::PlotLine("fps", fps.arr().first, static_cast<int>(fps.datax.size()));
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -133,7 +130,7 @@ void displayImGui(SoftBody& sb, float& gravity) {
 
 int main() {
     float gravity = 2;
-    Graph fps(std::pair<std::string, std::string>("time", "fps"), 160);
+    Graph<double> fps(std::pair<std::string, std::string>("time", "fps"), 160);
 
     sf::VideoMode               desktop = sf::VideoMode::getDesktopMode();
     const Vector2<unsigned int> screen(desktop.width, desktop.height);
@@ -201,7 +198,7 @@ int main() {
 
         window.clear();
         displayFps(Vfps, Sfps, window, font, fps);
-        fps.add(Vfps);
+        fps.add(Vfps, 0.0L);
 
         sb.draw(window);
         for (Polygon& poly: polys) poly.draw(window);
