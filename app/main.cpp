@@ -48,10 +48,11 @@ class SoftBody {
     }
 
     void draw(sf::RenderWindow& window) {
+#include <SFML/Graphics.hpp>
         for (Point& point: points.v) point.draw(window);
     }
 
-    void simFrame(double deltaTime, double gravity, const std::vector<Polygon>& polys) {
+    void simFrame(double deltaTime, double gravity, const std::vector<Polygon>& polys) { // // REMOVE will be in sim
         for (int x = 0; x < points.sizeX; x++) {
             for (int y = 0; y < points.sizeY; y++) {
                 Point& p = points(x, y);

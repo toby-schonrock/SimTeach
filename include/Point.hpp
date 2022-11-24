@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Polygon.hpp>
-#include <SFML/Graphics.hpp>
-#include <Vector2.hpp>
-
+#include "Polygon.hpp"
+#include "SFML/Graphics.hpp"
+#include "Vector2.hpp"
 
 extern float vsScale;
 
@@ -100,7 +99,7 @@ class Point {
         return TArea / TBase;
     }
 
-    static void springHandler(Point& p1, Point& p2, double stablePoint, float springConst,
+    static void springHandler(Point& p1, Point& p2, double stablePoint, float springConst, // REMOVE will be in sim
                               float dampFact) {
         Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"
         double diffMag  = diff.mag();
