@@ -1,20 +1,25 @@
 #include <array>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <numbers>
 #include <limits>
+#include <optional>
 
 #include "Matrix.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "implot.h"
 
+const sf::Color selectedColour = sf::Color::Blue;
 float                     vsScale = 0;
 extern unsigned char      arial_ttf[]; // NOLINT
 extern const unsigned int arial_ttf_len;
@@ -98,6 +103,7 @@ int main() {
     Sim sim1 = Sim::softbody({25, 25}, {3, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
 
     RingBuffer<Vec2> fps(160);
+    std::optional<std::size_t> closestPoint;
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
@@ -105,6 +111,12 @@ int main() {
         deltaClock; // for imgui - read https://eliasdaler.github.io/using-imgui-with-sfml-pt1/
     while (window.isOpen()) {
         std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
+
+        // closest point malarkey
+        if (closestPoint) sim1.points[*closestPoint].shape.setFillColor(sim1.color);
+        Vec2 mousePos = unvisualize(sf::Mouse::getPosition(window));
+        closestPoint = sim1.findClosestPoint(mousePos, 1);
+        if (closestPoint) sim1.points[*closestPoint].shape.setFillColor(selectedColour);
 
         // clear poll events for sfml and imgui
         sf::Event event; // NOLINT
@@ -117,18 +129,7 @@ int main() {
 
             case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    Vec2 mousePos = unvisualize(sf::Mouse::getPosition(window));
-                    double closestDist = std::numeric_limits<double>::infinity();
-                    std::size_t closestPos = 0;
-                    for (std::size_t i = 1; i != sim1.points.size(); ++i) {
-                        Vec2 diff = mousePos - sim1.points[i].pos;
-                        double dist = diff.x * diff.x + diff.y * diff.y;
-                        if (dist < closestDist) {
-                            closestDist = dist;
-                            closestPos = i;
-                        }
-                    }
-                    sim1.removePoint(closestPos);
+                    if (closestPoint) sim1.removePoint(*closestPoint);
                 }
                 break;
             default:

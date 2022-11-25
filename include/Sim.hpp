@@ -1,14 +1,14 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
-#include <cstdint>
 #include <numbers>
+#include <optional>
 #include <vector>
 
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Color.hpp"
 #include "Vector2.hpp"
 
 struct Spring {
@@ -25,6 +25,7 @@ class Sim {
     std::vector<Polygon> polys;
     std::vector<Point>   points;
     std::vector<Spring>  springs;
+    sf::Color            color;
     double               gravity;
 
     void draw(sf::RenderWindow& window) {
@@ -63,6 +64,22 @@ class Sim {
         }
     }
 
+    std::optional<std::size_t> findClosestPoint(const Vec2 pos,
+                                 double     min = std::numeric_limits<double>::infinity()) const {
+        double      closestDist = std::numeric_limits<double>::infinity();
+        std::size_t closestPos  = 0;
+        for (std::size_t i = 1; i != points.size(); ++i) {
+            Vec2   diff = pos - points[i].pos;
+            double dist = diff.x * diff.x + diff.y * diff.y;
+            if (dist < closestDist) {
+                closestDist = dist;
+                closestPos  = i;
+            }
+        }
+        if (closestDist > min) return std::nullopt;
+        return closestPos;
+    }
+
     static void springHandler(Point& p1, Point& p2, const Spring& spring) {
         Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"
         double diffMag  = diff.mag();
@@ -78,9 +95,10 @@ class Sim {
     }
 
     static Sim softbody(const Vector2<std::size_t>& size, const Vec2& simPos, float radius,
-                        float gravity, float gap, float springConst, float dampFact) {
+                        float gravity, float gap, float springConst, float dampFact, sf::Color color = sf::Color::Red) {
         Sim sim     = Sim();
         sim.gravity = gravity;
+        sim.color = color;
 
         sim.polys.reserve(3);
         sim.polys.push_back(Polygon::Square(Vec2(6, 10), -0.75));
@@ -89,7 +107,7 @@ class Sim {
         sim.points.reserve(size.x * size.y);
         for (unsigned x = 0; x != size.x; ++x) {
             for (unsigned y = 0; y != size.y; ++y) {
-                sim.addPoint({Vec2(x, y) * gap + simPos, 1.0, radius});
+                sim.addPoint({Vec2(x, y) * gap + simPos, 1.0, radius, sim.color});
             }
         }
 

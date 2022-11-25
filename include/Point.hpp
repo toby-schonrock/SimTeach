@@ -2,6 +2,7 @@
 
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Color.hpp"
 #include "Vector2.hpp"
 #include <cstddef>
 
@@ -18,9 +19,9 @@ class Point {
 
     Point() = default;
 
-    Point(Vec2 pos_, double mass_, float radius_) : pos(pos_), mass(mass_), radius(radius_) {
+    Point(Vec2 pos_, double mass_, float radius_, sf::Color color) : pos(pos_), mass(mass_), radius(radius_) {
         shape = sf::CircleShape(radius * vsScale);
-        shape.setFillColor(sf::Color::Red);
+        shape.setFillColor(color);
         shape.setPosition(visualize(pos));
         shape.setOrigin(visualize(Vec2(radius, radius)));
     }
