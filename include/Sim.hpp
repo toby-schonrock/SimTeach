@@ -97,18 +97,18 @@ class Sim {
 
         for (std::uint32_t x = 0; x < size.x; x++) {
             for (std::uint32_t y = 0; y < size.y; y++) {
-                Point& p = sim.points[x + y * size.x];
+                std::uint32_t p = x + y * size.x;
                 if (x < size.x - 1) {
                     if (y < size.y - 1) {
-                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, x + y * size.x, x + 1 + (y + 1) * size.x}); // down right
+                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, p, x + 1 + (y + 1) * size.x}); // down right
                     }
-                    sim.springs.push_back({{}, springConst, dampFact, gap, x + y * size.x, x + 1 + (y) * size.x}); // right
+                    sim.springs.push_back({{}, springConst, dampFact, gap, p, x + 1 + (y) * size.x}); // right
                 }
                 if (y < size.y - 1) {
                     if (x > 0) {
-                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, x + y * size.x, x - 1 + (y + 1) * size.x}); // down left
+                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, p, x - 1 + (y + 1) * size.x}); // down left
                     }
-                    sim.springs.push_back({{}, springConst, dampFact, gap, x + y * size.x, x + (y + 1) * size.x}); // down
+                    sim.springs.push_back({{}, springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
                 }
             }
         }        

@@ -25,7 +25,7 @@ class Polygon {
     Vec2              minBounds;
     std::uint32_t       pointCount;
     explicit Polygon(std::vector<Vec2> points_)
-        : points(std::move(points_)), pointCount(points.size()) {
+        : points(std::move(points_)), pointCount(static_cast<std::uint32_t>(points.size())) {
         shape.setPointCount(pointCount);
         boundsUp();
         for (std::uint32_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));

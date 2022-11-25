@@ -12,6 +12,7 @@
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics/PrimitiveType.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -91,7 +92,8 @@ sf::Vector2f visualize(const Vec2& v) {
 }
 
 void displayFps(const RingBuffer<Vec2>& fps) {
-    ImGui::Begin("FPS");
+    ImGui::Begin("FPS", NULL, ImGuiWindowFlags_NoMove);
+    ImGui::SetWindowPos({0,0});
     if (ImPlot::BeginPlot(
             "fps", {-1.0F, -1.0F},
             ImPlotFlags_NoInputs |
