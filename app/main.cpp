@@ -1,18 +1,14 @@
 #include <array>
 #include <chrono>
-#include <cmath>
 #include <cstdint>
-#include <cstdio>
 #include <iostream>
 #include <numbers>
-#include <string>
+#include <limits>
 
 #include "Matrix.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
-#include "SFML/Graphics/PrimitiveType.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -25,6 +21,14 @@ extern const unsigned int arial_ttf_len;
 
 sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y)) * vsScale;
+}
+
+Vec2 unvisualize(const sf::Vector2f& v) {
+    return Vec2(v.x, v.y) / vsScale;
+}
+
+Vec2 unvisualize(const sf::Vector2i& v) {
+    return Vec2(v.x, v.y) / vsScale;
 }
 
 void displayFps(const RingBuffer<Vec2>& fps) {
@@ -100,14 +104,36 @@ int main() {
     sf::Clock
         deltaClock; // for imgui - read https://eliasdaler.github.io/using-imgui-with-sfml-pt1/
     while (window.isOpen()) {
-        std::chrono::system_clock::time_point start =
-            std::chrono::high_resolution_clock::now();
+        std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
 
         // clear poll events for sfml and imgui
         sf::Event event; // NOLINT
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed) window.close();
+            switch (event.type) {
+            case sf::Event::Closed:
+                window.close();
+                break;
+
+            case sf::Event::MouseButtonPressed:
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    Vec2 mousePos = unvisualize(sf::Mouse::getPosition(window));
+                    double closestDist = std::numeric_limits<double>::infinity();
+                    std::size_t closestPos = 0;
+                    for (std::size_t i = 1; i != sim1.points.size(); ++i) {
+                        Vec2 diff = mousePos - sim1.points[i].pos;
+                        double dist = diff.x * diff.x + diff.y * diff.y;
+                        if (dist < closestDist) {
+                            closestDist = dist;
+                            closestPos = i;
+                        }
+                    }
+                    sim1.removePoint(closestPos);
+                }
+                break;
+            default:
+                break;
+            }
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
