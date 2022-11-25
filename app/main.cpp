@@ -23,89 +23,29 @@ float                     vsScale = 0;
 extern unsigned char      arial_ttf[]; // NOLINT
 extern const unsigned int arial_ttf_len;
 
-// class SoftBody {
-//   public:
-//     Vector2<std::uint32_t> size;
-//     Vec2  simPos;
-//     float springConst = 9000;
-//     float dampFact    = 100;
-//     float gap;
-
-//   private:
-//     Matrix<Point>          points;
-//     static constexpr float radius = 0.05F;
-
-//   public:
-//     SoftBody(const Vector2<std::uint32_t>& size_, float gap_, const Vec2& simPos_, float springConst_,
-//              float dampFact_)
-//         : size(size_), simPos(simPos_), springConst(springConst_), dampFact(dampFact_), gap(gap_),
-//           points(size.x, size.y) {
-//         for (int x = 0; x < size.x; x++) {
-//             for (int y = 0; y < size.y; y++) {
-//                 points(x, y) = Point(Vec2(x, y) * gap + simPos, 1.0, radius);
-//             }
-//         }
-//     }
-
-//     void reset() { // evil function
-//         *this = SoftBody(size, gap, simPos, springConst, dampFact);
-//     }
-
-//     void draw(sf::RenderWindow& window) {
-//         for (Point& point: points.v) point.draw(window);
-//     }
-
-//     void simFrame(double deltaTime, double gravity, const std::vector<Polygon>& polys) { // // REMOVE will be in sim
-//         for (int x = 0; x < points.sizeX; x++) {
-//             for (int y = 0; y < points.sizeY; y++) {
-//                 Point& p = points(x, y);
-//                 if (x < points.sizeX - 1) {
-//                     if (y < points.sizeY - 1) {
-//                         Point::springHandler(p, points(x + 1, y + 1), std::numbers::sqrt2 * gap,
-//                                              springConst, dampFact); // down right
-//                     }
-//                     Point::springHandler(p, points(x + 1, y), gap, springConst, dampFact); // right
-//                 }
-//                 if (y < points.sizeY - 1) {
-//                     if (x > 0) {
-//                         Point::springHandler(p, points(x - 1, y + 1), std::numbers::sqrt2 * gap,
-//                                              springConst, dampFact); // down left
-//                     }
-//                     Point::springHandler(p, points(x, y + 1), gap, springConst, dampFact); // down
-//                 }
-//             }
-//         }
-//         for (Point& point: points.v) {
-//             point.update(deltaTime, gravity);
-//         }
-
-//         for (const Polygon& poly: polys) {
-//             for (Point& point: points.v) {
-//                 if (poly.isBounded(point.pos)) point.polyColHandler(poly);
-//             }
-//         }
-//     }
-// };
-
 sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y)) * vsScale;
 }
 
 void displayFps(const RingBuffer<Vec2>& fps) {
-    ImGui::Begin("FPS", NULL, ImGuiWindowFlags_NoMove);
-    ImGui::SetWindowPos({0,0});
+    ImGui::Begin("FPS", NULL,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNav |
+                     ImGuiWindowFlags_NoDecoration);
+    ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
+    ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
     if (ImPlot::BeginPlot(
             "fps", {-1.0F, -1.0F},
             ImPlotFlags_NoInputs |
                 ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a binary
                                         // bitwise operator" this is implots fault
+        ImPlot::SetupLegend(ImPlotLocation_SouthWest);
         ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations); // setup axes
         ImPlot::SetupAxis(ImAxis_Y1, "visual");
-        ImPlot::SetupAxesLimits(0, 160, 0, 100, ImGuiCond_Always);
+        ImPlot::SetupAxesLimits(0, 160, 50, 100, ImGuiCond_Always);
         ImPlot::SetupAxis(ImAxis_Y2, "simulation",
                           ImPlotAxisFlags_Opposite | ImPlotAxisFlags_NoSideSwitch);
         ImPlot::SetupAxisScale(ImAxis_Y2, ImPlotScale_Log10);
-        ImPlot::SetupAxisLimits(ImAxis_Y2, 500, 50000);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, 1000, 50000);
 
         ImPlot::PlotLine("visual", &fps.v[0].x, static_cast<int>(fps.v.size()), 1.0L, 0.0L,
                          ImPlotLineFlags_None, static_cast<int>(fps.pos),
@@ -115,6 +55,8 @@ void displayFps(const RingBuffer<Vec2>& fps) {
                          ImPlotLineFlags_None, static_cast<int>(fps.pos), sizeof(Vec2));
         ImPlot::EndPlot();
     }
+    ImPlot::PopStyleColor(2);
+
     ImGui::End();
 }
 
@@ -149,19 +91,16 @@ int main() {
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
 
-    // SoftBody sb(Vec2I(25, 25), 0.2F, Vec2(3, 0), 10000, 100);
-    // float            gravity = 2
     Sim sim1 = Sim::softbody({25, 25}, {3, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
 
     RingBuffer<Vec2> fps(160);
-    double                                     Vfps = 0;
-    double                                     Sfps = 0;
 
-    std::chrono::_V2::system_clock::time_point last = std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
+    std::chrono::system_clock::time_point last =
+        std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
     sf::Clock
         deltaClock; // for imgui - read https://eliasdaler.github.io/using-imgui-with-sfml-pt1/
     while (window.isOpen()) {
-        std::chrono::_V2::system_clock::time_point start =
+        std::chrono::system_clock::time_point start =
             std::chrono::high_resolution_clock::now();
 
         // clear poll events for sfml and imgui
@@ -177,35 +116,31 @@ int main() {
         std::chrono::nanoseconds sinceVFrame = std::chrono::high_resolution_clock::now() - start;
         while ((sinceVFrame.count() < 10'000'000)) { // TODO: min max avg frames test
             ++simFrames;
-            std::chrono::_V2::system_clock::time_point newLast =
+            std::chrono::system_clock::time_point newLast =
                 std::chrono::high_resolution_clock::now();
             constexpr std::chrono::nanoseconds maxFrame{1'000'000};
             std::chrono::nanoseconds           deltaTime = std::min(newLast - last, maxFrame);
             last                                         = newLast;
 
-            // sb.simFrame(static_cast<double>(deltaTime.count()) / 1e9, gravity, polys);
             sim1.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
             sinceVFrame = std::chrono::high_resolution_clock::now() - start;
         }
 
         // draw
-
         window.clear();
 
-        //imgui windows
-        // displaySimSettings(sb, gravity);
+        // imgui windows
+        //  displaySimSettings(sb, gravity);
         displayFps(fps);
 
         sim1.draw(window);
-        // sb.draw(window);
-        // for (Polygon& poly: polys) poly.draw(window);
 
         ImGui::SFML::Render(window);
         window.display();
 
-        sinceVFrame = std::chrono::high_resolution_clock::now() - start;
-        Sfps = 1e9 * simFrames / static_cast<double>(sinceVFrame.count());
-        Vfps = 1e9 / static_cast<double>(sinceVFrame.count());
+        sinceVFrame       = std::chrono::high_resolution_clock::now() - start;
+        const double Sfps = 1e9 * simFrames / static_cast<double>(sinceVFrame.count());
+        const double Vfps = 1e9 / static_cast<double>(sinceVFrame.count());
         fps.add({Vfps, Sfps});
     }
 

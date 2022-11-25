@@ -14,7 +14,7 @@ class Point {
     Vec2            vel{0, 0}; // set to 0,0
     Vec2            f;
     double          mass = 1.0;
-    float           radius{};
+    float           radius{}; // is only visual therfore float
 
     Point() = default;
 
@@ -48,7 +48,8 @@ class Point {
 
         if (RayCast(poly.points[poly.pointCount - 1], poly.points[0])) inside = !inside;
 
-        for (std::uint32_t x = 0; x < poly.pointCount - 1; x++) { // iterate through all other sides
+        for (std::uint32_t x = 0; x != poly.pointCount - 1;
+             ++x) { // iterate through all other sides
             double dist = DistToEdge(poly.points[x], poly.points[x + 1]);
             if (RayCast(poly.points[x], poly.points[x + 1])) inside = !inside;
             if (closestDist > dist) { // if new closest side found
@@ -96,20 +97,5 @@ class Point {
         double TArea = std::abs((v2.x - v1.x) * (v1.y - pos.y) - (v1.x - pos.x) * (v2.y - v1.y));
         double TBase = (v1 - v2).mag();
         return TArea / TBase;
-    }
-
-    static void springHandler(Point& p1, Point& p2, double stablePoint,
-                              float springConst, // REMOVE will be in sim
-                              float dampFact) {
-        Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"
-        double diffMag  = diff.mag();
-        Vec2   diffNorm = diff / diffMag;
-        double ext      = diffMag - stablePoint;
-        double springf  = -springConst * ext; // -ke spring force and also if a diagonal increase
-                                              // spring constant for stability // test
-        double dampf = diffNorm.dot(p2.vel - p1.vel) * dampFact; // damping force
-        Vec2   force = (springf + dampf) * diffNorm;
-        p1.f += force; // equal and opposite reaction
-        p2.f -= force;
     }
 };

@@ -7,10 +7,10 @@ sf::Vector2f visualize(const Vec2& v);
 
 class Polygon {
   private:
-    void            boundsUp() {
+    void boundsUp() {
         maxBounds = points[0];
         minBounds = points[0];
-        for (std::uint32_t x = 1; x < points.size(); x++) {
+        for (std::size_t x = 1; x != points.size(); x++) {
             maxBounds.x = std::max(maxBounds.x, points[x].x);
             maxBounds.y = std::max(maxBounds.y, points[x].y);
             minBounds.x = std::min(minBounds.x, points[x].x);
@@ -19,16 +19,16 @@ class Polygon {
     }
 
   public:
-    sf::ConvexShape shape; // kind of annoying having to store this same with point TODO
+    sf::ConvexShape   shape; // kind of annoying having to store this same with point TODO
     std::vector<Vec2> points;
     Vec2              maxBounds;
     Vec2              minBounds;
-    std::uint32_t       pointCount;
+    std::size_t       pointCount;
     explicit Polygon(std::vector<Vec2> points_)
-        : points(std::move(points_)), pointCount(static_cast<std::uint32_t>(points.size())) {
+        : points(std::move(points_)), pointCount(points.size()) {
         shape.setPointCount(pointCount);
         boundsUp();
-        for (std::uint32_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));
+        for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
     }
 
     bool isBounded(Vec2 pos) const {
@@ -37,7 +37,7 @@ class Polygon {
     }
 
     void draw(sf::RenderWindow& window) {
-        for (std::uint32_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));
+        for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
         window.draw(shape);
     }
 

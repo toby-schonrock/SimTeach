@@ -3,8 +3,8 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 #include <numbers>
+#include <vector>
 
 #include "Point.hpp"
 #include "Polygon.hpp"
@@ -12,12 +12,12 @@
 #include "Vector2.hpp"
 
 struct Spring {
-    std::array<sf::Vertex, 2> verts;
-    float                     springConst;
-    float                     dampFact;
-    float                     stablePoint;
-    std::uint32_t             p1;
-    std::uint32_t             p2;
+    std::array<sf::Vertex, 2> verts; // TODO perhaps store inderictly to save size (more cacheing)
+    double                    springConst;
+    double                    dampFact;
+    double                    stablePoint;
+    std::size_t               p1;
+    std::size_t               p2;
 };
 
 class Sim {
@@ -25,7 +25,7 @@ class Sim {
     std::vector<Polygon> polys;
     std::vector<Point>   points;
     std::vector<Spring>  springs;
-    float                gravity;
+    double               gravity;
 
     void draw(sf::RenderWindow& window) {
         for (Spring& spring: springs) {
@@ -54,14 +54,12 @@ class Sim {
 
     void addPoint(const Point& p) { points.push_back(p); }
 
-    void removePoint(const std::uint32_t& pos) {
+    void removePoint(const std::size_t& pos) {
         points.erase(points.begin() + static_cast<long long>(pos));
-        remove_if(springs.begin(), springs.end(), [pos](const Spring& s) {
-            return s.p1 == pos || s.p2 == pos;
-        }); // NOLINT idk whats happening here
+        std::erase_if(springs, [pos](const Spring& s) { return s.p1 == pos || s.p2 == pos; });
         for (Spring& s: springs) {
-            if (s.p1 > pos) s.p1--;
-            if (s.p2 > pos) s.p2--;
+            if (s.p1 > pos) --s.p1;
+            if (s.p2 > pos) --s.p2;
         }
     }
 
@@ -79,9 +77,9 @@ class Sim {
         p2.f -= force;
     }
 
-    static Sim softbody(const Vector2<std::uint32_t>& size, const Vec2& simPos, float radius, float gravity, float gap, float springConst,
-             float dampFact) {
-        Sim sim = Sim();
+    static Sim softbody(const Vector2<std::size_t>& size, const Vec2& simPos, float radius,
+                        float gravity, float gap, float springConst, float dampFact) {
+        Sim sim     = Sim();
         sim.gravity = gravity;
 
         sim.polys.reserve(3);
@@ -89,29 +87,41 @@ class Sim {
         sim.polys.push_back(Polygon::Square(Vec2(14, 10), 0.75));
 
         sim.points.reserve(size.x * size.y);
-        for (std::uint32_t x = 0; x < size.x; x++) {
-            for (std::uint32_t y = 0; y < size.y; y++) {
+        for (unsigned x = 0; x != size.x; ++x) {
+            for (unsigned y = 0; y != size.y; ++y) {
                 sim.addPoint({Vec2(x, y) * gap + simPos, 1.0, radius});
             }
         }
 
-        for (std::uint32_t x = 0; x < size.x; x++) {
-            for (std::uint32_t y = 0; y < size.y; y++) {
-                std::uint32_t p = x + y * size.x;
+        for (std::size_t x = 0; x != size.x; ++x) {
+            for (std::size_t y = 0; y != size.y; ++y) {
+                std::size_t p = x + y * size.x;
                 if (x < size.x - 1) {
                     if (y < size.y - 1) {
-                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, p, x + 1 + (y + 1) * size.x}); // down right
+                        sim.springs.push_back({{},
+                                               springConst,
+                                               dampFact,
+                                               std::numbers::sqrt2 * static_cast<double>(gap),
+                                               p,
+                                               x + 1 + (y + 1) * size.x}); // down right
                     }
-                    sim.springs.push_back({{}, springConst, dampFact, gap, p, x + 1 + (y) * size.x}); // right
+                    sim.springs.push_back(
+                        {{}, springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
                 }
                 if (y < size.y - 1) {
                     if (x > 0) {
-                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, p, x - 1 + (y + 1) * size.x}); // down left
+                        sim.springs.push_back({{},
+                                               springConst,
+                                               dampFact,
+                                               std::numbers::sqrt2 * static_cast<double>(gap),
+                                               p,
+                                               x - 1 + (y + 1) * size.x}); // down left
                     }
-                    sim.springs.push_back({{}, springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
+                    sim.springs.push_back(
+                        {{}, springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
                 }
             }
-        }        
+        }
         return sim;
     }
 };

@@ -1,25 +1,24 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
 template <typename T>
 class RingBuffer {
-    public:
+  public:
     std::vector<T> v;
-    std::uint32_t size;
-    std::uint32_t pos = 0;
+    std::size_t    size;
+    std::size_t    pos = 0;
 
-    explicit RingBuffer(const std::uint32_t& size_) : size(size_) {
-        v.reserve(size);
-    }
+    explicit RingBuffer(const std::size_t& size_) : size(size_) { v.reserve(size); }
 
     void add(const T& data) {
         if (v.size() < size) { // if not full add new
-            v.push_back(data); 
+            v.push_back(data);
         } else { // if full increment pos and replace old data
             v[pos] = data;
-            pos++;
+            ++pos;
             if (pos >= size) pos = 0; // wrap
         }
     }
