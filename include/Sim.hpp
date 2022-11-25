@@ -2,8 +2,9 @@
 
 #include <array>
 #include <numbers>
-#include <optional>
+#include <stdexcept>
 #include <vector>
+#include <iostream>
 
 #include "Point.hpp"
 #include "Polygon.hpp"
@@ -56,6 +57,7 @@ class Sim {
     void addPoint(const Point& p) { points.push_back(p); }
 
     void removePoint(const std::size_t& pos) {
+        if (points.empty() || pos >= points.size()) throw std::logic_error("Asking to remove non existant point.");
         points.erase(points.begin() + static_cast<long long>(pos));
         std::erase_if(springs, [pos](const Spring& s) { return s.p1 == pos || s.p2 == pos; });
         for (Spring& s: springs) {
@@ -64,11 +66,10 @@ class Sim {
         }
     }
 
-    std::optional<std::size_t> findClosestPoint(const Vec2 pos,
-                                 double     min = std::numeric_limits<double>::infinity()) const {
+    std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {
         double      closestDist = std::numeric_limits<double>::infinity();
         std::size_t closestPos  = 0;
-        for (std::size_t i = 1; i != points.size(); ++i) {
+        for (std::size_t i = 0; i != points.size(); ++i) {
             Vec2   diff = pos - points[i].pos;
             double dist = diff.x * diff.x + diff.y * diff.y;
             if (dist < closestDist) {
@@ -76,8 +77,7 @@ class Sim {
                 closestPos  = i;
             }
         }
-        if (closestDist > min) return std::nullopt;
-        return closestPos;
+        return std::pair<std::size_t, double>(closestPos, closestDist);
     }
 
     static void springHandler(Point& p1, Point& p2, const Spring& spring) {

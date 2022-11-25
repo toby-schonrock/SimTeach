@@ -3,8 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
-#include <numbers>
 #include <limits>
+#include <numbers>
 #include <optional>
 
 #include "Matrix.hpp"
@@ -19,8 +19,11 @@
 #include "imgui.h"
 #include "implot.h"
 
-const sf::Color selectedColour = sf::Color::Blue;
-float                     vsScale = 0;
+const sf::Color  selectedColour = sf::Color::Blue;
+constexpr double sliceRange     = 0.1;
+constexpr double deleteRange    = 1;
+float            vsScale        = 0;
+
 extern unsigned char      arial_ttf[]; // NOLINT
 extern const unsigned int arial_ttf_len;
 
@@ -28,13 +31,9 @@ sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y)) * vsScale;
 }
 
-Vec2 unvisualize(const sf::Vector2f& v) {
-    return Vec2(v.x, v.y) / vsScale;
-}
+Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, v.y) / vsScale; }
 
-Vec2 unvisualize(const sf::Vector2i& v) {
-    return Vec2(v.x, v.y) / vsScale;
-}
+Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y) / vsScale; }
 
 void displayFps(const RingBuffer<Vec2>& fps) {
     ImGui::Begin("FPS", NULL,
@@ -100,10 +99,10 @@ int main() {
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
 
-    Sim sim1 = Sim::softbody({25, 25}, {3, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
+    Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
 
-    RingBuffer<Vec2> fps(160);
-    std::optional<std::size_t> closestPoint;
+    RingBuffer<Vec2>           fps(160);
+    std::optional<std::size_t> pointLastChanged;
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
@@ -113,10 +112,15 @@ int main() {
         std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
 
         // closest point malarkey
-        if (closestPoint) sim1.points[*closestPoint].shape.setFillColor(sim1.color);
-        Vec2 mousePos = unvisualize(sf::Mouse::getPosition(window));
-        closestPoint = sim1.findClosestPoint(mousePos, 1);
-        if (closestPoint) sim1.points[*closestPoint].shape.setFillColor(selectedColour);
+        if (pointLastChanged) sim1.points[*pointLastChanged].shape.setFillColor(sim1.color);
+        Vec2 mousePos                    = unvisualize(sf::Mouse::getPosition(window));
+        auto [closestPoint, closestDist] = sim1.findClosestPoint(mousePos);
+        if (closestDist < 1) {
+            sim1.points[closestPoint].shape.setFillColor(selectedColour);
+            pointLastChanged = closestPoint;
+        } else {
+            pointLastChanged.reset();
+        }
 
         // clear poll events for sfml and imgui
         sf::Event event; // NOLINT
@@ -129,13 +133,23 @@ int main() {
 
             case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    if (closestPoint) sim1.removePoint(*closestPoint);
+                    if (closestDist < deleteRange) sim1.removePoint(closestPoint);
+                    pointLastChanged.reset();
                 }
                 break;
             default:
                 break;
             }
         }
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && closestDist < sliceRange) {
+            sim1.removePoint(closestPoint);
+            pointLastChanged.reset();
+            auto closest = sim1.findClosestPoint(mousePos);
+            while (closest.second < sliceRange) {
+                sim1.removePoint(closest.first);
+                closest = sim1.findClosestPoint(mousePos);
+            }
+        };
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
