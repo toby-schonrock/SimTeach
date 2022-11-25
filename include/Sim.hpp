@@ -2,15 +2,13 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
+#include <numbers>
 
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/PrimitiveType.hpp"
-#include "SFML/Graphics/Vertex.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "Vector2.hpp"
 
 struct Spring {
@@ -18,8 +16,8 @@ struct Spring {
     float                     springConst;
     float                     dampFact;
     float                     stablePoint;
-    std::size_t               p1;
-    std::size_t               p2;
+    std::uint32_t             p1;
+    std::uint32_t             p2;
 };
 
 class Sim {
@@ -30,7 +28,6 @@ class Sim {
     float                gravity;
 
     void draw(sf::RenderWindow& window) {
-
         for (Spring& spring: springs) {
             spring.verts = {visualize(points[spring.p1].pos), visualize(points[spring.p2].pos)};
             window.draw(spring.verts.data(), 2, sf::Lines);
@@ -57,7 +54,7 @@ class Sim {
 
     void addPoint(const Point& p) { points.push_back(p); }
 
-    void removePoint(const std::size_t& pos) {
+    void removePoint(const std::uint32_t& pos) {
         points.erase(points.begin() + static_cast<long long>(pos));
         remove_if(springs.begin(), springs.end(), [pos](const Spring& s) {
             return s.p1 == pos || s.p2 == pos;
@@ -80,5 +77,41 @@ class Sim {
         Vec2   force = (springf + dampf) * diffNorm;
         p1.f += force; // equal and opposite reaction
         p2.f -= force;
+    }
+
+    static Sim softbody(const Vector2<std::uint32_t>& size, const Vec2& simPos, float radius, float gravity, float gap, float springConst,
+             float dampFact) {
+        Sim sim = Sim();
+        sim.gravity = gravity;
+
+        sim.polys.reserve(3);
+        sim.polys.push_back(Polygon::Square(Vec2(6, 10), -0.75));
+        sim.polys.push_back(Polygon::Square(Vec2(14, 10), 0.75));
+
+        sim.points.reserve(size.x * size.y);
+        for (std::uint32_t x = 0; x < size.x; x++) {
+            for (std::uint32_t y = 0; y < size.y; y++) {
+                sim.addPoint({Vec2(x, y) * gap + simPos, 1.0, radius});
+            }
+        }
+
+        for (std::uint32_t x = 0; x < size.x; x++) {
+            for (std::uint32_t y = 0; y < size.y; y++) {
+                Point& p = sim.points[x + y * size.x];
+                if (x < size.x - 1) {
+                    if (y < size.y - 1) {
+                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, x + y * size.x, x + 1 + (y + 1) * size.x}); // down right
+                    }
+                    sim.springs.push_back({{}, springConst, dampFact, gap, x + y * size.x, x + 1 + (y) * size.x}); // right
+                }
+                if (y < size.y - 1) {
+                    if (x > 0) {
+                        sim.springs.push_back({{}, springConst, dampFact, static_cast<float>(std::numbers::sqrt2) * gap, x + y * size.x, x - 1 + (y + 1) * size.x}); // down left
+                    }
+                    sim.springs.push_back({{}, springConst, dampFact, gap, x + y * size.x, x + (y + 1) * size.x}); // down
+                }
+            }
+        }        
+        return sim;
     }
 };

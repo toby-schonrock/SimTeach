@@ -3,6 +3,7 @@
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
+#include <cstdint>
 
 extern float vsScale;
 
@@ -47,7 +48,7 @@ class Point {
 
         if (RayCast(poly.points[poly.pointCount - 1], poly.points[0])) inside = !inside;
 
-        for (std::size_t x = 0; x < poly.pointCount - 1; x++) { // iterate through all other sides
+        for (std::uint32_t x = 0; x < poly.pointCount - 1; x++) { // iterate through all other sides
             double dist = DistToEdge(poly.points[x], poly.points[x + 1]);
             if (RayCast(poly.points[x], poly.points[x + 1])) inside = !inside;
             if (closestDist > dist) { // if new closest side found

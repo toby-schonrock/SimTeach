@@ -10,7 +10,7 @@ class Polygon {
     void            boundsUp() {
         maxBounds = points[0];
         minBounds = points[0];
-        for (std::size_t x = 1; x < points.size(); x++) {
+        for (std::uint32_t x = 1; x < points.size(); x++) {
             maxBounds.x = std::max(maxBounds.x, points[x].x);
             maxBounds.y = std::max(maxBounds.y, points[x].y);
             minBounds.x = std::min(minBounds.x, points[x].x);
@@ -23,12 +23,12 @@ class Polygon {
     std::vector<Vec2> points;
     Vec2              maxBounds;
     Vec2              minBounds;
-    std::size_t       pointCount;
+    std::uint32_t       pointCount;
     explicit Polygon(std::vector<Vec2> points_)
         : points(std::move(points_)), pointCount(points.size()) {
         shape.setPointCount(pointCount);
         boundsUp();
-        for (std::size_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));
+        for (std::uint32_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));
     }
 
     bool isBounded(Vec2 pos) const {
@@ -37,7 +37,7 @@ class Polygon {
     }
 
     void draw(sf::RenderWindow& window) {
-        for (std::size_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));
+        for (std::uint32_t x = 0; x < points.size(); x++) shape.setPoint(x, visualize(points[x]));
         window.draw(shape);
     }
 

@@ -1,15 +1,16 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 template <typename T>
 class RingBuffer {
     public:
     std::vector<T> v;
-    std::size_t size;
-    std::size_t pos = 0;
+    std::uint32_t size;
+    std::uint32_t pos = 0;
 
-    explicit RingBuffer(const std::size_t& size_) : size(size_) {
+    explicit RingBuffer(const std::uint32_t& size_) : size(size_) {
         v.reserve(size);
     }
 
