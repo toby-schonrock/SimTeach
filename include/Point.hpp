@@ -34,8 +34,6 @@ class Point {
         f += Vec2(0, 1) * (gravity * mass); // add gravity to the force
         vel += (f * deltaTime) / mass;      // euler integration could be improved
         pos += vel * deltaTime;
-        // std::cout << deltaTime << '\n';
-        // std::cout << pos << '\n';
         f = Vec2();
     }
 
@@ -99,7 +97,8 @@ class Point {
         return TArea / TBase;
     }
 
-    static void springHandler(Point& p1, Point& p2, double stablePoint, float springConst, // REMOVE will be in sim
+    static void springHandler(Point& p1, Point& p2, double stablePoint,
+                              float springConst, // REMOVE will be in sim
                               float dampFact) {
         Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"
         double diffMag  = diff.mag();

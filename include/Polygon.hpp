@@ -7,7 +7,6 @@ sf::Vector2f visualize(const Vec2& v);
 
 class Polygon {
   private:
-    sf::ConvexShape shape;
     void            boundsUp() {
         maxBounds = points[0];
         minBounds = points[0];
@@ -20,6 +19,7 @@ class Polygon {
     }
 
   public:
+    sf::ConvexShape shape; // kind of annoying having to store this same with point TODO
     std::vector<Vec2> points;
     Vec2              maxBounds;
     Vec2              minBounds;

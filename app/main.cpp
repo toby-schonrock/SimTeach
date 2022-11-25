@@ -10,6 +10,8 @@
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
+#include "SFML/Graphics/PrimitiveType.hpp"
+#include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -48,7 +50,6 @@ class SoftBody {
     }
 
     void draw(sf::RenderWindow& window) {
-#include <SFML/Graphics.hpp>
         for (Point& point: points.v) point.draw(window);
     }
 
