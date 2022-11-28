@@ -10,6 +10,7 @@
 #include "Matrix.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
+#include "Behaviour.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
@@ -20,7 +21,7 @@
 #include "implot.h"
 
 const sf::Color  selectedColour = sf::Color::Blue;
-constexpr double sliceRange     = 0.1;
+constexpr double sliceRange     = 0.05;
 constexpr double deleteRange    = 1;
 float            vsScale        = 0;
 
@@ -53,7 +54,7 @@ void displayFps(const RingBuffer<Vec2>& fps) {
         ImPlot::SetupAxis(ImAxis_Y2, "simulation",
                           ImPlotAxisFlags_Opposite | ImPlotAxisFlags_NoSideSwitch);
         ImPlot::SetupAxisScale(ImAxis_Y2, ImPlotScale_Log10);
-        ImPlot::SetupAxisLimits(ImAxis_Y2, 1000, 50000);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, 1000, 100000);
 
         ImPlot::PlotLine("visual", &fps.v[0].x, static_cast<int>(fps.v.size()), 1.0L, 0.0L,
                          ImPlotLineFlags_None, static_cast<int>(fps.pos),
@@ -99,7 +100,8 @@ int main() {
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
 
-    Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
+    // Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
+    Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
 
     RingBuffer<Vec2>           fps(160);
     std::optional<std::size_t> pointLastChanged;
@@ -118,7 +120,7 @@ int main() {
         if (closestDist < 1) {
             sim1.points[closestPoint].shape.setFillColor(selectedColour);
             pointLastChanged = closestPoint;
-        } else {
+        } else {    
             pointLastChanged.reset();
         }
 
