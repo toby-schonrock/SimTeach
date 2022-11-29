@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Polygon.hpp"
-#include "SFML/Graphics.hpp"
-#include "SFML/Graphics/Color.hpp"
 #include "Vector2.hpp"
 #include <cstddef>
 

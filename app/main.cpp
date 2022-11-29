@@ -12,8 +12,7 @@
 #include "Polygon.hpp"
 #include "Behaviour.hpp"
 #include "RingBuffer.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/Graphics.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -21,8 +20,6 @@
 #include "implot.h"
 
 const sf::Color  selectedColour = sf::Color::Blue;
-constexpr double sliceRange     = 0.05;
-constexpr double deleteRange    = 1;
 float            vsScale        = 0;
 
 extern unsigned char      arial_ttf[]; // NOLINT
@@ -106,6 +103,8 @@ int main() {
     RingBuffer<Vec2>           fps(160);
     std::optional<std::size_t> pointLastChanged;
 
+    std::unique_ptr<Behaviour> softBody = std::make_unique<SoftBody>();
+
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
     sf::Clock
@@ -128,19 +127,13 @@ int main() {
         sf::Event event; // NOLINT
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
-            switch (event.type) {
-            case sf::Event::Closed:
+            if (event.type == sf::Event::Closed) {
                 window.close();
-                break;
-
-            case sf::Event::MouseButtonPressed:
+            } else if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     if (closestDist < deleteRange) sim1.removePoint(closestPoint);
                     pointLastChanged.reset();
                 }
-                break;
-            default:
-                break;
             }
         }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && closestDist < sliceRange) {
