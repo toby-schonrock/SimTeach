@@ -6,11 +6,12 @@
 #include <limits>
 #include <numbers>
 #include <optional>
+#include <vector>
 
+#include "Behaviour.hpp"
 #include "Matrix.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
-#include "Behaviour.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "Sim.hpp"
@@ -19,8 +20,7 @@
 #include "imgui.h"
 #include "implot.h"
 
-const sf::Color  selectedColour = sf::Color::Blue;
-float            vsScale        = 0;
+float vsScale = 0;
 
 extern unsigned char      arial_ttf[]; // NOLINT
 extern const unsigned int arial_ttf_len;
@@ -98,12 +98,12 @@ int main() {
     ImPlot::CreateContext();
 
     // Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
-    Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
+    // Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
+    Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
 
-    RingBuffer<Vec2>           fps(160);
-    std::optional<std::size_t> pointLastChanged;
+    RingBuffer<Vec2> fps(160);
 
-    std::unique_ptr<Behaviour> softBody = std::make_unique<SoftBody>();
+    std::unique_ptr<Behaviour> behaviour = std::make_unique<SoftBody>();
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
@@ -112,16 +112,7 @@ int main() {
     while (window.isOpen()) {
         std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
 
-        // closest point malarkey
-        if (pointLastChanged) sim1.points[*pointLastChanged].shape.setFillColor(sim1.color);
-        Vec2 mousePos                    = unvisualize(sf::Mouse::getPosition(window));
-        auto [closestPoint, closestDist] = sim1.findClosestPoint(mousePos);
-        if (closestDist < 1) {
-            sim1.points[closestPoint].shape.setFillColor(selectedColour);
-            pointLastChanged = closestPoint;
-        } else {    
-            pointLastChanged.reset();
-        }
+        behaviour->frame(sim1, window);
 
         // clear poll events for sfml and imgui
         sf::Event event; // NOLINT
@@ -129,24 +120,12 @@ int main() {
             ImGui::SFML::ProcessEvent(event);
             if (event.type == sf::Event::Closed) {
                 window.close();
-            } else if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    if (closestDist < deleteRange) sim1.removePoint(closestPoint);
-                    pointLastChanged.reset();
-                }
+            } else {
+                behaviour->event(sim1, event);
             }
         }
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && closestDist < sliceRange) {
-            sim1.removePoint(closestPoint);
-            pointLastChanged.reset();
-            auto closest = sim1.findClosestPoint(mousePos);
-            while (closest.second < sliceRange) {
-                sim1.removePoint(closest.first);
-                closest = sim1.findClosestPoint(mousePos);
-            }
-        };
 
-        ImGui::SFML::Update(window, deltaClock.restart());
+        ImGui::SFML::Update(window, deltaClock.restart()); // what is this
 
         int                      simFrames   = 0;
         std::chrono::nanoseconds sinceVFrame = std::chrono::high_resolution_clock::now() - start;

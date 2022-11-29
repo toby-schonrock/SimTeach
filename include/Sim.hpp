@@ -1,15 +1,19 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
+#include <iostream>
 #include <numbers>
 #include <stdexcept>
 #include <vector>
-#include <iostream>
+#include <cmath>
 
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
+
+sf::Vector2f visualize(const Vec2& v);
 
 struct Spring {
     std::array<sf::Vertex, 2> verts; // TODO perhaps store inderictly to save size (more cacheing)
@@ -56,7 +60,9 @@ class Sim {
     void addPoint(const Point& p) { points.push_back(p); }
 
     void removePoint(const std::size_t& pos) {
-        if (points.empty() || pos >= points.size()) throw std::logic_error("Asking to remove non existant point.");
+        if (points.empty() || pos >= points.size())
+            throw std::logic_error("Asking to remove non existant point.");
+
         points.erase(points.begin() + static_cast<long long>(pos));
         std::erase_if(springs, [pos](const Spring& s) { return s.p1 == pos || s.p2 == pos; });
         for (Spring& s: springs) {
@@ -66,6 +72,7 @@ class Sim {
     }
 
     std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {
+        if (points.empty()) throw std::logic_error("Finding closest point with no points?!? ;)");
         double      closestDist = std::numeric_limits<double>::infinity();
         std::size_t closestPos  = 0;
         for (std::size_t i = 0; i != points.size(); ++i) {
@@ -76,8 +83,24 @@ class Sim {
                 closestPos  = i;
             }
         }
-        return std::pair<std::size_t, double>(closestPos, closestDist);
+        return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
     }
+
+    // returns all points within the range in reverse point order (easier to delete them)
+    std::vector<std::size_t> findPointsInRange(const Vec2& pos, double range) const { 
+        if (points.empty()) throw std::logic_error("Finding points in range with no points?!? ;)");
+        std::vector<std::size_t> pointsInRange;
+        double sqrRange = range * range; 
+        for (std::size_t i = points.size() - 1; i < points.size(); --i) { // uses the wrapping nature of unsigned integers to halt the loop
+            Vec2   diff = pos - points[i].pos;
+            double dist = diff.x * diff.x + diff.y * diff.y;
+            if (dist < sqrRange) {
+                pointsInRange.push_back(i);
+            }
+        }
+        return pointsInRange;
+    }
+
 
     static void springHandler(Point& p1, Point& p2, const Spring& spring) {
         Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"
@@ -94,10 +117,11 @@ class Sim {
     }
 
     static Sim softbody(const Vector2<std::size_t>& size, const Vec2& simPos, float radius,
-                        float gravity, float gap, float springConst, float dampFact, sf::Color color = sf::Color::Red) {
+                        float gravity, float gap, float springConst, float dampFact,
+                        sf::Color color = sf::Color::Red) {
         Sim sim     = Sim();
         sim.gravity = gravity;
-        sim.color = color;
+        sim.color   = color;
 
         sim.polys.reserve(3);
         sim.polys.push_back(Polygon::Square(Vec2(6, 10), -0.75));
