@@ -17,14 +17,12 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Graphics/View.hpp"
 #include "SFML/Window.hpp"
+#include "SFML/Window/Cursor.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "implot.h"
-
-extern unsigned char      arial_ttf[]; // NOLINT
-extern const unsigned int arial_ttf_len;
 
 sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y));
@@ -104,11 +102,17 @@ int main() {
     view.setCenter(size / 2.0F);
     window.setView(view);
     std::optional<sf::Vector2i> mousePosLast;
+    sf::Cursor                  cursorCross;
+    cursorCross.loadFromSystem(sf::Cursor::Cross);
+    sf::Cursor cursorArrow;
+    cursorArrow.loadFromSystem(sf::Cursor::Arrow);
+
+                window.setMouseCursor(cursorCross);
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
 
-    Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
+    Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 5000, 100);
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
     // Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
     // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
@@ -141,8 +145,14 @@ int main() {
                 window.setView(view);
                 break;
             case sf::Event::MouseButtonReleased:
-                if (event.mouseButton.button == sf::Mouse::Middle) mousePosLast.reset();
+                if (event.mouseButton.button == sf::Mouse::Middle) {
+                    mousePosLast.reset();
+                    window.setMouseCursor(cursorArrow);
+                }
                 break;
+            case sf::Event::MouseButtonPressed:
+                if (event.mouseButton.button == sf::Mouse::Middle)
+                    window.setMouseCursor(cursorCross);
             default:
                 behaviour->event(sim1, event);
             }
@@ -152,11 +162,10 @@ int main() {
             if (!mousePosLast)
                 mousePosLast = mousePos;
             else {
-                sf::Vector2i diff = mousePos - *mousePosLast;
+                sf::Vector2i diff = *mousePosLast - mousePos;
                 sf::Vector2f mouseMove =
                     sf::Vector2f(diff) * view.getSize().x / static_cast<float>(screen.x);
-                std::cout << mouseMove.x << ", " << mouseMove.y << "\n";
-                view.move(-mouseMove);
+                view.move(mouseMove);
                 window.setView(view);
                 mousePosLast = mousePos;
             }
