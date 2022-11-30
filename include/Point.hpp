@@ -18,12 +18,12 @@ class Point {
     Point(Vec2 pos_, double mass_, float radius_, sf::Color color) : pos(pos_), mass(mass_), radius(radius_) {
         shape = sf::CircleShape();
         shape.setFillColor(color);
-        shape.setPosition(visualize(pos, vsScale));
-        shape.setOrigin(visualize(Vec2(radius, radius), vsScale));
+        shape.setPosition(visualize(pos));
+        shape.setOrigin(visualize(Vec2(radius, radius)));
     }
 
-    void draw(sf::RenderWindow& window, float vsScale) {
-        shape.setRadius(radius * vsScale);
+    void draw(sf::RenderWindow& window) {
+        shape.setRadius(radius);
         shape.setPosition(visualize(pos));
         window.draw(shape);
     }

@@ -13,7 +13,7 @@
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
 
-sf::Vector2f visualize(const Vec2& v, float vsScale);
+sf::Vector2f visualize(const Vec2& v);
 
 struct Spring {
     std::array<sf::Vertex, 2> verts; // TODO perhaps store inderictly to save size (more cacheing)
@@ -32,13 +32,13 @@ class Sim {
     sf::Color            color;
     double               gravity;
 
-    void draw(sf::RenderWindow& window, float vsScale) {
+    void draw(sf::RenderWindow& window) {
         for (Spring& spring: springs) {
-            spring.verts = {visualize(points[spring.p1].pos, vsScale), visualize(points[spring.p2].pos, vsScale)};
+            spring.verts = {visualize(points[spring.p1].pos), visualize(points[spring.p2].pos)};
             window.draw(spring.verts.data(), 2, sf::Lines);
         }
-        for (Point& point: points) point.draw(window, vsScale);
-        for (Polygon& poly: polys) poly.draw(window, vsScale);
+        for (Point& point: points) point.draw(window);
+        for (Polygon& poly: polys) poly.draw(window);
     }
 
     void simFrame(double deltaTime) {

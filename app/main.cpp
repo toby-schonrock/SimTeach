@@ -15,6 +15,8 @@
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Vector2.hpp"
+#include "SFML/Window/Event.hpp"
+#include "SFML/Window/Mouse.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -24,13 +26,13 @@
 extern unsigned char      arial_ttf[]; // NOLINT
 extern const unsigned int arial_ttf_len;
 
-sf::Vector2f visualize(const Vec2& v, float vsScale) {
-    return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y)) * vsScale;
+sf::Vector2f visualize(const Vec2& v) {
+    return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y));
 }
 
-Vec2 unvisualize(const sf::Vector2f& v, float vsScale) { return Vec2(v.x, v.y) / vsScale; }
+Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, v.y); }
 
-Vec2 unvisualize(const sf::Vector2i& v, float vsScale) { return Vec2(v.x, v.y) / vsScale; }
+Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y); }
 
 void displayFps(const RingBuffer<Vec2>& fps) {
     ImGui::Begin("FPS", NULL,
@@ -87,6 +89,7 @@ int main() {
     sf::VideoMode               desktop = sf::VideoMode::getDesktopMode();
     const Vector2<unsigned int> screen(desktop.width, desktop.height);
     const float vsScale = 25.0F / 512.0F * static_cast<float>(screen.x); // window scaling
+    std::cout << vsScale << "\n";
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -94,11 +97,16 @@ int main() {
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation", sf::Style::Fullscreen,
                             settings); //, sf::Style::Default);
     sf::View view = window.getDefaultView();
+    sf::Vector2f size = window.getDefaultView().getSize() / vsScale; 
+    view.setSize(size);
+    view.setCenter(size / 2.0F);
+    window.setView(view);
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
 
     Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
+    // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
     // Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
     // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
 
@@ -119,15 +127,21 @@ int main() {
         sf::Event event; // NOLINT
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            } else if (event.type == sf::Event::MouseWheelMoved){
-                sf::Vector2f s = window.getDefaultView().getSize(); 
-                view.setSize(s.x * 0.5F, s.y * 0.5F);
-                window.setView(view);
-                // vsScale *= (event.mouseWheel.delta == -1) ? 1 / 1.05F : 1.05F;
-            } else {
-                behaviour->event(sim1, event);
+            switch (event.type) {
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+                case sf::Event::MouseWheelMoved: 
+                    view.zoom((event.mouseWheel.delta == -1) ? 1 / 1.05F : 1.05F);
+                    window.setView(view);
+                    break;
+                case sf::Event::MouseMoved:
+                    if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
+                      view.move(static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y));
+                    }
+                    break;
+                default:
+                    behaviour->event(sim1, event);
             }
         }
 
