@@ -59,6 +59,7 @@ class Sim {
 
     void addPoint(const Point& p) { points.push_back(p); }
 
+    // todo this is slow(maybe) 
     void removePoint(const std::size_t& pos) {
         if (points.empty() || pos >= points.size())
             throw std::logic_error("Asking to remove non existant point.");
