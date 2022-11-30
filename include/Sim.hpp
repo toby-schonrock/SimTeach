@@ -1,12 +1,12 @@
 #pragma once
 
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <numbers>
 #include <stdexcept>
 #include <vector>
-#include <cmath>
 
 #include "Point.hpp"
 #include "Polygon.hpp"
@@ -59,7 +59,7 @@ class Sim {
 
     void addPoint(const Point& p) { points.push_back(p); }
 
-    // todo this is slow(maybe) 
+    // todo this is slow(maybe)
     void removePoint(const std::size_t& pos) {
         if (points.empty() || pos >= points.size())
             throw std::logic_error("Asking to remove non existant point.");
@@ -88,11 +88,12 @@ class Sim {
     }
 
     // returns all points within the range in reverse point order (easier to delete them)
-    std::vector<std::size_t> findPointsInRange(const Vec2& pos, double range) const { 
+    std::vector<std::size_t> findPointsInRange(const Vec2& pos, double range) const {
         if (points.empty()) throw std::logic_error("Finding points in range with no points?!? ;)");
         std::vector<std::size_t> pointsInRange;
-        double sqrRange = range * range; 
-        for (std::size_t i = points.size() - 1; i < points.size(); --i) { // uses the wrapping nature of unsigned integers to halt the loop
+        double                   sqrRange = range * range;
+        for (std::size_t i = points.size() - 1; i < points.size();
+             --i) { // uses the wrapping nature of unsigned integers to halt the loop
             Vec2   diff = pos - points[i].pos;
             double dist = diff.x * diff.x + diff.y * diff.y;
             if (dist < sqrRange) {
@@ -101,7 +102,6 @@ class Sim {
         }
         return pointsInRange;
     }
-
 
     static void springHandler(Point& p1, Point& p2, const Spring& spring) {
         Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"

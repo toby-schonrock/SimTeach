@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <numbers>
 #include <optional>
@@ -14,9 +15,8 @@
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/System/Vector2.hpp"
-#include "SFML/Window/Event.hpp"
-#include "SFML/Window/Mouse.hpp"
+#include "SFML/Graphics/View.hpp"
+#include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -34,14 +34,15 @@ Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, v.y); }
 
 Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y); }
 
-void displayFps(const RingBuffer<Vec2>& fps) {
+void displayStats(const RingBuffer<Vec2>& fps, sf::View& view) {
     ImGui::Begin("FPS", NULL,
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNav |
                      ImGuiWindowFlags_NoDecoration);
+    ImGui::SetWindowSize({-1.0F, -1.0F});
     ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
     if (ImPlot::BeginPlot(
-            "fps", {-1.0F, -1.0F},
+            "fps", {400.0F, 200.0F},
             ImPlotFlags_NoInputs |
                 ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a binary
                                         // bitwise operator" this is implots fault
@@ -63,7 +64,8 @@ void displayFps(const RingBuffer<Vec2>& fps) {
         ImPlot::EndPlot();
     }
     ImPlot::PopStyleColor(2);
-
+    ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
+    ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
     ImGui::End();
 }
 
@@ -88,19 +90,20 @@ void displayFps(const RingBuffer<Vec2>& fps) {
 int main() {
     sf::VideoMode               desktop = sf::VideoMode::getDesktopMode();
     const Vector2<unsigned int> screen(desktop.width, desktop.height);
-    const float vsScale = 25.0F / 512.0F * static_cast<float>(screen.x); // window scaling
-    std::cout << vsScale << "\n";
+    const float                 vsScale = static_cast<float>(screen.x) / 20.0F; // window scaling
+    std::cout << "Scale: " << vsScale << "\n";
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
 
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation", sf::Style::Fullscreen,
                             settings); //, sf::Style::Default);
-    sf::View view = window.getDefaultView();
-    sf::Vector2f size = window.getDefaultView().getSize() / vsScale; 
+    sf::View         view = window.getDefaultView();
+    sf::Vector2f     size = window.getDefaultView().getSize() / vsScale;
     view.setSize(size);
     view.setCenter(size / 2.0F);
     window.setView(view);
+    std::optional<sf::Vector2i> mousePosLast;
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
@@ -121,31 +124,43 @@ int main() {
     while (window.isOpen()) {
         std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
 
-        behaviour->frame(sim1, window);
+        sf::Vector2i mousePos = sf::Mouse::getPosition(
+            window); // mouse position is only accurate to start of frame (it does change)
+        behaviour->frame(sim1, window, mousePos);
 
-        // clear poll events for sfml and imgui
+        // poll events for sfml and imgui
         sf::Event event; // NOLINT
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
             switch (event.type) {
-                case sf::Event::Closed:
-                    window.close();
-                    break;
-                case sf::Event::MouseWheelMoved: 
-                    view.zoom((event.mouseWheel.delta == -1) ? 1 / 1.05F : 1.05F);
-                    window.setView(view);
-                    break;
-                case sf::Event::MouseMoved:
-                    if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
-                      view.move(static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y));
-                    }
-                    break;
-                default:
-                    behaviour->event(sim1, event);
+            case sf::Event::Closed:
+                window.close();
+                break;
+            case sf::Event::MouseWheelMoved:
+                view.zoom((event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F);
+                window.setView(view);
+                break;
+            case sf::Event::MouseButtonReleased:
+                if (event.mouseButton.button == sf::Mouse::Middle) mousePosLast.reset();
+                break;
+            default:
+                behaviour->event(sim1, event);
             }
         }
 
-        ImGui::SFML::Update(window, deltaClock.restart()); // what is this
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
+            if (!mousePosLast)
+                mousePosLast = mousePos;
+            else {
+                sf::Vector2i diff = mousePos - *mousePosLast;
+                sf::Vector2f mouseMove =
+                    sf::Vector2f(diff) * view.getSize().x / static_cast<float>(screen.x);
+                std::cout << mouseMove.x << ", " << mouseMove.y << "\n";
+                view.move(-mouseMove);
+                window.setView(view);
+                mousePosLast = mousePos;
+            }
+        }
 
         int                      simFrames   = 0;
         std::chrono::nanoseconds sinceVFrame = std::chrono::high_resolution_clock::now() - start;
@@ -161,12 +176,14 @@ int main() {
             sinceVFrame = std::chrono::high_resolution_clock::now() - start;
         }
 
-        // draw
-        window.clear();
+        ImGui::SFML::Update(window, deltaClock.restart()); // required for imgui-sfml
 
         // imgui windows
         //  displaySimSettings(sb, gravity);
-        displayFps(fps);
+        displayStats(fps, view);
+
+        // draw
+        window.clear();
 
         sim1.draw(window);
 

@@ -15,7 +15,8 @@ class Point {
 
     Point() = default;
 
-    Point(Vec2 pos_, double mass_, float radius_, sf::Color color) : pos(pos_), mass(mass_), radius(radius_) {
+    Point(Vec2 pos_, double mass_, float radius_, sf::Color color)
+        : pos(pos_), mass(mass_), radius(radius_) {
         shape = sf::CircleShape();
         shape.setFillColor(color);
         shape.setPosition(visualize(pos));
@@ -45,8 +46,7 @@ class Point {
 
         if (RayCast(poly.points[poly.pointCount - 1], poly.points[0])) inside = !inside;
 
-        for (std::size_t i = 0; i != poly.pointCount - 1;
-             ++i) { // iterate through all other sides
+        for (std::size_t i = 0; i != poly.pointCount - 1; ++i) { // iterate through all other sides
             double dist = DistToEdge(poly.points[i], poly.points[i + 1]);
             if (RayCast(poly.points[i], poly.points[i + 1])) inside = !inside;
             if (closestDist > dist) { // if new closest side found

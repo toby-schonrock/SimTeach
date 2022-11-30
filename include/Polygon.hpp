@@ -6,7 +6,6 @@
 sf::Vector2f visualize(const Vec2& v);
 
 class Polygon {
-  private:
     void boundsUp() {
         maxBounds = points[0];
         minBounds = points[0];

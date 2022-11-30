@@ -13,7 +13,5 @@ struct Matrix {
 
     T& operator()(int x_, int y_) { return v[x_ + y_ * sizeX]; }
 
-    const T& operator()(int x_, int y_) const {
-        return v[x_ + y_ * sizeX];
-    }
+    const T& operator()(int x_, int y_) const { return v[x_ + y_ * sizeX]; }
 };
