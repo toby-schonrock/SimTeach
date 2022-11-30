@@ -4,8 +4,6 @@
 #include "Vector2.hpp"
 #include <cstddef>
 
-extern float vsScale;
-
 class Point {
   public:
     sf::CircleShape shape;
@@ -18,13 +16,13 @@ class Point {
     Point() = default;
 
     Point(Vec2 pos_, double mass_, float radius_, sf::Color color) : pos(pos_), mass(mass_), radius(radius_) {
-        shape = sf::CircleShape(radius * vsScale);
+        shape = sf::CircleShape();
         shape.setFillColor(color);
-        shape.setPosition(visualize(pos));
-        shape.setOrigin(visualize(Vec2(radius, radius)));
+        shape.setPosition(visualize(pos, vsScale));
+        shape.setOrigin(visualize(Vec2(radius, radius), vsScale));
     }
 
-    void draw(sf::RenderWindow& window) {
+    void draw(sf::RenderWindow& window, float vsScale) {
         shape.setRadius(radius * vsScale);
         shape.setPosition(visualize(pos));
         window.draw(shape);

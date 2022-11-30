@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <Vector2.hpp>
 
-sf::Vector2f visualize(const Vec2& v);
+sf::Vector2f visualize(const Vec2& v, float vsScale);
 
 class Polygon {
   private:
@@ -24,11 +24,11 @@ class Polygon {
     Vec2              maxBounds;
     Vec2              minBounds;
     std::size_t       pointCount;
-    explicit Polygon(std::vector<Vec2> points_)
+    explicit Polygon(std::vector<Vec2> points_, float vsScale)
         : points(std::move(points_)), pointCount(points.size()) {
         shape.setPointCount(pointCount);
         boundsUp();
-        for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
+        for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x], vsScale));
     }
 
     bool isBounded(Vec2 pos) const {
@@ -36,8 +36,9 @@ class Polygon {
                pos.y <= maxBounds.y;
     }
 
-    void draw(sf::RenderWindow& window) {
-        for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
+    void draw(sf::RenderWindow& window, float vsScale) {
+        // for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x], vsScale));
+        // not nesecarry as it doesn't move
         window.draw(shape);
     }
 
