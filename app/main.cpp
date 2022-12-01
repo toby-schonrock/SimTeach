@@ -104,17 +104,7 @@ int main() {
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
-    // ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
-    ImGui::GetIO().MouseDrawCursor = true;
-    ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
-
-    sf::Cursor                  cursorCross;
-
-    sf::Cursor cursorArrow;
-    cursorArrow.loadFromSystem(sf::Cursor::Arrow);
-        cursorCross.loadFromSystem(sf::Cursor::Hand);
-
-    window.setMouseCursor(cursorCross);
+    ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable cursor overide)
 
     Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 5000, 100);
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
@@ -150,23 +140,16 @@ int main() {
                 break;
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Middle) {
-                    std::cout << "mouse cursor reset \n";
                     mousePosLast.reset();
-                    window.setMouseCursor(cursorArrow);
-                    ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
                 }
                 break;
-            // case sf::Event::MouseButtonPressed:
-            // if (event.mouseButton.button == sf::Mouse::Middle)
-            // window.setMouseCursor(cursorCross);
             default:
                 behaviour->event(sim1, event);
             }
         }
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);      
-            // window.setMouseCursor(cursorArrow);
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
             if (!mousePosLast)
                 mousePosLast = mousePos;
             else {
