@@ -16,6 +16,7 @@
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
@@ -134,10 +135,15 @@ int main() {
             case sf::Event::Closed:
                 window.close();
                 break;
-            case sf::Event::MouseWheelMoved:
-                view.zoom((event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F);
+            case sf::Event::MouseWheelMoved: {
+                // view.zoom((event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F); // old zoom always zoomed centre
+                float zoom = (event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F;
+                sf::Vector2f diff = window.mapPixelToCoords(mousePos) - view.getCenter();
+                view.zoom(zoom);
+                view.move(diff * (1 - zoom));
                 window.setView(view);
                 break;
+            }
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Middle) {
                     mousePosLast.reset();
