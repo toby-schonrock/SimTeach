@@ -149,7 +149,7 @@ int main() {
         }
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very quick and easy took no time)
             if (!mousePosLast)
                 mousePosLast = mousePos;
             else {
