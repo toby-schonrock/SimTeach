@@ -7,6 +7,7 @@
 #include <limits>
 #include <numbers>
 #include <optional>
+#include <type_traits>
 #include <vector>
 
 #include "Behaviour.hpp"
@@ -15,9 +16,7 @@
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Graphics/View.hpp"
 #include "SFML/Window.hpp"
-#include "SFML/Window/Cursor.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -102,15 +101,20 @@ int main() {
     view.setCenter(size / 2.0F);
     window.setView(view);
     std::optional<sf::Vector2i> mousePosLast;
-    sf::Cursor                  cursorCross;
-    cursorCross.loadFromSystem(sf::Cursor::Cross);
-    sf::Cursor cursorArrow;
-    cursorArrow.loadFromSystem(sf::Cursor::Arrow);
-
-                window.setMouseCursor(cursorCross);
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
+    // ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+    ImGui::GetIO().MouseDrawCursor = true;
+    ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+
+    sf::Cursor                  cursorCross;
+
+    sf::Cursor cursorArrow;
+    cursorArrow.loadFromSystem(sf::Cursor::Arrow);
+        cursorCross.loadFromSystem(sf::Cursor::Hand);
+
+    window.setMouseCursor(cursorCross);
 
     Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 5000, 100);
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
@@ -146,19 +150,23 @@ int main() {
                 break;
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Middle) {
+                    std::cout << "mouse cursor reset \n";
                     mousePosLast.reset();
                     window.setMouseCursor(cursorArrow);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
                 }
                 break;
-            case sf::Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Middle)
-                    window.setMouseCursor(cursorCross);
+            // case sf::Event::MouseButtonPressed:
+            // if (event.mouseButton.button == sf::Mouse::Middle)
+            // window.setMouseCursor(cursorCross);
             default:
                 behaviour->event(sim1, event);
             }
         }
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);      
+            // window.setMouseCursor(cursorArrow);
             if (!mousePosLast)
                 mousePosLast = mousePos;
             else {
