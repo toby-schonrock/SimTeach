@@ -31,11 +31,12 @@ Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, v.y); }
 
 Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y); }
 
-void displayStats(const RingBuffer<Vec2>& fps, sf::View& view) {
-    ImGui::Begin("FPS", NULL,
-                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNav |
-                     ImGuiWindowFlags_NoDecoration);
+void displayGUI(const RingBuffer<Vec2>& fps, sf::View& view, drawFlags_& drawFlags) {
+    ImGui::Begin("GUI", NULL,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize);
+    if (ImGui::CollapsingHeader("fps")) {
     ImGui::SetWindowSize({-1.0F, -1.0F});
+    ImGui::SetWindowPos({0.0F, 0.0F});
     ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
     if (ImPlot::BeginPlot(
@@ -61,6 +62,19 @@ void displayStats(const RingBuffer<Vec2>& fps, sf::View& view) {
         ImPlot::EndPlot();
     }
     ImPlot::PopStyleColor(2);
+    }
+
+    static bool springs = false;
+    static bool polygons = true;
+    static bool points = true;
+    ImGui::Checkbox("Springs", &springs);
+    ImGui::Checkbox("Polgons", &polygons);
+    ImGui::Checkbox("Points", &points);
+    drawFlags = drawFlags_None;
+    drawFlags = (drawFlags_)(((springs) ? drawFlags_Springs : 0) | 
+                ((polygons) ? drawFlags_Polygons : 0) |
+                ((points) ? drawFlags_Points : 0));
+    
     ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
     ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
     ImGui::End();
@@ -180,7 +194,7 @@ int main() {
 
         // imgui windows
         //  displaySimSettings(sb, gravity);
-        displayStats(fps, view);
+        displayGUI(fps, view, sim1.drawFlags);
 
         // draw
         window.clear();
