@@ -4,6 +4,7 @@
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
+#include "Vector2.hpp"
 #include <cstddef>
 #include <iostream>
 #include <optional>
@@ -13,10 +14,10 @@ Vec2         unvisualize(const sf::Vector2f& v);
 
 class Behaviour {
   public:
-    Behaviour() = default;
-    virtual void frame(Sim& sim, const sf::RenderWindow& window, const sf::Vector2i& mousePos) = 0;
-    virtual void event(Sim& sim, sf::Event event)                                              = 0;
-    Behaviour(const Behaviour& other) = delete;
+    Behaviour()                                          = default;
+    virtual void frame(Sim& sim, const Vec2& mousePos)   = 0;
+    virtual void event(Sim& sim, const sf::Event& event) = 0;
+    Behaviour(const Behaviour& other)                    = delete;
     Behaviour& operator=(const Behaviour& other) = delete;
 };
 
@@ -31,7 +32,7 @@ class SoftBody : public Behaviour {
   public:
     SoftBody() = default;
 
-    void frame(Sim& sim, const sf::RenderWindow& window, const sf::Vector2i& mousePos) override {
+    void frame(Sim& sim, const Vec2& mousePos) override {
         // if sim has no points nothing to do (may change)
         if (sim.points.size() == 0) return;
 
@@ -40,10 +41,9 @@ class SoftBody : public Behaviour {
                 sim.color); // reset last closest point color as it may not be closest anymore
 
         // determine new closest point
-        Vec2 localMousePos = unvisualize(window.mapPixelToCoords(mousePos));
-        auto close    = sim.findClosestPoint(localMousePos);
-        closestPoint  = close.first;
-        closestDist   = close.second;
+        auto close   = sim.findClosestPoint(mousePos);
+        closestPoint = close.first;
+        closestDist  = close.second;
         // color close point for selection
         if (closestDist < deleteRange) {
             sim.points[*closestPoint].shape.setFillColor(selectedColour);
@@ -58,14 +58,14 @@ class SoftBody : public Behaviour {
             closestPoint.reset();
             if (sim.points.size() == 0) return;
             auto pointsInRange = sim.findPointsInRange(
-                localMousePos, sliceRange); // this is in reverse order so I can delete without errors
+                mousePos, sliceRange); // this is in reverse order so I can delete without errors
             for (std::size_t& p: pointsInRange) {
                 sim.removePoint(p);
             }
         };
     }
 
-    void event(Sim& sim, sf::Event event) override {
+    void event(Sim& sim, const sf::Event& event) override {
         if (closestPoint && event.type == sf::Event::MouseButtonPressed &&
             event.mouseButton.button == sf::Mouse::Left) {
             if (closestDist < deleteRange) {
