@@ -13,15 +13,6 @@
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
 
-enum drawFlags_ {
-    drawFlags_None = 1 << 0,
-    drawFlags_Springs = 1 << 1,
-    drawFlags_Polygons = 1 << 2,
-    drawFlags_Points = 1 << 3
-};
-
-sf::Vector2f visualize(const Vec2& v);
-
 struct Spring {
     std::array<sf::Vertex, 2> verts; // TODO perhaps store inderictly to save size (more cacheing)
     double                    springConst;
@@ -38,22 +29,6 @@ class Sim {
     std::vector<Spring>  springs;
     sf::Color            color;
     double               gravity;
-    drawFlags_           drawFlags;
-
-    void draw(sf::RenderWindow& window) {
-        if (drawFlags & drawFlags_Springs) {
-            for (Spring& spring: springs) {
-                spring.verts = {visualize(points[spring.p1].pos), visualize(points[spring.p2].pos)};
-                window.draw(spring.verts.data(), 2, sf::Lines);
-            }
-        }
-        if (drawFlags & drawFlags_Points) {
-            for (Point& point: points) point.draw(window);
-        }
-        if (drawFlags & drawFlags_Polygons) {
-            for (Polygon& poly: polys) poly.draw(window);
-        }
-    }
 
     void simFrame(double deltaTime) {
         // calculate spring force

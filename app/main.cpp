@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "Behaviour.hpp"
-#include "Matrix.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
