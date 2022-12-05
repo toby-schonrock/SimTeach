@@ -2,9 +2,7 @@
 
 #include "Point.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
-#include "SFML/Window/Keyboard.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
@@ -26,7 +24,7 @@ class Tool {
   public:
     const sf::RenderWindow& window;
     Tool(const sf::RenderWindow& window_) : window(window_) {}
-    virtual void frame(Sim& sim, const Vec2& mousePos)   = 0;
+    virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos)   = 0;
     virtual void event(Sim& sim, const sf::Event& event) = 0;
     Tool(const Tool& other)                              = delete;
     Tool& operator=(const Tool& other) = delete;
@@ -43,7 +41,7 @@ class T_Slice : public Tool {
   public:
     explicit T_Slice(const sf::RenderWindow& window_) : Tool(window_) {}
 
-    void frame(Sim& sim, const Vec2& mousePos) override {
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         // if sim has no points nothing to do (may change)
         if (sim.points.size() == 0) return;
 
@@ -51,6 +49,7 @@ class T_Slice : public Tool {
             sim.points[*closestPoint].shape.setFillColor(
                 sim.color); // reset last closest point color as it may not be closest anymore
 
+        Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
         // determine new closest point
         auto close   = sim.findClosestPoint(mousePos);
         closestPoint = close.first;
@@ -95,6 +94,7 @@ class T_Points : public Tool {
     std::optional<std::size_t>    currentSelected = std::nullopt;
     static constexpr double       toolRange       = 1;
     double                        closestDist     = 0;
+    bool dragPos = false;
 
     void removePoint(Sim& sim, const std::size_t& pos){
         sim.removePoint(pos);
@@ -105,45 +105,18 @@ class T_Points : public Tool {
   public:
     explicit T_Points(const sf::RenderWindow& window_) : Tool(window_) {}
 
-    void frame(Sim& sim, const Vec2& mousePos) override {
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         if (sim.points.size() == 0) return;
 
         if (currentSelected) { // edit menu
-            Point& point = sim.points[*currentSelected];
-
-            // window setup
-            sf::Vector2i pos = window.mapCoordsToPixel(visualize(point.pos));
-            ImGui::Begin("edit", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                             ImGuiWindowFlags_NoCollapse);
-            ImGui::SetWindowPos({static_cast<float>(pos.x), static_cast<float>(pos.y)},
-                                ImGuiCond_Always);
-            ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Once);
-
-            // properties
-            ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
-                             ImGuiSliderFlags_AlwaysClamp);
-
-            ImGui::Text("position:");
-            ImGui::InputDouble("posx", &(point.pos.x));
-            ImGui::InputDouble("posy", &(point.pos.y));
-
-            ImGui::Text("velocity:");
-            ImGui::InputDouble("velx", &(point.vel.x));
-            ImGui::InputDouble("vely", &(point.vel.y));
-
-            // delete
-            if (ImGui::Button("delete")) {
-                removePoint(sim, *currentSelected);
-            }
-            ImGui::Text("LShift + RClick (fast delete)");
-            ImGui::End();
+            IMedit(sim, mousePixPos);
         } else {
             if (closestPoint)
                 sim.points[*closestPoint].shape.setFillColor(
                     sim.color); // reset last closest point color as it may not be closest anymore
 
             // determine new closest point
+            Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
             auto close   = sim.findClosestPoint(mousePos); // NOLINT yes I did thanks :)
             closestPoint = close.first;
             closestDist  = close.second;
@@ -158,7 +131,9 @@ class T_Points : public Tool {
 
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
-            if (currentSelected) { // click off edit
+            if (dragPos) { 
+                if (event.mouseButton.button != sf::Mouse::Middle) dragPos = false; // drag ends on mouse click (except for move)
+            } else if (currentSelected) { // click off edit
                 currentSelected.reset();
             } else if (event.mouseButton.button == sf::Mouse::Left) { // make new point
                 Vec2 pos = unvisualize(
@@ -177,5 +152,54 @@ class T_Points : public Tool {
                 removePoint(sim, *currentSelected);
             }
         }
+    }
+
+    void IMtool() {
+        
+    }
+
+    void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) {
+        Point& point = sim.points[*currentSelected];
+        sf::Vector2i pointPixPos;
+
+        if (dragPos == true) { // if dragging
+            ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+            pointPixPos = mousePixPos;
+            point.pos = unvisualize(window.mapPixelToCoords(mousePixPos));
+        } else { 
+            pointPixPos = window.mapCoordsToPixel(visualize(point.pos));
+        }
+
+        // window setup
+        ImGui::SetNextWindowPos({static_cast<float>(pointPixPos.x) + 10.0F, static_cast<float>(pointPixPos.y) + 10.0F},
+                            ImGuiCond_Always);
+        ImGui::Begin("edit", NULL,
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                            ImGuiWindowFlags_NoCollapse);
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Once);
+
+        // properties
+        ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
+                            ImGuiSliderFlags_AlwaysClamp);
+
+        ImGui::Text("position:");
+        ImGui::SameLine();
+        if (ImGui::Button("drag")) {
+            dragPos = true;
+            sf::Mouse::setPosition(pointPixPos, window);
+        }
+        ImGui::InputDouble("posx", &(point.pos.x));
+        ImGui::InputDouble("posy", &(point.pos.y));
+
+        ImGui::Text("velocity:");
+        ImGui::InputDouble("velx", &(point.vel.x));
+        ImGui::InputDouble("vely", &(point.vel.y));
+
+        // delete
+        if (ImGui::Button("delete")) {
+            removePoint(sim, *currentSelected);
+        }
+        ImGui::Text("LShift + RClick (fast delete)");
+        ImGui::End();
     }
 };

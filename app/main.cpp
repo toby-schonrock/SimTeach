@@ -10,15 +10,13 @@
 #include <type_traits>
 #include <vector>
 
-#include "Behaviour.hpp"
+#include "Tool.hpp"
 #include "GUI.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
-#include "SFML/Window/Event.hpp"
-#include "SFML/Window/Keyboard.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -69,7 +67,7 @@ int main() {
         ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
                                                // cursor overide)
 
-    Sim  sim1    = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 5000, 100);
+    Sim  sim1    = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
     bool running = false;
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
     // Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
@@ -97,7 +95,7 @@ int main() {
                        event.key.code == sf::Keyboard::Space) {
                 running = !running;
             } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
-                gui.event(event);
+                gui.event(event, mousePos);
                 tool->event(sim1, event);
             }
         }
@@ -126,9 +124,8 @@ int main() {
         // draw
         window.clear();
 
-        tool->frame(sim1, unvisualize(window.mapPixelToCoords(mousePos)));
-        gui.frame(mousePos);
-        gui.draw(sim1);
+        tool->frame(sim1, mousePos);
+        gui.frame(sim1, mousePos);
 
         ImGui::SFML::Render(window);
         window.display();

@@ -4,25 +4,19 @@
 
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "implot.h"
 
 sf::Vector2f visualize(const Vec2& v);
 
-enum drawFlags_ {
-    drawFlags_None     = 1 << 0,
-    drawFlags_Springs  = 1 << 1,
-    drawFlags_Polygons = 1 << 2,
-    drawFlags_Points   = 1 << 3
-};
-
 class GUI {
   private:
     sf::RenderWindow& window;
-    drawFlags_                  drawFlags = drawFlags_None;
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
     const float                 vsScale; // window scaling
@@ -40,9 +34,12 @@ class GUI {
         window.setView(view);
     }
 
-    void event(const sf::Event& event) {
+    void event(const sf::Event& event, const sf::Vector2i& mousePixPos) {
         if (event.type == sf::Event::MouseWheelMoved) {
-            view.zoom((event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F);
+            float zoom = (event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F;
+            sf::Vector2f diff = window.mapPixelToCoords(mousePixPos) - view.getCenter();
+            view.zoom(zoom);
+            view.move(diff * (1 - zoom));
             window.setView(view);
         } else if (event.type == sf::Event::MouseButtonReleased) {
             if (event.mouseButton.button == sf::Mouse::Middle) {
@@ -51,7 +48,8 @@ class GUI {
         }
     }
 
-    void frame(const sf::Vector2i& mousePos) {
+    void frame(Sim& sim, const sf::Vector2i& mousePos) {
+        interface(sim);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -68,7 +66,7 @@ class GUI {
         }
     }
 
-    void interface() {
+    void interface(Sim& sim) {
         ImGui::Begin("GUI", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);
@@ -78,7 +76,7 @@ class GUI {
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
             ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
             if (ImPlot::BeginPlot(
-                    "fps", {400.0F, 200.0F},
+                    "fps", {vsScale * 5.0F, vsScale * 2.5F},
                     ImPlotFlags_NoInputs |
                         ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a
                                                 // binary bitwise operator" this is implots fault
@@ -108,29 +106,22 @@ class GUI {
         ImGui::Checkbox("Springs", &springs);
         ImGui::Checkbox("Polgons", &polygons);
         ImGui::Checkbox("Points", &points);
-        drawFlags =
-            (drawFlags_)(((springs) ? drawFlags_Springs : 0) |
-                         ((polygons) ? drawFlags_Polygons : 0) | ((points) ? drawFlags_Points : 0));
-
-        ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
-        ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
-        ImGui::End();
-    }
-
-    void draw(Sim& sim) {
-        interface();
-        if (drawFlags & drawFlags_Springs) {
+        if (springs) {
             for (Spring& spring: sim.springs) {
                 spring.verts = {visualize(sim.points[spring.p1].pos),
                                 visualize(sim.points[spring.p2].pos)};
                 window.draw(spring.verts.data(), 2, sf::Lines);
             }
         }
-        if (drawFlags & drawFlags_Points) {
-            for (Point& point: sim.points) point.draw(window);
-        }
-        if (drawFlags & drawFlags_Polygons) {
+        if (polygons) {
             for (Polygon& poly: sim.polys) poly.draw(window);
         }
+        if (points) {
+            for (Point& point: sim.points) point.draw(window);
+        }
+        
+        ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
+        ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
+        ImGui::End();
     }
 };
