@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+#include <iterator>
 #include <numbers>
 #include <stdexcept>
 #include <vector>
@@ -50,8 +51,10 @@ class Sim {
 
     // todo this is slow(maybe)
     void removePoint(const std::size_t& pos) {
-        if (points.empty() || pos >= points.size())
+        if (points.empty() || pos >= points.size()){
+            std::cout << pos << "\n";
             throw std::logic_error("Asking to remove non existant point.");
+        }
 
         points.erase(points.begin() + static_cast<long long>(pos));
         std::erase_if(springs, [pos](const Spring& s) { return s.p1 == pos || s.p2 == pos; });
@@ -113,7 +116,7 @@ class Sim {
         sim.gravity = gravity;
         sim.color   = color;
 
-        sim.polys.reserve(3);
+        sim.polys.reserve(2);
         sim.polys.push_back(Polygon::Square(Vec2(6, 10), -0.75));
         sim.polys.push_back(Polygon::Square(Vec2(14, 10), 0.75));
 

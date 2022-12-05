@@ -43,8 +43,8 @@ class Polygon {
 
     // static stuff
     static Polygon Square(Vec2 pos, double tilt) {
-        return Polygon({Vec2(4, 0.5) + pos, Vec2(-4, 0.5) + pos, Vec2(-4, -0.5 + tilt) + pos,
-                        Vec2(4, -0.5 - tilt) + pos});
+        return Polygon({Vec2(5, 0.5) + pos, Vec2(-5, 0.5) + pos, Vec2(-5, -0.5 + tilt) + pos,
+                        Vec2(5, -0.5 - tilt) + pos});
     }
 
     static Polygon Triangle(Vec2 pos) {

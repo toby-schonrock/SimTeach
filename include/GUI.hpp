@@ -102,13 +102,12 @@ class GUI {
             ImPlot::PopStyleColor(2);
         }
 
-        static bool springs  = false;
+        static bool springs  = false; // you can remove all the flag malarky by moving the draw functions in here
         static bool polygons = true;
         static bool points   = true;
         ImGui::Checkbox("Springs", &springs);
         ImGui::Checkbox("Polgons", &polygons);
         ImGui::Checkbox("Points", &points);
-        drawFlags = drawFlags_None;
         drawFlags =
             (drawFlags_)(((springs) ? drawFlags_Springs : 0) |
                          ((polygons) ? drawFlags_Polygons : 0) | ((points) ? drawFlags_Points : 0));

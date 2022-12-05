@@ -17,6 +17,8 @@
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
+#include "SFML/Window/Event.hpp"
+#include "SFML/Window/Keyboard.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
@@ -50,7 +52,7 @@ Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y); }
 // }
 
 int main() {
-    sf::VideoMode               desktop = sf::VideoMode::getDesktopMode();
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -62,16 +64,18 @@ int main() {
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
-    ImGui::GetIO().ConfigFlags &=
+    ImGuiIO& imguIO = ImGui::GetIO();
+    imguIO.ConfigFlags &=
         ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
                                                // cursor overide)
 
-    // Sim sim1 = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 5000, 100);
+    Sim  sim1    = Sim::softbody({25, 25}, {5, 0}, 0.05F, 2.0F, 0.2F, 5000, 100);
+    bool running = false;
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
     // Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
-    Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
+    // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
 
-    std::unique_ptr<Behaviour> behaviour = std::make_unique<SoftBody>();
+    std::unique_ptr<Tool> tool = std::make_unique<T_Points>(window);
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
@@ -82,8 +86,6 @@ int main() {
 
         sf::Vector2i mousePos = sf::Mouse::getPosition(
             window); // mouse position is only accurate to start of frame (it does change)
-        behaviour->frame(sim1, unvisualize(window.mapPixelToCoords(mousePos)));
-        gui.frame(mousePos);
 
         // poll events for sfml and imgui
         sf::Event event; // NOLINT
@@ -91,24 +93,32 @@ int main() {
             ImGui::SFML::ProcessEvent(event);
             if (event.type == sf::Event::Closed) {
                 window.close();
-            } else {
+            } else if (event.type == sf::Event::KeyPressed &&
+                       event.key.code == sf::Keyboard::Space) {
+                running = !running;
+            } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
                 gui.event(event);
-                behaviour->event(sim1, event);
+                tool->event(sim1, event);
             }
         }
 
-        int                      simFrames   = 0;
-        std::chrono::nanoseconds sinceVFrame = std::chrono::high_resolution_clock::now() - start;
-        while ((sinceVFrame.count() < 10'000'000)) { // TODO: min max avg frames test
-            ++simFrames;
-            std::chrono::system_clock::time_point newLast =
-                std::chrono::high_resolution_clock::now();
-            constexpr std::chrono::nanoseconds maxFrame{1'000'000};
-            std::chrono::nanoseconds           deltaTime = std::min(newLast - last, maxFrame);
-            last                                         = newLast;
+        int simFrames = 0;
+        std::chrono::nanoseconds sinceVFrame =
+                std::chrono::high_resolution_clock::now() - start;
+        if (running) {
+            while ((sinceVFrame.count() < 10'000'000)) { // TODO: min max avg frames test
+                ++simFrames;
+                std::chrono::system_clock::time_point newLast =
+                    std::chrono::high_resolution_clock::now();
+                constexpr std::chrono::nanoseconds maxFrame{1'000'000};
+                std::chrono::nanoseconds           deltaTime = std::min(newLast - last, maxFrame);
+                last                                         = newLast;
 
-            sim1.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
-            sinceVFrame = std::chrono::high_resolution_clock::now() - start;
+                sim1.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
+                sinceVFrame = std::chrono::high_resolution_clock::now() - start;
+            }
+        } else {
+            while ((sinceVFrame.count() < 10'000'000)) { sinceVFrame = std::chrono::high_resolution_clock::now() - start; } // spin untill frame has passed
         }
 
         ImGui::SFML::Update(window, deltaClock.restart()); // required for imgui-sfml
@@ -116,6 +126,8 @@ int main() {
         // draw
         window.clear();
 
+        tool->frame(sim1, unvisualize(window.mapPixelToCoords(mousePos)));
+        gui.frame(mousePos);
         gui.draw(sim1);
 
         ImGui::SFML::Render(window);
