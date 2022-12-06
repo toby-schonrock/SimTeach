@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Point.hpp"
+#include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
 #include <cstddef>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <optional>
@@ -90,9 +93,10 @@ class T_Points : public Tool {
   private:
     static inline const sf::Color selectedColour  = sf::Color::Magenta;
     static inline const sf::Color hoverColour     = sf::Color::Blue;
+    Point placePoint = Point({0.0F, 0.0F}, 1.0F, 0.05F, sf::Color::Red);
     std::optional<std::size_t>    closestPoint    = std::nullopt;
     std::optional<std::size_t>    currentSelected = std::nullopt;
-    static constexpr double       toolRange       = 1;
+    double       toolRange       = 1;
     double                        closestDist     = 0;
     bool dragPos = false;
 
@@ -106,6 +110,7 @@ class T_Points : public Tool {
     explicit T_Points(const sf::RenderWindow& window_) : Tool(window_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        IMtool();
         if (sim.points.size() == 0) return;
 
         if (currentSelected) { // edit menu
@@ -138,7 +143,8 @@ class T_Points : public Tool {
             } else if (event.mouseButton.button == sf::Mouse::Left) { // make new point
                 Vec2 pos = unvisualize(
                     window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
-                sim.addPoint({pos, 1.0F, 0.05F, sim.color});
+                placePoint.pos = pos;
+                sim.addPoint(placePoint);
             } else if (event.mouseButton.button == sf::Mouse::Right && closestPoint) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) { // fast delete
                     removePoint(sim, *closestPoint);
@@ -155,7 +161,12 @@ class T_Points : public Tool {
     }
 
     void IMtool() {
-        
+        ImGui::Begin("Tool Settings");
+        ImGui::SetWindowSize({-1.0F, -1.0F});
+        PointInputs(placePoint);
+        ImGui_DragDouble("Tool Range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+                            ImGuiSliderFlags_AlwaysClamp);
+        ImGui::End();
     }
 
     void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) {
@@ -179,8 +190,6 @@ class T_Points : public Tool {
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Once);
 
         // properties
-        ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
-                            ImGuiSliderFlags_AlwaysClamp);
 
         ImGui::Text("position:");
         ImGui::SameLine();
@@ -191,9 +200,7 @@ class T_Points : public Tool {
         ImGui::InputDouble("posx", &(point.pos.x));
         ImGui::InputDouble("posy", &(point.pos.y));
 
-        ImGui::Text("velocity:");
-        ImGui::InputDouble("velx", &(point.vel.x));
-        ImGui::InputDouble("vely", &(point.vel.y));
+        PointInputs(point);
 
         // delete
         if (ImGui::Button("delete")) {
@@ -202,4 +209,31 @@ class T_Points : public Tool {
         ImGui::Text("LShift + RClick (fast delete)");
         ImGui::End();
     }
+
+    void PointInputs (Point& point){
+        ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
+                            ImGuiSliderFlags_AlwaysClamp);
+
+        ImGui::SliderFloat("radius", &(point.radius), 0.1F, 10.0F, "%.1f",
+                            ImGuiSliderFlags_AlwaysClamp);
+
+        float imcol[4];
+        ImGui::ColorPicker4("color", imcol);
+        sf::Color sfcol(static_cast<uint8_t>(imcol[0] * 255.0F),
+        static_cast<uint8_t>(imcol[1] * 255.0F),
+        static_cast<uint8_t>(imcol[2] * 255.0F),
+        static_cast<uint8_t>(imcol[3] * 255.0F));
+        point.shape.setFillColor(sf::Color(sfcol));
+        // std::cout << col[0] << ", " << col[1] << ", " << col[2] << ", " << col[3] << "\n"; 
+        std::cout << sfcol.r << ", " << sfcol.g << ", " << sfcol.b << ", " << sfcol.a << "\n"; 
+
+        ImGui::Text("velocity:");
+        ImGui::InputDouble("velx", &(point.vel.x));
+        ImGui::InputDouble("vely", &(point.vel.y));
+        
+    }
 };
+
+// class T_Springs : public Spring {
+
+// }
