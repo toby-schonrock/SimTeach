@@ -4,7 +4,9 @@
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Graphics/Color.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
+#include "SFML/Window/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
@@ -23,13 +25,26 @@ inline bool ImGui_DragDouble(const char* label, double* v, float v_speed = 1.0f,
                              flags);
 }
 
+static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
 class Tool {
   public:
     const sf::RenderWindow& window;
     Tool(const sf::RenderWindow& window_) : window(window_) {}
-    virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos)   = 0;
-    virtual void event(Sim& sim, const sf::Event& event) = 0;
-    Tool(const Tool& other)                              = delete;
+    virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
+    virtual void event(Sim& sim, const sf::Event& event)          = 0;
+    Tool(const Tool& other)                                       = delete;
     Tool& operator=(const Tool& other) = delete;
 };
 
@@ -91,16 +106,16 @@ class T_Slice : public Tool {
 
 class T_Points : public Tool {
   private:
-    static inline const sf::Color selectedColour  = sf::Color::Magenta;
-    static inline const sf::Color hoverColour     = sf::Color::Blue;
-    Point placePoint = Point({0.0F, 0.0F}, 1.0F, 0.05F, sf::Color::Red);
-    std::optional<std::size_t>    closestPoint    = std::nullopt;
+    static inline const sf::Color selectedColour = sf::Color::Magenta;
+    static inline const sf::Color hoverColour    = sf::Color::Blue;
+    Point                         placePoint     = Point({0.0F, 0.0F}, 1.0F, 0.05F, sf::Color::Red);
+    std::optional<std::size_t>    closestPoint   = std::nullopt;
     std::optional<std::size_t>    currentSelected = std::nullopt;
-    double       toolRange       = 1;
+    double                        toolRange       = 1;
     double                        closestDist     = 0;
-    bool dragPos = false;
+    bool                          dragging         = false;
 
-    void removePoint(Sim& sim, const std::size_t& pos){
+    void removePoint(Sim& sim, const std::size_t& pos) {
         sim.removePoint(pos);
         if (*currentSelected == pos) currentSelected.reset();
         if (*closestPoint == pos) closestPoint.reset();
@@ -115,16 +130,16 @@ class T_Points : public Tool {
 
         if (currentSelected) { // edit menu
             IMedit(sim, mousePixPos);
-        } else {
+        } else { // if none selected
             if (closestPoint)
-                sim.points[*closestPoint].shape.setFillColor(
-                    sim.color); // reset last closest point color as it may not be closest anymore
+                sim.points[*closestPoint].updateColor(); // reset last closest point color as it may
+                                                         // not be closest anymore
 
             // determine new closest point
             Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
-            auto close   = sim.findClosestPoint(mousePos); // NOLINT yes I did thanks :)
-            closestPoint = close.first;
-            closestDist  = close.second;
+            auto close    = sim.findClosestPoint(mousePos); // NOLINT yes I did thanks :)
+            closestPoint  = close.first;
+            closestDist   = close.second;
             // color close point for selection
             if (closestDist < toolRange) {
                 sim.points[*closestPoint].shape.setFillColor(hoverColour);
@@ -136,9 +151,11 @@ class T_Points : public Tool {
 
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
-            if (dragPos) { 
-                if (event.mouseButton.button != sf::Mouse::Middle) dragPos = false; // drag ends on mouse click (except for move)
+            if (dragging) {
+                if (event.mouseButton.button != sf::Mouse::Middle)
+                    dragging = false;      // drag ends on mouse click (except for move)
             } else if (currentSelected) { // click off edit
+                sim.points[*currentSelected].updateColor(); // when click off return color to normal
                 currentSelected.reset();
             } else if (event.mouseButton.button == sf::Mouse::Left) { // make new point
                 Vec2 pos = unvisualize(
@@ -161,32 +178,40 @@ class T_Points : public Tool {
     }
 
     void IMtool() {
-        ImGui::Begin("Tool Settings");
-        ImGui::SetWindowSize({-1.0F, -1.0F});
-        PointInputs(placePoint);
-        ImGui_DragDouble("Tool Range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
-                            ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
+        sf::Vector2u windowSize = window.getSize();
+        ImVec2 IMSize = ImGui::GetWindowSize();
+        ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
+        ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+                    ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SetNextTreeNodeOpen()
+        if (ImGui::CollapsingHeader("new point")) {
+            PointInputs(placePoint);
+        }
+        // std::cout << ImGui::GetWindowSize().x << "\n"; // for getting auto size size
         ImGui::End();
     }
 
     void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) {
-        Point& point = sim.points[*currentSelected];
+        Point&       point = sim.points[*currentSelected];
         sf::Vector2i pointPixPos;
 
-        if (dragPos == true) { // if dragging
+        if (dragging == true) { // if dragging
             ImGui::SetMouseCursor(ImGuiMouseCursor_None);
             pointPixPos = mousePixPos;
-            point.pos = unvisualize(window.mapPixelToCoords(mousePixPos));
-        } else { 
+            point.pos   = unvisualize(window.mapPixelToCoords(mousePixPos));
+        } else {
             pointPixPos = window.mapCoordsToPixel(visualize(point.pos));
         }
 
         // window setup
-        ImGui::SetNextWindowPos({static_cast<float>(pointPixPos.x) + 10.0F, static_cast<float>(pointPixPos.y) + 10.0F},
-                            ImGuiCond_Always);
+        ImGui::SetNextWindowPos(
+            {static_cast<float>(pointPixPos.x) + point.shape.getRadius(), static_cast<float>(pointPixPos.y) + point.shape.getRadius()},
+            ImGuiCond_Always);
         ImGui::Begin("edit", NULL,
-                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                            ImGuiWindowFlags_NoCollapse);
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                         ImGuiWindowFlags_NoCollapse);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Once);
 
         // properties
@@ -194,7 +219,7 @@ class T_Points : public Tool {
         ImGui::Text("position:");
         ImGui::SameLine();
         if (ImGui::Button("drag")) {
-            dragPos = true;
+            dragging = true;
             sf::Mouse::setPosition(pointPixPos, window);
         }
         ImGui::InputDouble("posx", &(point.pos.x));
@@ -206,31 +231,32 @@ class T_Points : public Tool {
         if (ImGui::Button("delete")) {
             removePoint(sim, *currentSelected);
         }
-        ImGui::Text("LShift + RClick (fast delete)");
+        ImGui::SameLine();
+        HelpMarker("LShift + RClick (fast delete)");
         ImGui::End();
     }
 
-    void PointInputs (Point& point){
-        ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
-                            ImGuiSliderFlags_AlwaysClamp);
-
-        ImGui::SliderFloat("radius", &(point.radius), 0.1F, 10.0F, "%.1f",
-                            ImGuiSliderFlags_AlwaysClamp);
-
-        float imcol[4];
-        ImGui::ColorPicker4("color", imcol);
-        sf::Color sfcol(static_cast<uint8_t>(imcol[0] * 255.0F),
-        static_cast<uint8_t>(imcol[1] * 255.0F),
-        static_cast<uint8_t>(imcol[2] * 255.0F),
-        static_cast<uint8_t>(imcol[3] * 255.0F));
-        point.shape.setFillColor(sf::Color(sfcol));
-        // std::cout << col[0] << ", " << col[1] << ", " << col[2] << ", " << col[3] << "\n"; 
-        std::cout << sfcol.r << ", " << sfcol.g << ", " << sfcol.b << ", " << sfcol.a << "\n"; 
-
+    void PointInputs(Point& point) {
         ImGui::Text("velocity:");
+        ImGui::SameLine();
+        if (ImGui::Button("reset")) {
+            point.vel = Vec2();
+        }
         ImGui::InputDouble("velx", &(point.vel.x));
         ImGui::InputDouble("vely", &(point.vel.y));
-        
+
+        ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+
+        // akward colour translation stuff // remember point.color does not draw that color (needs a
+        // Point::updateColor())
+        float imcol[4] = {
+            static_cast<float>(point.color.r) / 255, static_cast<float>(point.color.g) / 255,
+            static_cast<float>(point.color.b) / 255, static_cast<float>(point.color.a) / 255};
+        ImGui::ColorPicker4("color", imcol);
+        point.color = sf::Color(
+            static_cast<uint8_t>(imcol[0] * 255.0F), static_cast<uint8_t>(imcol[1] * 255.0F),
+            static_cast<uint8_t>(imcol[2] * 255.0F), static_cast<uint8_t>(imcol[3] * 255.0F));
     }
 };
 

@@ -7,24 +7,27 @@
 class Point {
   public:
     sf::CircleShape shape;
+    sf::Color       color;
     Vec2            pos;
     Vec2            vel{0, 0}; // set to 0,0
     Vec2            f;
     double          mass = 1.0;
-    float           radius{}; // is only visual therfore float
 
     Point() = default;
 
-    Point(Vec2 pos_, double mass_, float radius_, sf::Color color)
-        : pos(pos_), mass(mass_), radius(radius_) {
-        shape = sf::CircleShape();
+    Point(const Vec2& pos_, double mass_, float radius, sf::Color color_)
+        : shape(sf::CircleShape()), color(color_), pos(pos_), mass(mass_) {
         shape.setFillColor(color);
         shape.setPosition(visualize(pos));
+        shape.setRadius(radius);
         shape.setOrigin(visualize(Vec2(radius, radius)));
     }
 
+    void updateColor(){
+        shape.setFillColor(color);
+    }
+
     void draw(sf::RenderWindow& window) {
-        shape.setRadius(radius);
         shape.setPosition(visualize(pos));
         window.draw(shape);
     }

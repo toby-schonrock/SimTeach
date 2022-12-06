@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <Vector2.hpp>
+#include <iostream>
+#include <iterator>
 
 sf::Vector2f visualize(const Vec2& v);
 
@@ -23,14 +25,22 @@ class Polygon {
     Vec2              maxBounds;
     Vec2              minBounds;
     std::size_t       pointCount;
-    explicit Polygon(std::vector<Vec2> points_)
+    explicit Polygon(const std::vector<Vec2>& points_) // lvalue
+        : points(points_), pointCount(points.size()) {
+        shape.setPointCount(pointCount);
+        boundsUp();
+        for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
+    }
+
+    explicit Polygon(std::vector<Vec2>&& points_) // rvalue
         : points(std::move(points_)), pointCount(points.size()) {
         shape.setPointCount(pointCount);
         boundsUp();
         for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
     }
 
-    bool isBounded(Vec2 pos) const {
+
+    bool isBounded(const Vec2& pos) const {
         return pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
                pos.y <= maxBounds.y;
     }
@@ -42,7 +52,7 @@ class Polygon {
     }
 
     // static stuff
-    static Polygon Square(Vec2 pos, double tilt) {
+    static Polygon Square(const Vec2& pos, double tilt) {
         return Polygon({Vec2(5, 0.5) + pos, Vec2(-5, 0.5) + pos, Vec2(-5, -0.5 + tilt) + pos,
                         Vec2(5, -0.5 - tilt) + pos});
     }

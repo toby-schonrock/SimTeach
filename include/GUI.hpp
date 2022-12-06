@@ -9,7 +9,6 @@
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
-#include "imgui_internal.h"
 #include "implot.h"
 
 sf::Vector2f visualize(const Vec2& v);
