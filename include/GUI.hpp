@@ -4,6 +4,9 @@
 
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/PrimitiveType.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"

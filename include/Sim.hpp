@@ -28,7 +28,6 @@ class Sim {
     std::vector<Polygon> polys;
     std::vector<Point>   points;
     std::vector<Spring>  springs;
-    sf::Color            color;
     double               gravity;
 
     void simFrame(double deltaTime) {
@@ -79,6 +78,22 @@ class Sim {
         return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
     }
 
+    std::pair<std::size_t, double> findClosestSpring(const Vec2 pos) const {
+        if (springs.empty()) throw std::logic_error("Finding closest spring with no springs?!? ;)");
+        double      closestDist = std::numeric_limits<double>::infinity();
+        std::size_t closestPos  = 0;
+        for (std::size_t i = 0; i != springs.size(); ++i) {
+            Vec2 springPos = 0.5 * (points[springs[i].p1].pos + points[springs[i].p2].pos); // average of both points 
+            Vec2   diff = pos - springPos;
+            double dist = diff.x * diff.x + diff.y * diff.y;
+            if (dist < closestDist) {
+                closestDist = dist;
+                closestPos  = i;
+            }
+        }
+        return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
+    }
+
     // returns all points within the range in reverse point order (easier to delete them)
     std::vector<std::size_t> findPointsInRange(const Vec2& pos, double range) const {
         if (points.empty()) throw std::logic_error("Finding points in range with no points?!? ;)");
@@ -114,7 +129,6 @@ class Sim {
                         sf::Color color = sf::Color::Red) {
         Sim sim     = Sim();
         sim.gravity = gravity;
-        sim.color   = color;
 
         sim.polys.reserve(2);
         sim.polys.push_back(Polygon::Square(Vec2(6, 10), -0.75));
@@ -123,7 +137,7 @@ class Sim {
         sim.points.reserve(size.x * size.y);
         for (unsigned x = 0; x != size.x; ++x) {
             for (unsigned y = 0; y != size.y; ++y) {
-                sim.addPoint({Vec2(x, y) * gap + simPos, 1.0, radius, sim.color});
+                sim.addPoint({Vec2(x, y) * gap + simPos, 1.0, radius, color});
             }
         }
 

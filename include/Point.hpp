@@ -23,7 +23,7 @@ class Point {
         shape.setOrigin(visualize(Vec2(radius, radius)));
     }
 
-    void updateColor(){
+    void resetColor(){
         shape.setFillColor(color);
     }
 
