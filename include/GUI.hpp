@@ -4,10 +4,6 @@
 
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Graphics/PrimitiveType.hpp"
-#include "SFML/Graphics/RenderStates.hpp"
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
@@ -18,13 +14,13 @@ sf::Vector2f visualize(const Vec2& v);
 
 class GUI {
   private:
-    sf::RenderWindow& window;
+    sf::RenderWindow&           window;
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
     const float                 vsScale; // window scaling
   public:
-    sf::View                    view;
-    RingBuffer<Vec2>            fps       = RingBuffer<Vec2>(160);
+    sf::View         view;
+    RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
 
     GUI(const sf::VideoMode& desktop, sf::RenderWindow& window_)
         : window(window_), screen(desktop.width, desktop.height),
@@ -38,7 +34,7 @@ class GUI {
 
     void event(const sf::Event& event, const sf::Vector2i& mousePixPos) {
         if (event.type == sf::Event::MouseWheelMoved) {
-            float zoom = (event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F;
+            float        zoom = (event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F;
             sf::Vector2f diff = window.mapPixelToCoords(mousePixPos) - view.getCenter();
             view.zoom(zoom);
             view.move(diff * (1 - zoom));
@@ -110,8 +106,8 @@ class GUI {
         ImGui::Checkbox("Points", &points);
         if (springs) {
             for (Spring& spring: sim.springs) {
-                spring.verts = {visualize(sim.points[spring.p1].pos),
-                                visualize(sim.points[spring.p2].pos)};
+                spring.verts[0].position = visualize(sim.points[spring.p1].pos);
+                spring.verts[1].position = visualize(sim.points[spring.p2].pos);
                 window.draw(spring.verts.data(), 2, sf::Lines);
             }
         }
@@ -121,7 +117,7 @@ class GUI {
         if (points) {
             for (Point& point: sim.points) point.draw(window);
         }
-        
+
         ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
         ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
         ImGui::End();

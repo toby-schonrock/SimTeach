@@ -2,8 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <Vector2.hpp>
-#include <iostream>
-#include <iterator>
 
 sf::Vector2f visualize(const Vec2& v);
 
@@ -38,7 +36,6 @@ class Polygon {
         boundsUp();
         for (std::size_t x = 0; x != points.size(); x++) shape.setPoint(x, visualize(points[x]));
     }
-
 
     bool isBounded(const Vec2& pos) const {
         return pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&

@@ -2,7 +2,6 @@
 
 #include "Polygon.hpp"
 #include "Vector2.hpp"
-#include <cstddef>
 
 class Point {
   public:
@@ -23,9 +22,7 @@ class Point {
         shape.setOrigin(visualize(Vec2(radius, radius)));
     }
 
-    void resetColor(){
-        shape.setFillColor(color);
-    }
+    void resetColor() { shape.setFillColor(color); }
 
     void draw(sf::RenderWindow& window) {
         shape.setPosition(visualize(pos));

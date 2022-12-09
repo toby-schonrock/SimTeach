@@ -1,12 +1,6 @@
 #pragma once
 
-#include <array>
-#include <cmath>
-#include <cstddef>
 #include <iostream>
-#include <iterator>
-#include <numbers>
-#include <stdexcept>
 #include <vector>
 
 #include "Point.hpp"
@@ -48,7 +42,7 @@ class Sim {
 
     void addPoint(const Point& p) { points.push_back(p); }
 
-    // todo this is slow(maybe)
+    // TODO this is slow(maybe)
     void removePoint(const std::size_t& pos) {
         if (points.empty() || pos >= points.size()){
             std::cout << pos << "\n";
