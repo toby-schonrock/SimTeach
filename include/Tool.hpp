@@ -6,10 +6,12 @@
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
+#include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -28,8 +30,7 @@ inline bool ImGui_DragDouble(const char* label, double* v, float v_speed = 1.0f,
 static void HelpMarker(const char* desc) // taken from dear imgui demo https://github.com/ocornut/imgui/blob/9aae45eb4a05a5a1f96be1ef37eb503a12ceb889/imgui_demo.cpp#L191
 {
     ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered())
-    {
+    if (ImGui::IsItemHovered()) {
         ImGui::BeginTooltip();
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
         ImGui::TextUnformatted(desc);
@@ -44,8 +45,9 @@ class Tool {
     Tool(const sf::RenderWindow& window_) : window(window_) {}
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
+    virtual void unequip(Sim& sim)                                = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class T_Slice : public Tool {
@@ -54,7 +56,6 @@ class T_Slice : public Tool {
     static constexpr double       sliceRange     = 0.20;
     static constexpr double       deleteRange    = 1;
     std::optional<std::size_t>    closestPoint   = std::nullopt;
-    double                        closestDist    = 0;
 
   public:
     explicit T_Slice(const sf::RenderWindow& window_) : Tool(window_) {}
@@ -64,14 +65,14 @@ class T_Slice : public Tool {
         if (sim.points.size() == 0) return;
 
         if (closestPoint)
-            sim.points[*closestPoint].shape.setFillColor(
-                sim.color); // reset last closest point color as it may not be closest anymore
+            sim.points[*closestPoint]
+                .resetColor(); // reset last closest point color as it may not be closest anymore
 
         Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
         // determine new closest point
         auto close   = sim.findClosestPoint(mousePos);
         closestPoint = close.first;
-        closestDist  = close.second;
+        double closestDist  = close.second;
         // color close point for selection
         if (closestDist < deleteRange) {
             sim.points[*closestPoint].shape.setFillColor(selectedColour);
@@ -102,6 +103,13 @@ class T_Slice : public Tool {
             }
         }
     }
+
+    void unequip(Sim& sim) override {
+        if (closestPoint) {
+            sim.points[*closestPoint].resetColor();
+            closestPoint.reset();
+        }
+    }
 };
 
 class T_Points : public Tool {
@@ -112,8 +120,7 @@ class T_Points : public Tool {
     std::optional<std::size_t>    closestPoint   = std::nullopt;
     std::optional<std::size_t>    currentSelected = std::nullopt;
     double                        toolRange       = 1;
-    double                        closestDist     = 0;
-    bool                          dragging         = false;
+    bool                          dragging        = false;
 
     void removePoint(Sim& sim, const std::size_t& pos) {
         sim.removePoint(pos);
@@ -125,6 +132,8 @@ class T_Points : public Tool {
     explicit T_Points(const sf::RenderWindow& window_) : Tool(window_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) 
+            ImGui::SetMouseCursor(ImGuiMouseCursor_COUNT);
         IMtool();
         if (sim.points.size() == 0) return;
 
@@ -132,14 +141,14 @@ class T_Points : public Tool {
             IMedit(sim, mousePixPos);
         } else { // if none selected
             if (closestPoint)
-                sim.points[*closestPoint].updateColor(); // reset last closest point color as it may
-                                                         // not be closest anymore
+                sim.points[*closestPoint].resetColor(); // reset last closest point color as it may
+                                                        // not be closest anymore
 
             // determine new closest point
             Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
             auto close    = sim.findClosestPoint(mousePos); // NOLINT yes I did thanks :)
             closestPoint  = close.first;
-            closestDist   = close.second;
+            double closestDist   = close.second;
             // color close point for selection
             if (closestDist < toolRange) {
                 sim.points[*closestPoint].shape.setFillColor(hoverColour);
@@ -153,22 +162,22 @@ class T_Points : public Tool {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (dragging) {
                 if (event.mouseButton.button != sf::Mouse::Middle)
-                    dragging = false;      // drag ends on mouse click (except for move)
+                    dragging = false;     // drag ends on mouse click (except for move)
             } else if (currentSelected) { // click off edit
-                sim.points[*currentSelected].updateColor(); // when click off return color to normal
+                sim.points[*currentSelected].resetColor(); // when click off return color to normal
                 currentSelected.reset();
-            } else if (event.mouseButton.button == sf::Mouse::Left) { // make new point
-                Vec2 pos = unvisualize(
-                    window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
-                placePoint.pos = pos;
-                sim.addPoint(placePoint);
-            } else if (event.mouseButton.button == sf::Mouse::Right && closestPoint) {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) { // fast delete
-                    removePoint(sim, *closestPoint);
-                } else { // edit menu
-                    currentSelected = *closestPoint;
-                    sim.points[*currentSelected].shape.setFillColor(selectedColour);
+            } else if (event.mouseButton.button == sf::Mouse::Left) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
+                    if (closestPoint) removePoint(sim, *closestPoint); // only do it if there is a highlighted
+                } else { // make new point
+                    Vec2 pos = unvisualize(
+                        window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
+                    placePoint.pos = pos;
+                    sim.addPoint(placePoint);
                 }
+            } else if (event.mouseButton.button == sf::Mouse::Right && closestPoint) {
+                currentSelected = *closestPoint;
+                sim.points[*currentSelected].shape.setFillColor(selectedColour);
             }
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Delete) {
@@ -177,11 +186,23 @@ class T_Points : public Tool {
         }
     }
 
+    void unequip(Sim& sim) override {
+        dragging = false;
+        if (currentSelected) {
+            sim.points[*currentSelected].resetColor();
+            currentSelected.reset();
+        }
+        if (closestPoint) {
+            sim.points[*closestPoint].resetColor();
+            closestPoint.reset();
+        }
+    }
+
     void IMtool() {
         ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
         sf::Vector2u windowSize = window.getSize();
-        ImVec2 IMSize = ImGui::GetWindowSize();
+        ImVec2       IMSize     = ImGui::GetWindowSize();
         ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
         ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                     ImGuiSliderFlags_AlwaysClamp);
@@ -205,9 +226,9 @@ class T_Points : public Tool {
         }
 
         // window setup
-        ImGui::SetNextWindowPos(
-            {static_cast<float>(pointPixPos.x) + point.shape.getRadius(), static_cast<float>(pointPixPos.y) + point.shape.getRadius()},
-            ImGuiCond_Always);
+        ImGui::SetNextWindowPos({static_cast<float>(pointPixPos.x) + point.shape.getRadius(),
+                                 static_cast<float>(pointPixPos.y) + point.shape.getRadius()},
+                                ImGuiCond_Always);
         ImGui::Begin("edit", NULL,
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                          ImGuiWindowFlags_NoCollapse);
@@ -231,7 +252,7 @@ class T_Points : public Tool {
             removePoint(sim, *currentSelected);
         }
         ImGui::SameLine();
-        HelpMarker("LShift + RClick (fast delete)");
+        HelpMarker("LControl + LClick (fast delete)");
         ImGui::End();
     }
 
@@ -259,6 +280,22 @@ class T_Points : public Tool {
     }
 };
 
-// class T_Springs : public Spring {
+class T_Springs : public Tool {
+  private:
+    std::optional<std::size_t> selectedP1;
+    std::optional<std::size_t> selectedP2;
+    std::optional<std::size_t> selectedS;
+    std::optional<std::size_t> hoveredS;
 
-// }
+  public:
+    explicit T_Springs(const sf::RenderWindow& window_) : Tool(window_) {}
+
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        if (!selectedS) {
+        }
+    }
+
+    void event(Sim& sim, const sf::Event& event) override {}
+
+    void unequip(Sim& sim) override {}
+};
