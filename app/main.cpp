@@ -1,7 +1,5 @@
 #include <array>
 #include <chrono>
-#include <cstddef>
-#include <cstdint>
 #include <iostream>
 #include <iterator>
 #include <limits>
@@ -70,10 +68,10 @@ int main() {
     Sim  sim1    = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
     bool running = false;
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
-    // Sim sim1 = Sim::softbody({25, 25}, {1, -10}, 0.05F, 2.0F, 0.2F, 10000, 100);
+    // Sim sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100);
     // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
 
-    std::unique_ptr<Tool> tool = std::make_unique<T_Points>(window);
+    std::unique_ptr<Tool> tool = std::make_unique<T_Springs>(window);
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now

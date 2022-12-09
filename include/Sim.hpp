@@ -120,7 +120,7 @@ class Sim {
 
     static Sim softbody(const Vector2<std::size_t>& size, const Vec2& simPos, float radius,
                         float gravity, float gap, float springConst, float dampFact,
-                        sf::Color color = sf::Color::Red) {
+                        sf::Color color = sf::Color::Yellow) {
         Sim sim     = Sim();
         sim.gravity = gravity;
 

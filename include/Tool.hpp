@@ -3,6 +3,9 @@
 #include "Point.hpp"
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Vertex.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
@@ -36,11 +39,12 @@ static void HelpMarker(
 
 class Tool {
   protected:
-    virtual void IMtool() = 0;
+    virtual void IMtool()                                          = 0;
+    virtual void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
 
   public:
-    const sf::RenderWindow& window;
-    Tool(const sf::RenderWindow& window_) : window(window_) {}
+    sf::RenderWindow& window;
+    Tool(sf::RenderWindow& window_) : window(window_) {}
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
     virtual void unequip(Sim& sim)                                = 0;
@@ -56,7 +60,7 @@ class T_Slice : public Tool {
     std::optional<std::size_t>    closestPoint   = std::nullopt;
 
   public:
-    explicit T_Slice(const sf::RenderWindow& window_) : Tool(window_) {}
+    explicit T_Slice(sf::RenderWindow& window_) : Tool(window_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         // if sim has no points nothing to do (may change)
@@ -115,88 +119,15 @@ class T_Points : public Tool {
     static inline const sf::Color selectedColour = sf::Color::Magenta;
     static inline const sf::Color hoverColour    = sf::Color::Blue;
     Point                         defPoint       = Point({0.0F, 0.0F}, 1.0F, 0.05F, sf::Color::Red);
-    std::optional<std::size_t>    closestPoint   = std::nullopt;
-    std::optional<std::size_t>    currentSelected = std::nullopt;
-    double                        toolRange       = 1;
-    bool                          dragging        = false;
+    std::optional<std::size_t>    hoveredP       = std::nullopt;
+    std::optional<std::size_t>    selectedP      = std::nullopt;
+    double                        toolRange      = 1;
+    bool                          dragging       = false;
 
     void removePoint(Sim& sim, const std::size_t& pos) {
         sim.removePoint(pos);
-        if (*currentSelected == pos) currentSelected.reset();
-        if (*closestPoint == pos) closestPoint.reset();
-    }
-
-  public:
-    explicit T_Points(const sf::RenderWindow& window_) : Tool(window_) {}
-
-    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
-        // if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
-
-        // }
-        // TODO: make custom delete cursor (bin)
-        IMtool();
-        if (sim.points.size() == 0) return;
-
-        if (currentSelected) { // edit menu
-            IMedit(sim, mousePixPos);
-        } else { // if none selected
-            if (closestPoint)
-                sim.points[*closestPoint].resetColor(); // reset last closest point color as it may
-                                                        // not be closest anymore
-
-            // determine new closest point
-            Vec2 mousePos      = unvisualize(window.mapPixelToCoords(mousePixPos));
-            auto close         = sim.findClosestPoint(mousePos); // NOLINT yes I did thanks :)
-            closestPoint       = close.first;
-            double closestDist = close.second;
-            // color close point for selection
-            if (closestDist < toolRange) {
-                sim.points[*closestPoint].shape.setFillColor(hoverColour);
-            } else {
-                closestPoint.reset();
-            }
-        }
-    }
-
-    void event(Sim& sim, const sf::Event& event) override {
-        if (event.type == sf::Event::MouseButtonPressed) {
-            if (dragging) {
-                if (event.mouseButton.button != sf::Mouse::Middle)
-                    dragging = false;     // drag ends on mouse click (except for move)
-            } else if (currentSelected) { // click off edit
-                sim.points[*currentSelected].resetColor(); // when click off return color to normal
-                currentSelected.reset();
-            } else if (event.mouseButton.button == sf::Mouse::Left) {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
-                    if (closestPoint)
-                        removePoint(sim, *closestPoint); // only do it if there is a highlighted
-                } else {                                 // make new point
-                    Vec2 pos = unvisualize(
-                        window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
-                    defPoint.pos = pos;
-                    sim.addPoint(defPoint);
-                }
-            } else if (event.mouseButton.button == sf::Mouse::Right && closestPoint) {
-                currentSelected = *closestPoint;
-                sim.points[*currentSelected].shape.setFillColor(selectedColour);
-            }
-        } else if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Delete) {
-                removePoint(sim, *currentSelected);
-            }
-        }
-    }
-
-    void unequip(Sim& sim) override {
-        dragging = false;
-        if (currentSelected) {
-            sim.points[*currentSelected].resetColor();
-            currentSelected.reset();
-        }
-        if (closestPoint) {
-            sim.points[*closestPoint].resetColor();
-            closestPoint.reset();
-        }
+        if (*selectedP == pos) selectedP.reset();
+        if (*hoveredP == pos) hoveredP.reset();
     }
 
     void IMtool() override {
@@ -216,8 +147,8 @@ class T_Points : public Tool {
         ImGui::End();
     }
 
-    void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) {
-        Point&       point = sim.points[*currentSelected];
+    void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        Point&       point = sim.points[*selectedP];
         sf::Vector2i pointPixPos;
 
         if (dragging == true) { // if dragging
@@ -229,9 +160,9 @@ class T_Points : public Tool {
         }
 
         // window setup
-        ImGui::SetNextWindowPos({static_cast<float>(pointPixPos.x) + point.shape.getRadius(),
-                                 static_cast<float>(pointPixPos.y) + point.shape.getRadius()},
-                                ImGuiCond_Always);
+        ImGui::SetNextWindowPos(
+            {static_cast<float>(pointPixPos.x) + 10.0F, static_cast<float>(pointPixPos.y) + 10.0F},
+            ImGuiCond_Always);
         ImGui::Begin("edit", NULL,
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                          ImGuiWindowFlags_NoCollapse);
@@ -252,10 +183,10 @@ class T_Points : public Tool {
 
         // delete
         if (ImGui::Button("delete")) {
-            removePoint(sim, *currentSelected);
+            removePoint(sim, *selectedP);
         }
         ImGui::SameLine();
-        HelpMarker("LControl + LClick (fast delete)");
+        HelpMarker("LControl + LClick or Delete");
         ImGui::End();
     }
 
@@ -281,40 +212,177 @@ class T_Points : public Tool {
             static_cast<uint8_t>(imcol[0] * 255.0F), static_cast<uint8_t>(imcol[1] * 255.0F),
             static_cast<uint8_t>(imcol[2] * 255.0F), static_cast<uint8_t>(imcol[3] * 255.0F));
     }
+
+  public:
+    explicit T_Points(sf::RenderWindow& window_) : Tool(window_) {}
+
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        // if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+
+        // }
+        // TODO: make custom delete cursor (bin)
+        IMtool();
+        if (sim.points.size() == 0) return;
+
+        if (selectedP) { // edit menu
+            IMedit(sim, mousePixPos);
+        } else { // if none selected
+            if (hoveredP) {
+                sim.points[*hoveredP].resetColor(); // reset last closest point color as it may
+                hoveredP.reset();                   // not be closest anymore
+            }
+
+            // determine new closest point
+            auto [closestPoint, closestDist] = sim.findClosestPoint(
+                unvisualize(window.mapPixelToCoords(mousePixPos))); // NOLINT yes I did thanks :)
+            // color close point for selection
+            if (closestDist < toolRange) {
+                hoveredP = closestPoint;
+                sim.points[*hoveredP].shape.setFillColor(hoverColour);
+            }
+        }
+    }
+
+    void event(Sim& sim, const sf::Event& event) override {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (dragging) {
+                if (event.mouseButton.button != sf::Mouse::Middle)
+                    dragging = false;                // drag ends on mouse click (except for move)
+            } else if (selectedP) {                  // click off edit
+                sim.points[*selectedP].resetColor(); // when click off return color to normal
+                selectedP.reset();
+            } else if (event.mouseButton.button == sf::Mouse::Left) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
+                    if (hoveredP)
+                        removePoint(sim, *hoveredP); // only do it if there is a highlighted
+                } else {                             // make new point
+                    Vec2 pos = unvisualize(
+                        window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
+                    defPoint.pos = pos;
+                    sim.addPoint(defPoint);
+                }
+            } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) {
+                selectedP = *hoveredP;
+                hoveredP.reset();
+                sim.points[*selectedP].shape.setFillColor(selectedColour);
+            }
+        } else if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
+                if (selectedP) {
+                    removePoint(sim, *selectedP);
+                } else if (hoveredP) {
+                    removePoint(sim, *hoveredP);
+                }
+            }
+        }
+    }
+
+    void unequip(Sim& sim) override {
+        dragging = false;
+        if (selectedP) {
+            sim.points[*selectedP].resetColor();
+            selectedP.reset();
+        }
+        if (hoveredP) {
+            sim.points[*hoveredP].resetColor();
+            hoveredP.reset();
+        }
+    }
 };
 
 class T_Springs : public Tool {
   private:
-    std::optional<std::size_t> selectedS       = std::nullopt;
-    std::optional<std::size_t> hoveredS        = std::nullopt;
-    std::optional<std::size_t> closestPoint    = std::nullopt;
-    std::optional<std::size_t> currentSelected = std::nullopt;
-    void                       IMtool() override {}
+    static inline const sf::Color selectedColour = sf::Color::Magenta;
+    static inline const sf::Color hoverColour    = sf::Color::Blue;
+    Spring                        defSpring{};
+    std::array<sf::Vertex, 2>     line;
+    std::optional<std::size_t>    selectedS = std::nullopt;
+    std::optional<std::size_t>    hoveredS  = std::nullopt;
+    std::optional<std::size_t>    selectedP = std::nullopt;
+    std::optional<std::size_t>    hoveredP  = std::nullopt;
+    double                        toolRange = 1;
+
+    void IMtool() override {}
+
+    void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) override {}
 
   public:
-    explicit T_Springs(const sf::RenderWindow& window_) : Tool(window_) {}
+    explicit T_Springs(sf::RenderWindow& window_) : Tool(window_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         IMtool();
 
         if (sim.points.size() == 0) return; // tool is useless if there are no points
 
-        if (!selectedS) {
+        // hover stuff
+        if (hoveredP) {
+            sim.points[*hoveredP].resetColor(); // reset last closest point color as it may
+            hoveredP.reset();                   // not be closest anymore
+        }
+
+        // determine new closest point
+        sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
+        auto [closestPoint, closestDist] =
+            sim.findClosestPoint(unvisualize(mousePos)); // NOLINT yes I did thanks :)
+        // color close point for selection
+        if (closestDist < toolRange &&
+            (!selectedP ||
+             *selectedP !=
+                 closestPoint)) { // if (in range) and (not selected or the selected != closest)
+            hoveredP = closestPoint;
+            sim.points[*hoveredP].shape.setFillColor(hoverColour);
+        }
+
+        if (selectedP) { // if selected
+            line[0].position = visualize(sim.points[*selectedP].pos);
+            if (hoveredP) {
+                auto pos = std::find_if(sim.springs.begin(), sim.springs.end(), // check if spring already exists
+                                        [hp = *hoveredP, sp = *selectedP](const Spring& s) {
+                                            return (s.p1 == hp && s.p2 == sp) ||
+                                                   (s.p1 == sp && s.p2 == hp);
+                                        });
+
+                line[1].position = visualize(sim.points[*hoveredP].pos); 
+                if (pos == sim.springs.end()) {
+                    line[0].color = sf::Color::Green;
+                    line[1].color = sf::Color::Green;
+                } else {
+                    line[0].color = sf::Color::Red;
+                    line[1].color = sf::Color::Red;
+                }
+            } else {
+                line[1].position = mousePos;
+                line[0].color    = sf::Color::Red;
+                line[1].color    = sf::Color::Red;
+            }
+            window.draw(line.data(), 2, sf::Lines);
+
+            IMedit(sim, mousePixPos);
         }
     }
 
-    void event(Sim& sim, const sf::Event& event) override {}
+    void event(Sim& sim, const sf::Event& event) override {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                if (hoveredP) {
+                    selectedP = *hoveredP;
+                    hoveredP.reset();
+                    sim.points[*selectedP].shape.setFillColor(selectedColour);
+                }
+            }
+        }
+    }
 
     void unequip(Sim& sim) override {
-        if (currentSelected) {
-            sim.points[*currentSelected].resetColor();
-            currentSelected.reset();
+        if (selectedP) {
+            sim.points[*selectedP].resetColor();
+            selectedP.reset();
         }
-        if (closestPoint) {
-            sim.points[*closestPoint].resetColor();
-            closestPoint.reset();
+        if (hoveredP) {
+            sim.points[*hoveredP].resetColor();
+            hoveredP.reset();
         }
-        selectedS.reset();
-        hoveredS.reset();
+        selectedS.reset(); // TODO remember to reset colour
+        hoveredS.reset();  // same here
     }
 };
