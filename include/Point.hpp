@@ -76,8 +76,6 @@ class Point {
         if (deltaX == 0.0)
             return false; // if vertices form a verticle line a verticle line cannot intersect
         double deltaY = v2.y - v1.y;
-        // Debug.DrawLine(Vector3.zero, new Vector3(tPos.x - 1, Mathf.Abs(v1.x - tPos.x) / deltaX *
-        // deltaY + v1.y - 1, 0), Color.green);
         return std::abs(v1.x - pos.x) / deltaX * deltaY + v1.y > pos.y;
     }
 

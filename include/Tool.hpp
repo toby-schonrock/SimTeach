@@ -25,7 +25,7 @@ inline bool ImGui_DragDouble(const char* label, double* v, float v_speed = 1.0f,
                              flags);
 }
 
-static void HelpMarker(const char* desc)
+static void HelpMarker(const char* desc) // taken from dear imgui demo https://github.com/ocornut/imgui/blob/9aae45eb4a05a5a1f96be1ef37eb503a12ceb889/imgui_demo.cpp#L191
 {
     ImGui::TextDisabled("(?)");
     if (ImGui::IsItemHovered())
@@ -185,7 +185,6 @@ class T_Points : public Tool {
         ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
         ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                     ImGuiSliderFlags_AlwaysClamp);
-        ImGui::SetNextTreeNodeOpen()
         if (ImGui::CollapsingHeader("new point")) {
             PointInputs(placePoint);
         }
