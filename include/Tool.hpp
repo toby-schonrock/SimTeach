@@ -10,6 +10,7 @@
 #include "Sim.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
+#include <cmath>
 #include <iostream>
 #include <optional>
 
@@ -296,11 +297,12 @@ class T_Springs : public Tool {
     static inline const sf::Color hoverColour    = sf::Color::Blue;
     Spring                        defSpring{};
     std::array<sf::Vertex, 2>     line;
-    std::optional<std::size_t>    selectedS = std::nullopt;
-    std::optional<std::size_t>    hoveredS  = std::nullopt;
-    std::optional<std::size_t>    selectedP = std::nullopt;
-    std::optional<std::size_t>    hoveredP  = std::nullopt;
-    double                        toolRange = 1;
+    std::optional<std::size_t>    selectedS  = std::nullopt;
+    std::optional<std::size_t>    hoveredS   = std::nullopt;
+    std::optional<std::size_t>    selectedP  = std::nullopt;
+    std::optional<std::size_t>    hoveredP   = std::nullopt;
+    double                        toolRange  = 1;
+    bool                          validHover = false; // wether the current hover is an acceptable second point
 
     void IMtool() override {}
 
@@ -310,6 +312,7 @@ class T_Springs : public Tool {
     explicit T_Springs(sf::RenderWindow& window_) : Tool(window_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        validHover = false;
         IMtool();
 
         if (sim.points.size() == 0) return; // tool is useless if there are no points
@@ -336,16 +339,17 @@ class T_Springs : public Tool {
         if (selectedP) { // if selected
             line[0].position = visualize(sim.points[*selectedP].pos);
             if (hoveredP) {
-                auto pos = std::find_if(sim.springs.begin(), sim.springs.end(), // check if spring already exists
-                                        [hp = *hoveredP, sp = *selectedP](const Spring& s) {
-                                            return (s.p1 == hp && s.p2 == sp) ||
-                                                   (s.p1 == sp && s.p2 == hp);
-                                        });
+                auto pos = std::find_if(
+                    sim.springs.begin(), sim.springs.end(), // check if spring already exists
+                    [hp = *hoveredP, sp = *selectedP](const Spring& s) {
+                        return (s.p1 == hp && s.p2 == sp) || (s.p1 == sp && s.p2 == hp);
+                    });
 
-                line[1].position = visualize(sim.points[*hoveredP].pos); 
+                line[1].position = visualize(sim.points[*hoveredP].pos);
                 if (pos == sim.springs.end()) {
                     line[0].color = sf::Color::Green;
                     line[1].color = sf::Color::Green;
+                    validHover = true;
                 } else {
                     line[0].color = sf::Color::Red;
                     line[1].color = sf::Color::Red;
@@ -355,16 +359,20 @@ class T_Springs : public Tool {
                 line[0].color    = sf::Color::Red;
                 line[1].color    = sf::Color::Red;
             }
-            window.draw(line.data(), 2, sf::Lines);
 
             IMedit(sim, mousePixPos);
         }
+        window.draw(line.data(), 2, sf::Lines);
     }
 
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                if (hoveredP) {
+                if (selectedP) {
+                    if (validHover) { // if the hover is valid make new spring
+                        
+                    }
+                } else if (hoveredP) {
                     selectedP = *hoveredP;
                     hoveredP.reset();
                     sim.points[*selectedP].shape.setFillColor(selectedColour);
