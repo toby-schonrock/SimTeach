@@ -13,6 +13,7 @@
 #include <cmath>
 #include <iostream>
 #include <optional>
+#include <string_view>
 
 sf::Vector2f visualize(const Vec2& v);
 Vec2         unvisualize(const sf::Vector2f& v);
@@ -40,15 +41,16 @@ static void HelpMarker(
 
 class Tool {
   protected:
-    virtual void IMtool()                                          = 0;
     virtual void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
 
   public:
     sf::RenderWindow& window;
-    Tool(sf::RenderWindow& window_) : window(window_) {}
+    std::string_view name;
+    Tool(sf::RenderWindow& window_, std::string_view name_) : window(window_), name(name_) {}
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
     virtual void unequip(Sim& sim)                                = 0;
+    virtual void IMtool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
     Tool& operator=(const Tool& other) = delete;
 };
@@ -61,7 +63,7 @@ class T_Slice : public Tool {
     std::optional<std::size_t>    closestPoint   = std::nullopt;
 
   public:
-    explicit T_Slice(sf::RenderWindow& window_) : Tool(window_) {}
+    T_Slice(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         // if sim has no points nothing to do (may change)
@@ -131,23 +133,6 @@ class T_Points : public Tool {
         if (*hoveredP == pos) hoveredP.reset();
     }
 
-    void IMtool() override {
-        ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
-        sf::Vector2u windowSize = window.getSize();
-        ImVec2       IMSize     = ImGui::GetWindowSize();
-        ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
-        ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
-                         ImGuiSliderFlags_AlwaysClamp);
-        if (ImGui::CollapsingHeader(
-                "new point",
-                ImGuiTreeNodeFlags_DefaultOpen |
-                    ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
-            PointInputs(defPoint);
-        }
-        ImGui::End();
-    }
-
     void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) override {
         Point&       point = sim.points[*selectedP];
         sf::Vector2i pointPixPos;
@@ -215,14 +200,13 @@ class T_Points : public Tool {
     }
 
   public:
-    explicit T_Points(sf::RenderWindow& window_) : Tool(window_) {}
+    T_Points(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         // if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
 
         // }
         // TODO: make custom delete cursor (bin)
-        IMtool();
         if (sim.points.size() == 0) return;
 
         if (selectedP) { // edit menu
@@ -289,6 +273,17 @@ class T_Points : public Tool {
             hoveredP.reset();
         }
     }
+
+    void IMtool() override {
+        ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        if (ImGui::CollapsingHeader(
+                "new point",
+                ImGuiTreeNodeFlags_DefaultOpen |
+                    ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
+            PointInputs(defPoint);
+        }
+    }
 };
 
 class T_Springs : public Tool {
@@ -297,23 +292,20 @@ class T_Springs : public Tool {
     static inline const sf::Color hoverColour    = sf::Color::Blue;
     Spring                        defSpring{};
     std::array<sf::Vertex, 2>     line;
-    std::optional<std::size_t>    selectedS  = std::nullopt;
-    std::optional<std::size_t>    hoveredS   = std::nullopt;
-    std::optional<std::size_t>    selectedP  = std::nullopt;
-    std::optional<std::size_t>    hoveredP   = std::nullopt;
-    double                        toolRange  = 1;
-    bool                          validHover = false; // wether the current hover is an acceptable second point
-
-    void IMtool() override {}
+    std::optional<std::size_t>    selectedS = std::nullopt;
+    std::optional<std::size_t>    hoveredS  = std::nullopt;
+    std::optional<std::size_t>    selectedP = std::nullopt;
+    std::optional<std::size_t>    hoveredP  = std::nullopt;
+    double                        toolRange = 1;
+    bool validHover = false; // wether the current hover is an acceptable second point
 
     void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) override {}
 
   public:
-    explicit T_Springs(sf::RenderWindow& window_) : Tool(window_) {}
+    T_Springs(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         validHover = false;
-        IMtool();
 
         if (sim.points.size() == 0) return; // tool is useless if there are no points
 
@@ -349,7 +341,7 @@ class T_Springs : public Tool {
                 if (pos == sim.springs.end()) {
                     line[0].color = sf::Color::Green;
                     line[1].color = sf::Color::Green;
-                    validHover = true;
+                    validHover    = true;
                 } else {
                     line[0].color = sf::Color::Red;
                     line[1].color = sf::Color::Red;
@@ -394,5 +386,10 @@ class T_Springs : public Tool {
         }
         selectedS.reset(); // TODO remember to reset colour
         hoveredS.reset();  // same here
+    }
+
+    void IMtool() override {
+        ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
     }
 };

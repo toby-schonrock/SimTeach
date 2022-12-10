@@ -1,10 +1,12 @@
 #include <array>
 #include <chrono>
+#include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <limits>
 #include <numbers>
 #include <optional>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -67,11 +69,14 @@ int main() {
 
     Sim  sim1    = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
     bool running = false;
+    std::size_t selectedTool = 0;
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
     // Sim sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100);
     // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
-
-    std::unique_ptr<Tool> tool = std::make_unique<T_Springs>(window);
+    
+    std::vector<std::unique_ptr<Tool>> tools;
+    tools.push_back(std::make_unique<T_Points>(window, "point"));
+    tools.push_back(std::make_unique<T_Springs>(window, "string"));
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
@@ -114,7 +119,7 @@ int main() {
                 running = !running;
             } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
                 gui.event(event, mousePos);
-                tool->event(sim1, event);
+                tools[selectedTool]->event(sim1, event);
             }
         }
 
@@ -123,7 +128,25 @@ int main() {
         // draw
         window.clear();
 
-        tool->frame(sim1, mousePos);
+        ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
+        sf::Vector2u windowSize = window.getSize();
+        ImVec2       IMSize     = ImGui::GetWindowSize();
+        ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
+        if (ImGui::BeginTabBar("Tools")) {
+            for (std::size_t i = 0; i < tools.size(); ++i) {
+                 if (ImGui::BeginTabItem(tools[i]->name.data())) {
+                    if (selectedTool != i) tools[selectedTool]->unequip(sim1); // if changed
+                    selectedTool = i;
+                    ImGui::EndTabItem();
+                 }
+            }
+            ImGui::EndTabBar();
+        }
+        tools[selectedTool]->IMtool();
+        ImGui::End();
+
+        tools[selectedTool]->frame(sim1, mousePos);
         gui.frame(sim1, mousePos);
 
         ImGui::SFML::Render(window);
