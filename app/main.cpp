@@ -80,24 +80,7 @@ int main() {
     while (window.isOpen()) {
         std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
 
-        sf::Vector2i mousePos = sf::Mouse::getPosition(
-            window); // mouse position is only accurate to start of frame (it does change)
-
-        // poll events for sfml and imgui
-        sf::Event event; // NOLINT
-        while (window.pollEvent(event)) {
-            ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            } else if (event.type == sf::Event::KeyPressed &&
-                       event.key.code == sf::Keyboard::Space) {
-                running = !running;
-            } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
-                gui.event(event, mousePos);
-                tool->event(sim1, event);
-            }
-        }
-
+        // run the sim
         int simFrames = 0;
         std::chrono::nanoseconds sinceVFrame =
                 std::chrono::high_resolution_clock::now() - start;
@@ -115,6 +98,24 @@ int main() {
             }
         } else {
             while ((sinceVFrame.count() < 10'000'000)) { sinceVFrame = std::chrono::high_resolution_clock::now() - start; } // spin untill frame has passed
+        }
+
+        sf::Vector2i mousePos = sf::Mouse::getPosition(
+            window); // mouse position is only accurate to end of simulation frames (it does change)
+
+        // poll events for sfml and imgui
+        sf::Event event; // NOLINT
+        while (window.pollEvent(event)) {
+            ImGui::SFML::ProcessEvent(event);
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            } else if (event.type == sf::Event::KeyPressed &&
+                       event.key.code == sf::Keyboard::Space) {
+                running = !running;
+            } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
+                gui.event(event, mousePos);
+                tool->event(sim1, event);
+            }
         }
 
         ImGui::SFML::Update(window, deltaClock.restart()); // required for imgui-sfml

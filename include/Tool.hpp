@@ -359,10 +359,9 @@ class T_Springs : public Tool {
                 line[0].color    = sf::Color::Red;
                 line[1].color    = sf::Color::Red;
             }
-
+            window.draw(line.data(), 2, sf::Lines);
             IMedit(sim, mousePixPos);
         }
-        window.draw(line.data(), 2, sf::Lines);
     }
 
     void event(Sim& sim, const sf::Event& event) override {
@@ -370,7 +369,10 @@ class T_Springs : public Tool {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 if (selectedP) {
                     if (validHover) { // if the hover is valid make new spring
-                        
+                        sim.points[*hoveredP].resetColor();
+                        sim.points[*selectedP].resetColor();
+                        hoveredP.reset();
+                        selectedP.reset();
                     }
                 } else if (hoveredP) {
                     selectedP = *hoveredP;
