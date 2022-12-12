@@ -102,7 +102,7 @@ class GUI {
             ImPlot::PopStyleColor(2);
         }
 
-        static bool springs  = false;
+        static bool springs  = true;
         static bool polygons = true;
         static bool points   = true;
         ImGui::Checkbox("Springs", &springs);

@@ -67,7 +67,7 @@ int main() {
         ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
                                                // cursor overide)
 
-    Sim  sim1    = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
+    Sim  sim1    = Sim::softbody({0, 0}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
     bool running = false;
     std::size_t selectedTool = 0;
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);

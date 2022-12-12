@@ -3,9 +3,6 @@
 #include "Point.hpp"
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/Vertex.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Vector2.hpp"
@@ -13,7 +10,9 @@
 #include <cmath>
 #include <iostream>
 #include <optional>
-#include <string_view>
+
+const ImGuiWindowFlags editFlags =
+    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
 sf::Vector2f visualize(const Vec2& v);
 Vec2         unvisualize(const sf::Vector2f& v);
@@ -149,10 +148,8 @@ class T_Points : public Tool {
         ImGui::SetNextWindowPos(
             {static_cast<float>(pointPixPos.x) + 10.0F, static_cast<float>(pointPixPos.y) + 10.0F},
             ImGuiCond_Always);
-        ImGui::Begin("edit", NULL,
-                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                         ImGuiWindowFlags_NoCollapse);
-        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Once);
+        ImGui::Begin("edit point", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
 
         // properties
 
@@ -288,10 +285,12 @@ class T_Points : public Tool {
 
 class T_Springs : public Tool {
   private:
-    static inline const sf::Color selectedColour = sf::Color::Magenta;
-    static inline const sf::Color hoverColour    = sf::Color::Blue;
-    Spring                        defSpring{{}, 5000, 100, 0.2, 0, 0};
-    std::array<sf::Vertex, 2>     line;
+    static inline const sf::Color selectedPColour = sf::Color::Magenta;
+    static inline const sf::Color hoverPColour    = sf::Color::Blue;
+    static inline const sf::Color selectedSColour = sf::Color::Magenta;
+    static inline const sf::Color hoverSColour    = sf::Color::Blue;
+    Spring                        defSpring{{}, 100, 0, 0.2, 0, 0};
+    std::array<sf::Vertex, 2>     line{sf::Vertex{}, sf::Vertex{}};
     std::optional<std::size_t>    selectedS = std::nullopt;
     std::optional<std::size_t>    hoveredS  = std::nullopt;
     std::optional<std::size_t>    selectedP = std::nullopt;
@@ -299,14 +298,34 @@ class T_Springs : public Tool {
     double                        toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
 
-    void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) override {}
+    void IMedit(Sim&                sim,
+                const sf::Vector2i& mousePixPos) override { // NOLINT ik I dont use mousepos
+        Spring&      spring       = sim.springs[*selectedS];
+        Vec2         springPos    = (sim.points[spring.p1].pos + sim.points[spring.p2].pos) / 2;
+        sf::Vector2i springPixPos = window.mapCoordsToPixel(visualize(springPos));
+        ImGui::SetNextWindowPos({static_cast<float>(springPixPos.x) + 10.0F,
+                                 static_cast<float>(springPixPos.y) + 10.0F},
+                                ImGuiCond_Always);
+        ImGui::Begin("edit spring", NULL, editFlags);
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
+        SpringInputs(spring);
+    }
+
+    void setLineColor(std::array<sf::Vertex, 2>& l, const sf::Color& c) const {
+        l[0].color = c;
+        l[1].color = c;
+    }
+
+    void SpringInputs(Spring& spring) const {
+        ImGui::InputDouble("spring constant", &spring.springConst);
+        ImGui::InputDouble("damping factor", &spring.dampFact);
+        ImGui::InputDouble("natural length", &spring.stablePoint);
+    }
 
   public:
     T_Springs(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
-        validHover = false;
-
         if (sim.points.size() == 0) return; // tool is useless if there are no points
 
         // hover stuff
@@ -314,51 +333,75 @@ class T_Springs : public Tool {
             sim.points[*hoveredP].resetColor(); // reset last closest point color as it may
             hoveredP.reset();                   // not be closest anymore
         }
-
-        // determine new closest point
-        sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
-        auto [closestPoint, closestDist] =
-            sim.findClosestPoint(unvisualize(mousePos)); // NOLINT yes I did thanks :)
-        // color close point for selection
-        if (closestDist < toolRange &&
-            (!selectedP ||
-             *selectedP !=
-                 closestPoint)) { // if (in range) and (not selected or the selected != closest)
-            hoveredP = closestPoint;
-            sim.points[*hoveredP].shape.setFillColor(hoverColour);
+        if (hoveredS) {
+            setLineColor(
+                sim.springs[*hoveredS].verts, // reset last closest line color as it may  not be
+                sf::Color::White);            // closest anymore
+            hoveredS.reset();
         }
 
-        if (selectedP) { // if selected
-            line[0].position = visualize(sim.points[*selectedP].pos);
-            if (hoveredP) {
-                auto pos = std::find_if(
-                    sim.springs.begin(), sim.springs.end(), // check if spring already exists
-                    [hp = *hoveredP, sp = *selectedP](const Spring& s) {
-                        return (s.p1 == hp && s.p2 == sp) || (s.p1 == sp && s.p2 == hp);
-                    });
-
-                line[1].position = visualize(sim.points[*hoveredP].pos);
-                if (pos == sim.springs.end()) {
-                    line[0].color = sf::Color::Green;
-                    line[1].color = sf::Color::Green;
-                    validHover    = true;
-                } else {
-                    line[0].color = sf::Color::Red;
-                    line[1].color = sf::Color::Red;
-                }
-            } else {
-                line[1].position = mousePos;
-                line[0].color    = sf::Color::Red;
-                line[1].color    = sf::Color::Red;
-            }
-            window.draw(line.data(), 2, sf::Lines);
+        if (selectedS) { // if in spring editing mode
             IMedit(sim, mousePixPos);
+        } else { // if in normal mode
+            sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
+            // determine new closest point (needs to happend wether adding or not)
+            auto [closestP, closestPDist] = sim.findClosestPoint(unvisualize(mousePos));
+            // color close point for selection
+            if (closestPDist < toolRange &&
+                (!selectedP ||
+                 *selectedP !=
+                     closestP)) { // if (in range) and (not selected or the selected != closest)
+                hoveredP = closestP;
+                sim.points[*hoveredP].shape.setFillColor(hoverPColour);
+            }
+
+            if (selectedP) { // if selected point (in making spring mode)
+                line[0].position = visualize(sim.points[*selectedP].pos);
+                if (hoveredP) {
+                    auto pos = std::find_if(sim.springs.begin(),
+                                            sim.springs.end(), // check if spring already exists
+                                            [hp = *hoveredP, sp = *selectedP](const Spring& s) {
+                                                return (s.p1 == hp && s.p2 == sp) ||
+                                                       (s.p1 == sp && s.p2 == hp);
+                                            });
+
+                    line[1].position = visualize(sim.points[*hoveredP].pos);
+                    if (pos == sim.springs.end()) {
+                        setLineColor(line, sf::Color::Green);
+                        validHover = true;
+                    } else {
+                        setLineColor(line, sf::Color::Red);
+                        validHover = false;
+                    }
+                } else {
+                    line[1].position = mousePos;
+                    setLineColor(line, sf::Color::Red);
+                    validHover = false;
+                }
+                window.draw(line.data(), 2, sf::Lines);
+            } else { // if not making a spring (!selectedP)
+                // determine new closest spring
+                if (!sim.springs.empty()) {
+                    auto [closestS, closestSDist] = sim.findClosestSpring(unvisualize(mousePos));
+                    if (closestSDist < toolRange) {
+                        hoveredS = closestS;
+                        setLineColor(sim.springs[*hoveredS].verts, hoverSColour);
+                    }
+                }
+            }
         }
     }
 
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
-            if (event.mouseButton.button == sf::Mouse::Left) {
+            if (selectedS) {
+                setLineColor(sim.springs[*selectedS].verts, sf::Color::White);
+                selectedS.reset(); // unselect (close edit)
+            } else if (selectedP && event.mouseButton.button !=
+                                        sf::Mouse::Left) { // if not a left click unselect point
+                sim.points[*selectedP].resetColor();
+                selectedP.reset();
+            } else if (event.mouseButton.button == sf::Mouse::Left) {
                 if (selectedP) {
                     if (validHover) { // if the hover is valid make new spring
                         defSpring.p1 = *selectedP;
@@ -371,13 +414,14 @@ class T_Springs : public Tool {
                     }
                 } else if (hoveredP) {
                     selectedP = *hoveredP;
+                    sim.points[*selectedP].shape.setFillColor(selectedPColour);
                     hoveredP.reset();
-                    sim.points[*selectedP].shape.setFillColor(selectedColour);
                 }
-            } else {
-                if (selectedP) {
-                    sim.points[*selectedP].resetColor();
-                    selectedP.reset(); // if not a left click and selected then reset
+            } else if (event.mouseButton.button == sf::Mouse::Right) {
+                if (hoveredS) {
+                    selectedS = hoveredS;
+                    hoveredS.reset();
+                    setLineColor(sim.springs[*selectedS].verts, selectedSColour);
                 }
             }
         }
@@ -392,8 +436,14 @@ class T_Springs : public Tool {
             sim.points[*hoveredP].resetColor();
             hoveredP.reset();
         }
-        selectedS.reset(); // TODO remember to reset colour
-        hoveredS.reset();  // same here
+         if (selectedS) {
+            setLineColor(sim.springs[*selectedS].verts, sf::Color::White);
+            selectedS.reset();
+        } 
+        if (hoveredS) {
+            setLineColor(sim.springs[*hoveredS].verts, sf::Color::White);
+            hoveredS.reset();
+        } 
     }
 
     void IMtool() override {
@@ -403,13 +453,7 @@ class T_Springs : public Tool {
                 "new spring",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
-            
-            ImGui_DragDouble("spring constant", &defSpring.springConst, 0.1F, 0.1, 100.0, "%.1f",
-                         ImGuiSliderFlags_AlwaysClamp);
-            ImGui_DragDouble("damping factor", &defSpring.dampFact, 0.1F, 0.1, 100.0, "%.1f",
-                         ImGuiSliderFlags_AlwaysClamp);
-            ImGui_DragDouble("natural length", &defSpring.stablePoint, 0.1F, 0.1, 100.0, "%.1f",
-                         ImGuiSliderFlags_AlwaysClamp);
+            SpringInputs(defSpring);
         }
     }
 };
