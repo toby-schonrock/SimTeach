@@ -26,6 +26,10 @@ class GUI {
         : window(window_), screen(desktop.width, desktop.height),
           vsScale(static_cast<float>(screen.x) / 20.0F) {
         std::cout << "Scale: " << vsScale << "\n";
+        reset();
+    }
+
+    void reset() {
         view = window.getDefaultView();
         view.zoom(1 / vsScale);
         view.setCenter(view.getSize() / 2.0F);
@@ -120,6 +124,7 @@ class GUI {
 
         ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
         ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
+        if (ImGui::Button("reset view")) reset();
         ImGui::End();
     }
 };

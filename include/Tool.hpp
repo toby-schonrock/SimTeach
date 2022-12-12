@@ -45,7 +45,7 @@ class Tool {
 
   public:
     sf::RenderWindow& window;
-    std::string_view name;
+    std::string_view  name;
     Tool(sf::RenderWindow& window_, std::string_view name_) : window(window_), name(name_) {}
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
@@ -290,7 +290,7 @@ class T_Springs : public Tool {
   private:
     static inline const sf::Color selectedColour = sf::Color::Magenta;
     static inline const sf::Color hoverColour    = sf::Color::Blue;
-    Spring                        defSpring{};
+    Spring                        defSpring{{}, 5000, 100, 0.2, 0, 0};
     std::array<sf::Vertex, 2>     line;
     std::optional<std::size_t>    selectedS = std::nullopt;
     std::optional<std::size_t>    hoveredS  = std::nullopt;
@@ -361,6 +361,9 @@ class T_Springs : public Tool {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 if (selectedP) {
                     if (validHover) { // if the hover is valid make new spring
+                        defSpring.p1 = *selectedP;
+                        defSpring.p2 = *hoveredP;
+                        sim.springs.push_back(defSpring);
                         sim.points[*hoveredP].resetColor();
                         sim.points[*selectedP].resetColor();
                         hoveredP.reset();
@@ -370,6 +373,11 @@ class T_Springs : public Tool {
                     selectedP = *hoveredP;
                     hoveredP.reset();
                     sim.points[*selectedP].shape.setFillColor(selectedColour);
+                }
+            } else {
+                if (selectedP) {
+                    sim.points[*selectedP].resetColor();
+                    selectedP.reset(); // if not a left click and selected then reset
                 }
             }
         }
@@ -391,5 +399,17 @@ class T_Springs : public Tool {
     void IMtool() override {
         ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
+        if (ImGui::CollapsingHeader(
+                "new spring",
+                ImGuiTreeNodeFlags_DefaultOpen |
+                    ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
+            
+            ImGui_DragDouble("spring constant", &defSpring.springConst, 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+            ImGui_DragDouble("damping factor", &defSpring.dampFact, 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+            ImGui_DragDouble("natural length", &defSpring.stablePoint, 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        }
     }
 };

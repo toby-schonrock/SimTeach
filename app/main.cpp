@@ -76,7 +76,7 @@ int main() {
     
     std::vector<std::unique_ptr<Tool>> tools;
     tools.push_back(std::make_unique<T_Points>(window, "point"));
-    tools.push_back(std::make_unique<T_Springs>(window, "string"));
+    tools.push_back(std::make_unique<T_Springs>(window, "spring"));
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
