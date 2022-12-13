@@ -39,18 +39,18 @@ class Point {
     void polyColHandler(const Polygon& poly) {
         bool inside = false;
 
-        double closestDist = DistToEdge(poly.points[poly.pointCount - 1], poly.points[0]);
-        Vec2   closestPos  = ClosestOnLine(
+        double closestDist = distToEdge(poly.points[poly.pointCount - 1], poly.points[0]);
+        Vec2   closestPos  = closestOnLine(
                poly.points[poly.pointCount - 1], poly.points[0],
                closestDist); // test distance to side consisting of last and first vertice
 
-        if (RayCast(poly.points[poly.pointCount - 1], poly.points[0])) inside = !inside;
+        if (rayCast(poly.points[poly.pointCount - 1], poly.points[0])) inside = !inside;
 
         for (std::size_t i = 0; i != poly.pointCount - 1; ++i) { // iterate through all other sides
-            double dist = DistToEdge(poly.points[i], poly.points[i + 1]);
-            if (RayCast(poly.points[i], poly.points[i + 1])) inside = !inside;
+            double dist = distToEdge(poly.points[i], poly.points[i + 1]);
+            if (rayCast(poly.points[i], poly.points[i + 1])) inside = !inside;
             if (closestDist > dist) { // if new closest side found
-                closestPos  = ClosestOnLine(poly.points[i], poly.points[i + 1], dist);
+                closestPos  = closestOnLine(poly.points[i], poly.points[i + 1], dist);
                 closestDist = dist;
             }
         }
@@ -66,7 +66,7 @@ class Point {
 
     // cast a verticle ray from infinty to tPos and sees if it collides with the line created
     // between v1 and v2
-    bool RayCast(const Vec2& v1, const Vec2& v2) const {
+    bool rayCast(const Vec2& v1, const Vec2& v2) const {
         if ((pos.x < std::min(v1.x, v2.x)) || (pos.x > std::max(v1.x, v2.x)))
             return false; // if point outisde range of line
         double deltaX = std::abs(v2.x - v1.x);
@@ -77,7 +77,7 @@ class Point {
     }
 
     // using the shortest distance to the line finds the closest point on the line too pos
-    Vec2 ClosestOnLine(const Vec2& v1, const Vec2& v2, double dist) const {
+    Vec2 closestOnLine(const Vec2& v1, const Vec2& v2, double dist) const {
         double c2pd   = (v1 - pos).mag(); // corner to point distance
         Vec2   result = std::sqrt(c2pd * c2pd - dist * dist) * (v2 - v1).norm(); // pythag
         return result + v1;
@@ -85,7 +85,7 @@ class Point {
 
     // finds the shortest distance from point to line
     double
-    DistToEdge(const Vec2& v1,
+    distToEdge(const Vec2& v1,
                const Vec2& v2) const { // finds the shortest distance from the point to the edge
         // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
         // draws a traingle between the three points and performs h = 2A/b

@@ -40,16 +40,16 @@ static void HelpMarker(
 
 class Tool {
   protected:
-    virtual void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
+    virtual void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
 
   public:
     sf::RenderWindow& window;
-    std::string_view  name;
-    Tool(sf::RenderWindow& window_, std::string_view name_) : window(window_), name(name_) {}
+    std::string  name;
+    Tool(sf::RenderWindow& window_, std::string name_) : window(window_), name(std::move(name_)) {}
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
     virtual void unequip(Sim& sim)                                = 0;
-    virtual void IMtool()                                         = 0;
+    virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
     Tool& operator=(const Tool& other) = delete;
 };
@@ -62,7 +62,7 @@ class T_Slice : public Tool {
     std::optional<std::size_t>    closestPoint   = std::nullopt;
 
   public:
-    T_Slice(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
+    T_Slice(sf::RenderWindow& window_, std::string name_) : Tool(window_, std::move(name_)) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         // if sim has no points nothing to do (may change)
@@ -132,7 +132,7 @@ class T_Points : public Tool {
         if (*hoveredP == pos) hoveredP.reset();
     }
 
-    void IMedit(Sim& sim, const sf::Vector2i& mousePixPos) override {
+    void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) override {
         Point&       point = sim.points[*selectedP];
         sf::Vector2i pointPixPos;
 
@@ -162,7 +162,7 @@ class T_Points : public Tool {
         ImGui::InputDouble("posx", &(point.pos.x));
         ImGui::InputDouble("posy", &(point.pos.y));
 
-        PointInputs(point);
+        pointInputs(point);
 
         // delete
         if (ImGui::Button("delete")) {
@@ -173,7 +173,7 @@ class T_Points : public Tool {
         ImGui::End();
     }
 
-    void PointInputs(Point& point) {
+    static void pointInputs(Point& point) {
         ImGui::Text("velocity:");
         ImGui::SameLine();
         if (ImGui::Button("reset")) {
@@ -197,7 +197,7 @@ class T_Points : public Tool {
     }
 
   public:
-    T_Points(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
+    T_Points(sf::RenderWindow& window_, std::string name_) : Tool(window_, std::move(name_)) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         // if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
@@ -207,7 +207,7 @@ class T_Points : public Tool {
         if (sim.points.size() == 0) return;
 
         if (selectedP) { // edit menu
-            IMedit(sim, mousePixPos);
+            ImEdit(sim, mousePixPos);
         } else { // if none selected
             if (hoveredP) {
                 sim.points[*hoveredP].resetColor(); // reset last closest point color as it may
@@ -271,14 +271,14 @@ class T_Points : public Tool {
         }
     }
 
-    void IMtool() override {
+    void ImTool() override {
         ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
         if (ImGui::CollapsingHeader(
                 "new point",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
-            PointInputs(defPoint);
+            pointInputs(defPoint);
         }
     }
 };
@@ -298,7 +298,7 @@ class T_Springs : public Tool {
     double                        toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
 
-    void IMedit(Sim&                sim,
+    void ImEdit(Sim&                sim,
                 const sf::Vector2i& mousePixPos) override { // NOLINT ik I dont use mousepos
         Spring&      spring       = sim.springs[*selectedS];
         Vec2         springPos    = (sim.points[spring.p1].pos + sim.points[spring.p2].pos) / 2;
@@ -308,22 +308,22 @@ class T_Springs : public Tool {
                                 ImGuiCond_Always);
         ImGui::Begin("edit spring", NULL, editFlags);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
-        SpringInputs(spring);
+        springInputs(spring);
     }
 
-    void setLineColor(std::array<sf::Vertex, 2>& l, const sf::Color& c) const {
+    static void setLineColor(std::array<sf::Vertex, 2>& l, const sf::Color& c) {
         l[0].color = c;
         l[1].color = c;
     }
 
-    void SpringInputs(Spring& spring) const {
+    void springInputs(Spring& spring) const {
         ImGui::InputDouble("spring constant", &spring.springConst);
         ImGui::InputDouble("damping factor", &spring.dampFact);
         ImGui::InputDouble("natural length", &spring.stablePoint);
     }
 
   public:
-    T_Springs(sf::RenderWindow& window_, std::string_view name_) : Tool(window_, name_) {}
+    T_Springs(sf::RenderWindow& window_, std::string name_) : Tool(window_, std::move(name_)) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         if (sim.points.size() == 0) return; // tool is useless if there are no points
@@ -341,7 +341,7 @@ class T_Springs : public Tool {
         }
 
         if (selectedS) { // if in spring editing mode
-            IMedit(sim, mousePixPos);
+            ImEdit(sim, mousePixPos);
         } else { // if in normal mode
             sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
             // determine new closest point (needs to happend wether adding or not)
@@ -446,14 +446,14 @@ class T_Springs : public Tool {
         } 
     }
 
-    void IMtool() override {
+    void ImTool() override {
         ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
         if (ImGui::CollapsingHeader(
                 "new spring",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
-            SpringInputs(defSpring);
+            springInputs(defSpring);
         }
     }
 };

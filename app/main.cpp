@@ -143,7 +143,7 @@ int main() {
             }
             ImGui::EndTabBar();
         }
-        tools[selectedTool]->IMtool();
+        tools[selectedTool]->ImTool();
         ImGui::End();
 
         tools[selectedTool]->frame(sim1, mousePos);
