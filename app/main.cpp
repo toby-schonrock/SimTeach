@@ -92,14 +92,14 @@ int main() {
         if (running) {
             while ((sinceVFrame.count() < 10'000'000)) { // TODO: min max avg frames test
                 ++simFrames;
-                std::chrono::system_clock::time_point newLast =
+                std::chrono::system_clock::time_point frameTime =
                     std::chrono::high_resolution_clock::now();
                 constexpr std::chrono::nanoseconds maxFrame{1'000'000};
-                std::chrono::nanoseconds           deltaTime = std::min(newLast - last, maxFrame);
-                last                                         = newLast;
+                std::chrono::nanoseconds           deltaTime = std::min(frameTime - last, maxFrame);
+                last                                         = frameTime;
 
                 sim1.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
-                sinceVFrame = std::chrono::high_resolution_clock::now() - start;
+                sinceVFrame = frameTime - start;
             }
         } else {
             while ((sinceVFrame.count() < 10'000'000)) { sinceVFrame = std::chrono::high_resolution_clock::now() - start; } // spin untill frame has passed
@@ -153,8 +153,8 @@ int main() {
         window.display();
 
         sinceVFrame       = std::chrono::high_resolution_clock::now() - start;
-        const double Sfps = 1e9 * simFrames / static_cast<double>(sinceVFrame.count());
         const double Vfps = 1e9 / static_cast<double>(sinceVFrame.count());
+        const double Sfps = Vfps * simFrames;
         gui.fps.add({Vfps, Sfps});
     }
 

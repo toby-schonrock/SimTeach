@@ -289,7 +289,7 @@ class T_Springs : public Tool {
     static inline const sf::Color hoverPColour    = sf::Color::Blue;
     static inline const sf::Color selectedSColour = sf::Color::Magenta;
     static inline const sf::Color hoverSColour    = sf::Color::Blue;
-    Spring                        defSpring{{}, 100, 0, 0.2, 0, 0};
+    Spring                        defSpring{{}, 10, 0, 0.2, 0, 0};
     std::array<sf::Vertex, 2>     line{sf::Vertex{}, sf::Vertex{}};
     std::optional<std::size_t>    selectedS = std::nullopt;
     std::optional<std::size_t>    hoveredS  = std::nullopt;

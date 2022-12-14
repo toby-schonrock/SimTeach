@@ -14,6 +14,7 @@ sf::Vector2f visualize(const Vec2& v);
 
 class GUI {
   private:
+    static constexpr float zoomFact = 1.05F;
     sf::RenderWindow&           window;
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
@@ -38,7 +39,7 @@ class GUI {
 
     void event(const sf::Event& event, const sf::Vector2i& mousePixPos) {
         if (event.type == sf::Event::MouseWheelMoved) {
-            float        zoom = (event.mouseWheel.delta == 1) ? 1 / 1.05F : 1.05F;
+            float        zoom = (event.mouseWheel.delta == 1) ? 1 / zoomFact : zoomFact;
             sf::Vector2f diff = window.mapPixelToCoords(mousePixPos) - view.getCenter();
             view.zoom(zoom);
             view.move(diff * (1 - zoom));
@@ -50,20 +51,20 @@ class GUI {
         }
     }
 
-    void frame(Sim& sim, const sf::Vector2i& mousePos) {
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) {
         interface(sim);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
             if (!mousePosLast)
-                mousePosLast = mousePos;
+                mousePosLast = mousePixPos;
             else {
-                sf::Vector2i diff = *mousePosLast - mousePos;
+                sf::Vector2i diff = *mousePosLast - mousePixPos;
                 sf::Vector2f mouseMove =
                     sf::Vector2f(diff) * view.getSize().x / static_cast<float>(screen.x);
                 view.move(mouseMove);
                 window.setView(view);
-                mousePosLast = mousePos;
+                mousePosLast = mousePixPos;
             }
         }
     }
