@@ -16,6 +16,7 @@ class Vector2 {
     T       mag() const { return std::hypot(x, y); }
     Vector2 norm() const { return *this / this->mag(); }
     double  dot(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
+    double  cross(const Vector2& rhs) const { return x * rhs.y - y * rhs.x; }
 
     // clang-format off
     Vector2& operator+=(const Vector2& obj) { x += obj.x; y += obj.y; return *this; }

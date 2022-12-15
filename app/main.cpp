@@ -75,8 +75,9 @@ int main() {
     // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
     
     std::vector<std::unique_ptr<Tool>> tools;
-    tools.push_back(std::make_unique<T_Points>(window, "point"));
-    tools.push_back(std::make_unique<T_Springs>(window, "spring"));
+    tools.push_back(std::make_unique<PointTool>(window, "Points"));
+    tools.push_back(std::make_unique<SpringTool>(window, "Springs"));
+    tools.push_back(std::make_unique<PolyTool>(window, "Polys"));
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now

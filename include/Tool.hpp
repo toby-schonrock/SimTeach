@@ -44,7 +44,7 @@ class Tool {
 
   public:
     sf::RenderWindow& window;
-    std::string  name;
+    std::string       name;
     Tool(sf::RenderWindow& window_, std::string name_) : window(window_), name(std::move(name_)) {}
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
@@ -116,7 +116,7 @@ class T_Slice : public Tool {
     }
 };
 
-class T_Points : public Tool {
+class PointTool : public Tool {
   private:
     static inline const sf::Color selectedColour = sf::Color::Magenta;
     static inline const sf::Color hoverColour    = sf::Color::Blue;
@@ -148,7 +148,9 @@ class T_Points : public Tool {
         ImGui::SetNextWindowPos(
             {static_cast<float>(pointPixPos.x) + 10.0F, static_cast<float>(pointPixPos.y) + 10.0F},
             ImGuiCond_Always);
-        ImGui::Begin("edit point", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("edit point", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                         ImGuiWindowFlags_NoCollapse);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
 
         // properties
@@ -163,6 +165,13 @@ class T_Points : public Tool {
         ImGui::InputDouble("posy", &(point.pos.y));
 
         pointInputs(point);
+
+        // set as tools settings
+        if (ImGui::Button("copy")) {
+            defPoint = sim.points[*selectedP];
+        }
+        ImGui::SameLine();
+        HelpMarker("Copy settings to the tool");
 
         // delete
         if (ImGui::Button("delete")) {
@@ -197,12 +206,12 @@ class T_Points : public Tool {
     }
 
   public:
-    T_Points(sf::RenderWindow& window_, std::string name_) : Tool(window_, std::move(name_)) {}
+    PointTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
-        // if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
-
-        // }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+            ImGui::SetTooltip("Click to delete");
+        }
         // TODO: make custom delete cursor (bin)
         if (sim.points.size() == 0) return;
 
@@ -243,7 +252,7 @@ class T_Points : public Tool {
                     defPoint.pos = pos;
                     sim.addPoint(defPoint);
                 }
-            } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) {
+            } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
                 selectedP = *hoveredP;
                 hoveredP.reset();
                 sim.points[*selectedP].shape.setFillColor(selectedColour);
@@ -283,13 +292,13 @@ class T_Points : public Tool {
     }
 };
 
-class T_Springs : public Tool {
+class SpringTool : public Tool {
   private:
     static inline const sf::Color selectedPColour = sf::Color::Magenta;
     static inline const sf::Color hoverPColour    = sf::Color::Blue;
     static inline const sf::Color selectedSColour = sf::Color::Magenta;
     static inline const sf::Color hoverSColour    = sf::Color::Blue;
-    Spring                        defSpring{{}, 10, 0, 0.2, 0, 0};
+    Spring                        defSpring{{}, 10, 1.0, 0.2, 0, 0};
     std::array<sf::Vertex, 2>     line{sf::Vertex{}, sf::Vertex{}};
     std::optional<std::size_t>    selectedS = std::nullopt;
     std::optional<std::size_t>    hoveredS  = std::nullopt;
@@ -309,6 +318,21 @@ class T_Springs : public Tool {
         ImGui::Begin("edit spring", NULL, editFlags);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
         springInputs(spring);
+
+        // set as tools settings
+        if (ImGui::Button("set default")) {
+            defSpring = sim.springs[*selectedS];
+        }
+        ImGui::SameLine();
+        HelpMarker("Copys settings to the tool");
+
+        // delete
+        if (ImGui::Button("delete")) {
+            removeSpring(sim, *selectedS);
+        }
+        ImGui::SameLine();
+        HelpMarker("LControl + LClick or Delete");
+        ImGui::End();
     }
 
     static void setLineColor(std::array<sf::Vertex, 2>& l, const sf::Color& c) {
@@ -322,10 +346,19 @@ class T_Springs : public Tool {
         ImGui::InputDouble("natural length", &spring.stablePoint);
     }
 
+    void removeSpring(Sim& sim, const std::size_t& pos) {
+        sim.springs.erase(sim.springs.begin() + static_cast<std::ptrdiff_t>(pos));
+        if (*selectedS == pos) selectedS.reset();
+        if (*hoveredS == pos) hoveredS.reset();
+    }
+
   public:
-    T_Springs(sf::RenderWindow& window_, std::string name_) : Tool(window_, std::move(name_)) {}
+    SpringTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+            ImGui::SetTooltip("Click to delete");
+        }
         if (sim.points.size() == 0) return; // tool is useless if there are no points
 
         // hover stuff
@@ -407,21 +440,30 @@ class T_Springs : public Tool {
                         defSpring.p1 = *selectedP;
                         defSpring.p2 = *hoveredP;
                         sim.springs.push_back(defSpring);
-                        sim.points[*hoveredP].resetColor();
-                        sim.points[*selectedP].resetColor();
-                        hoveredP.reset();
+                        sim.points[*selectedP].resetColor(); // hovered will be reset anyway
                         selectedP.reset();
                     }
+                } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
+                    if (hoveredS)
+                        removeSpring(sim, *hoveredS); // only do it if there is a highlighted
                 } else if (hoveredP) {
                     selectedP = *hoveredP;
                     sim.points[*selectedP].shape.setFillColor(selectedPColour);
                     hoveredP.reset();
                 }
-            } else if (event.mouseButton.button == sf::Mouse::Right) {
+            } else if (event.mouseButton.button == sf::Mouse::Right) { // selecting a spring
                 if (hoveredS) {
                     selectedS = hoveredS;
                     hoveredS.reset();
                     setLineColor(sim.springs[*selectedS].verts, selectedSColour);
+                }
+            }
+        } else if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
+                if (selectedP) {
+                    removeSpring(sim, *selectedS);
+                } else if (hoveredP) {
+                    removeSpring(sim, *hoveredS);
                 }
             }
         }
@@ -436,14 +478,14 @@ class T_Springs : public Tool {
             sim.points[*hoveredP].resetColor();
             hoveredP.reset();
         }
-         if (selectedS) {
+        if (selectedS) {
             setLineColor(sim.springs[*selectedS].verts, sf::Color::White);
             selectedS.reset();
-        } 
+        }
         if (hoveredS) {
             setLineColor(sim.springs[*hoveredS].verts, sf::Color::White);
             hoveredS.reset();
-        } 
+        }
     }
 
     void ImTool() override {
@@ -456,4 +498,129 @@ class T_Springs : public Tool {
             springInputs(defSpring);
         }
     }
+};
+
+class PolyTool : public Tool {
+  private:
+    static inline const sf::Color hoverColour = sf::Color::Blue;
+    static constexpr std::array   modes{"Custom", "Square", "Triangle"};
+    sf::ConvexShape               shape{};
+    std::vector<Vec2>             verts{};
+    std::array<sf::Vertex, 2>     line{};
+    Vec2                          newPoint;
+    std::size_t                   mode      = 0;
+    bool                          validPoly = false;
+    bool                          finished  = false;
+
+    void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) override {}
+
+    inline Vec2 getEdge(std::size_t edge) { return verts[edge] - verts[(edge + 1)]; }
+
+    bool isConvexPoly() {
+        // cool idea here is that the cross product of all of the vertices in order will have
+        // constant sign if convex
+        // lots of repeat calulations but kinda nessecary (also fixed by optimisations)
+        bool sign = std::signbit((newPoint - verts[0]).cross(getEdge(0))); // checks first and new
+        if (std::signbit((verts[verts.size() - 1] - newPoint).cross(newPoint - verts[0])) != sign)
+            return false; // new and last
+        if (std::signbit(getEdge(verts.size() - 2).cross(verts[verts.size() - 1] - newPoint)) !=
+            sign)
+            return false; // last and second last
+
+        for (std::size_t i = 0; i != verts.size() - 2; ++i) {
+            if (std::signbit(getEdge(i).cross(getEdge(i + 1))) != sign) return false;
+        }
+        return true;
+    }
+
+    bool isWithinPoly() {
+        bool inside = rayCast(verts[verts.size() - 1], verts[0], newPoint);
+
+        for (std::size_t i = 0; i != verts.size() - 1; ++i) {
+            if (rayCast(verts[i], verts[i + 1], newPoint)) inside = !inside;
+        }
+        return inside;
+    }
+
+    // copied from point class
+    // TODO should all be removed in optimisation of poly collision
+    bool rayCast(const Vec2& v1, const Vec2& v2, const Vec2& p) const {
+        if ((p.x < std::min(v1.x, v2.x)) || (p.x > std::max(v1.x, v2.x)))
+            return false; // if point outisde range of line
+        double deltaX = std::abs(v2.x - v1.x);
+        if (deltaX == 0.0)
+            return false; // if vertices form a verticle line a verticle line cannot intersect
+        double deltaY = v2.y - v1.y;
+        return std::abs(v1.x - p.x) / deltaX * deltaY + v1.y > p.y;
+    }
+
+  public:
+    PolyTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
+
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        std::cout << verts.size() << "\n";
+
+        newPoint = unvisualize(window.mapPixelToCoords(mousePixPos));
+
+        // draw shape at end
+        // Is a complete wipe really nessecary? Maybe not but I cba.
+        if (verts.size() > 2) {
+            validPoly = isConvexPoly();
+            finished  = isWithinPoly();
+            if (finished) {
+                shape.setFillColor(sf::Color::Green);
+                ImGui::SetTooltip("Click to finish");
+                shape.setPointCount(verts.size());
+                for (std::size_t x = 0; x != verts.size(); x++)
+                    shape.setPoint(x, visualize(verts[x]));
+            } else if (!validPoly) {
+                shape.setFillColor(sf::Color::Red);
+                ImGui::SetTooltip("Polygons must be convex");
+                shape.setPointCount(verts.size() + 1);
+                for (std::size_t x = 0; x != verts.size(); x++)
+                    shape.setPoint(x, visualize(verts[x]));
+                shape.setPoint(verts.size(), visualize(newPoint)); // draw new point
+            } else {
+                shape.setFillColor(sf::Color::White);
+                shape.setPointCount(verts.size() + 1);
+                for (std::size_t x = 0; x != verts.size(); x++)
+                    shape.setPoint(x, visualize(verts[x]));
+                shape.setPoint(verts.size(), visualize(newPoint)); // draw new point
+            }
+            window.draw(shape);
+        }
+        if (verts.size() == 2) {
+            validPoly = false;
+            finished  = false;
+            shape.setFillColor(sf::Color::White);
+            shape.setPointCount(3);
+            shape.setPoint(0, visualize(verts[0]));
+            shape.setPoint(1, visualize(verts[1]));
+            shape.setPoint(2, visualize(newPoint));
+            window.draw(shape);
+        } else if (verts.size() == 1) {
+            validPoly        = false;
+            finished         = false;
+            line[0].position = visualize(verts[0]);
+            line[1].position = visualize(newPoint);
+            window.draw(line.data(), 2, sf::Lines);
+        }
+    }
+    void event(Sim& sim, const sf::Event& event) override {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) { // new vert
+                verts.push_back(newPoint);
+            } else if (event.mouseButton.button == sf::Mouse::Right) {
+                if (verts.size() > 1) { // delete one vertex
+                    verts.pop_back();
+                } else if (verts.size() == 1) { // delete final vertex
+                    verts.clear();
+                }
+            } else {
+                verts.clear();
+            }
+        }
+    }
+    void unequip(Sim& sim) override {}
+    void ImTool() override {}
 };

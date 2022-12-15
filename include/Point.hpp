@@ -30,8 +30,7 @@ class Point {
     }
 
     void update(double deltaTime, double gravity) {
-        f += Vec2(0, 1) * (gravity * mass); // add gravity to the force
-        vel += (f * deltaTime) / mass;      // euler integration could be improved
+        vel += (f / mass + Vec2(0, 1) * gravity) * deltaTime;      // euler integration could be improved
         pos += vel * deltaTime;
         f = Vec2();
     }
