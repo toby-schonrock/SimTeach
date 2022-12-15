@@ -520,15 +520,26 @@ class PolyTool : public Tool {
         // cool idea here is that the cross product of all of the vertices in order will have
         // constant sign if convex
         // lots of repeat calulations but kinda nessecary (also fixed by optimisations)
-        bool sign = std::signbit((newPoint - verts[0]).cross(getEdge(0))); // checks first and new
-        if (std::signbit((verts[verts.size() - 1] - newPoint).cross(newPoint - verts[0])) != sign)
-            return false; // new and last
-        if (std::signbit(getEdge(verts.size() - 2).cross(verts[verts.size() - 1] - newPoint)) !=
-            sign)
-            return false; // last and second last
+        bool sign;
+        if (finished) {
+            sign = std::signbit((newPoint - verts[0]).cross(getEdge(0))); // checks first and new
+            if (std::signbit((verts[verts.size() - 1] - newPoint).cross(newPoint - verts[0])) !=
+                sign)
+                return false; // new and last
+            if (std::signbit(getEdge(verts.size() - 2).cross(verts[verts.size() - 1] - newPoint)) !=
+                sign)
+                return false; // last and second last
+        } else {
+            sign = std::signbit(
+                (verts[verts.size() - 1] - verts[0]).cross(getEdge(0))); // checks first and last
+            if (std::signbit(getEdge(verts.size() - 2).cross(verts[verts.size() - 1] - verts[0])) !=
+                sign)
+                return false; // last and second last
+        }
 
         for (std::size_t i = 0; i != verts.size() - 2; ++i) {
-            if (std::signbit(getEdge(i).cross(getEdge(i + 1))) != sign) return false;
+            if (std::signbit(getEdge(i).cross(getEdge(i + 1))) != sign)
+                return false; // checks up untill edge size - 1
         }
         return true;
     }
@@ -537,7 +548,9 @@ class PolyTool : public Tool {
         bool inside = rayCast(verts[verts.size() - 1], verts[0], newPoint);
 
         for (std::size_t i = 0; i != verts.size() - 1; ++i) {
-            if (rayCast(verts[i], verts[i + 1], newPoint)) inside = !inside;
+            if (rayCast(verts[i], verts[i + 1], newPoint)) {
+                inside = !inside;
+            }
         }
         return inside;
     }
@@ -547,26 +560,28 @@ class PolyTool : public Tool {
     bool rayCast(const Vec2& v1, const Vec2& v2, const Vec2& p) const {
         if ((p.x < std::min(v1.x, v2.x)) || (p.x > std::max(v1.x, v2.x)))
             return false; // if point outisde range of line
-        double deltaX = std::abs(v2.x - v1.x);
-        if (deltaX == 0.0)
+        // if (p.y < std::min(v1.y, v2.y)) return true; // is beneath both vertices
+        if (p.x == v1.x)
+            return false; // to prevent perfect vertical allignment causing collision with both
+                          // lines
+        double deltaX = v2.x - v1.x;
+        if (deltaX == 0)
             return false; // if vertices form a verticle line a verticle line cannot intersect
         double deltaY = v2.y - v1.y;
-        return std::abs(v1.x - p.x) / deltaX * deltaY + v1.y > p.y;
+        return (p.x - v1.x) / deltaX * deltaY + v1.y > p.y;
     }
 
   public:
     PolyTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
-        std::cout << verts.size() << "\n";
-
         newPoint = unvisualize(window.mapPixelToCoords(mousePixPos));
 
         // draw shape at end
         // Is a complete wipe really nessecary? Maybe not but I cba.
         if (verts.size() > 2) {
-            validPoly = isConvexPoly();
             finished  = isWithinPoly();
+            validPoly = isConvexPoly();
             if (finished) {
                 shape.setFillColor(sf::Color::Green);
                 ImGui::SetTooltip("Click to finish");
