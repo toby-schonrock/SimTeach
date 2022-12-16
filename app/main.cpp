@@ -77,7 +77,7 @@ int main() {
     std::vector<std::unique_ptr<Tool>> tools;
     tools.push_back(std::make_unique<PointTool>(window, "Points"));
     tools.push_back(std::make_unique<SpringTool>(window, "Springs"));
-    tools.push_back(std::make_unique<PolyTool>(window, "Polys"));
+    tools.push_back(std::make_unique<CustomPolyTool>(window, "Polys"));
 
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now

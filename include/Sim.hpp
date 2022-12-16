@@ -8,7 +8,7 @@
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
 
-struct  Spring {
+struct Spring {
     std::array<sf::Vertex, 2> verts; // TODO perhaps store inderictly to save size (more cacheing)
     double                    springConst;
     double                    dampFact;
@@ -44,7 +44,7 @@ class Sim {
 
     // TODO this is slow(maybe)
     void removePoint(const std::size_t& pos) {
-        if (points.empty() || pos >= points.size()){
+        if (points.empty() || pos >= points.size()) {
             std::cout << pos << "\n";
             throw std::logic_error("Asking to remove non existant point.");
         }
@@ -77,9 +77,10 @@ class Sim {
         double      closestDist = std::numeric_limits<double>::infinity();
         std::size_t closestPos  = 0;
         for (std::size_t i = 0; i != springs.size(); ++i) {
-            Vec2 springPos = 0.5 * (points[springs[i].p1].pos + points[springs[i].p2].pos); // average of both points 
-            Vec2   diff = pos - springPos;
-            double dist = diff.x * diff.x + diff.y * diff.y;
+            Vec2   springPos = 0.5 * (points[springs[i].p1].pos +
+                                    points[springs[i].p2].pos); // average of both points
+            Vec2   diff      = pos - springPos;
+            double dist      = diff.x * diff.x + diff.y * diff.y;
             if (dist < closestDist) {
                 closestDist = dist;
                 closestPos  = i;

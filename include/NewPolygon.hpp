@@ -6,23 +6,36 @@
 
 sf::Vector2f visualize(const Vec2& v);
 
+// so this polygon is very different can do wierd stuff like draw when it only has two edges
+// also at all times this polygon must never have one edge (the edges must always loop)
+
 class NewPolygon {
+  private:
+    Vec2 maxBounds{};
+    Vec2 minBounds{};
+
     void boundsUp() {
         // TODO doesn't take advantage of mins/maxs already calulates
         for (const Edge& edge: edges) { // loop over all points
-            maxBounds.x = std::max(maxBounds.x, edge.p1.x);
-            maxBounds.y = std::max(maxBounds.y, edge.p1.y);
-            minBounds.x = std::min(minBounds.x, edge.p1.x);
-            minBounds.y = std::min(minBounds.y, edge.p1.y);
+            Vec2 p      = edge.p1();
+            maxBounds.x = std::max(maxBounds.x, p.x);
+            maxBounds.y = std::max(maxBounds.y, p.y);
+            minBounds.x = std::min(minBounds.x, p.x);
+            minBounds.y = std::min(minBounds.y, p.y);
         }
     }
 
   public:
-    sf::ConvexShape   shape; // kind of annoying having to store this same with point TODO
-    std::vector<Edge> edges;
-    Vec2              maxBounds{};
-    Vec2              minBounds{};
+    std::vector<Edge>         edges{};
+    sf::ConvexShape           shape; // kind of annoying having to store this same with point TODO
+    std::array<sf::Vertex, 2> line{};
+
+    explicit NewPolygon() = default;
+
     explicit NewPolygon(const std::vector<Vec2>& points) {
+        if (points.size() == 1)
+            throw std::logic_error("Polygon cannot be constructed with 1 point");
+
         shape.setPointCount(points.size());
         for (std::size_t i = 0; i != points.size() - 1; i++) {
             edges.push_back({points[i], points[i + 1]});
@@ -33,12 +46,68 @@ class NewPolygon {
         boundsUp();
     }
 
+    void addEdge(const Vec2& pos) {
+        if (edges.empty())
+            throw std::logic_error("cant add one edge if empty poly must have two edges");
+        edges.back().p2(pos);
+        edges.emplace_back(pos, edges.front().p1());
+        shape.setPointCount(edges.size());
+        shape.setPoint(edges.size() - 1, visualize(pos));
+    }
+
+    void rmvEdge() {
+        if (edges.empty()) throw std::logic_error("cant rmvEdge if polygon empty");
+        if (edges.size() == 2) {
+            edges.clear();
+        } else {
+            edges.pop_back();
+            edges.back().p2(edges.front().p1());
+            shape.setPointCount(edges.size());
+        }
+    }
+
     bool isBounded(const Vec2& pos) const {
         return pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
                pos.y <= maxBounds.y;
     }
 
-    void draw(sf::RenderWindow& window) { window.draw(shape); }
+    bool isContained(const Vec2& pos) const {
+        bool contained = false;
+        for (const Edge& e: edges) {
+            if (e.rayCast(pos)) contained = !contained;
+        }
+        return contained;
+    }
+
+    bool isConvex() {
+        bool sign =
+            std::signbit((edges.back().diff()).cross(edges.front().diff())); // first and last
+
+        for (std::size_t i = 0; i != edges.size() - 1; ++i) {
+            if (std::signbit(edges[i].diff().cross(edges[i + 1].diff())) != sign)
+                return false; // checks up untill edge size - 1
+        }
+        return true;
+    }
+
+    void draw(sf::RenderWindow& window, bool update) {
+        if (edges.empty()) throw std::logic_error("cant draw poly if has no edges");
+        if (edges.size() > 2) {
+            if (update) {
+                shape.setPointCount(edges.size());
+                for (std::size_t i = 0; i != edges.size(); i++) {
+                    shape.setPoint(i, visualize(edges[i].p1()));
+                }
+            }
+            window.draw(shape);
+        } else if (edges.size() == 2) {
+            if (update) {
+                line[0].position = visualize(edges[0].p1());
+                line[1].position = visualize(edges[1].p1());
+            }
+            window.draw(line.data(), 2, sf::Lines);
+        }
+    }
 
     // static stuff
     static NewPolygon Square(const Vec2& pos, double tilt) {

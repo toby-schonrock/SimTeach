@@ -3,39 +3,53 @@
 #include "Vector2.hpp"
 
 class Edge {
-  public:
-    Vec2   p1;
-    Vec2   p2;
-    Vec2   min;
-    Vec2   max;
-    Vec2   diff;
-    double mag;
-    Vec2   unitDiff;
-    Vec2   normal;
+  private:
+    Vec2   p1_;
+    Vec2   p2_;
+    Vec2   min_;
+    Vec2   max_;
+    Vec2   diff_;
+    double mag_;
+    Vec2   unitDiff_;
+    Vec2   normal_;
 
-    Edge(const Vec2& p1_, const Vec2& p2_)
-        : p1(p1_), p2(p2_), diff(p2 - p1), mag(diff.mag()), unitDiff(diff / mag),
-          normal(unitDiff.y, unitDiff.x) {
-        if (p1.x < p2.x) {
-            min.x = p1.x;
-            max.x = p2.x;
-        }
-        if (p1.y < p2.y) {
-            min.y = p1.y;
-            max.y = p2.y;
-        }
+  public:
+    [[nodiscard]] constexpr const Vec2& p1() const { return p1_; }
+    [[nodiscard]] constexpr const Vec2& p2() const { return p2_; }
+    [[nodiscard]] constexpr const Vec2& min() const { return min_; }
+    [[nodiscard]] constexpr const Vec2& max() const { return max_; }
+    [[nodiscard]] constexpr const Vec2& diff() const { return diff_; }
+    [[nodiscard]] constexpr double      mag() const { return mag_; }
+    [[nodiscard]] constexpr const Vec2& unitDiff() const { return unitDiff_; }
+    [[nodiscard]] constexpr const Vec2& normal() const { return normal_; }
+
+    void set(const Vec2& p1, const Vec2& p2) {
+        p1_    = p1;
+        p2_    = p2;
+        min_.x = std::min(p1.x, p2.x);
+        min_.y = std::min(p1.y, p2.y);
+        max_.x = std::max(p1.x, p2.x);
+        max_.y = std::max(p1.y, p2.y);
+        diff_  = p2 - p1;
+        mag_ = diff_.mag();
+        unitDiff_ = diff_ / mag_;
+        normal_= {-unitDiff_.y, unitDiff_.x};
     }
 
-    // bool rayCast(const Vec2& pos, const Vec2& dir) {
-    //     if ()
-    // }
-    // maybe when I can maths
+    void p1(const Vec2& p1) {set(p1, p2_);}
 
-    bool rayCast(const Vec2& pos) {
-        if (pos.x < min.x || pos.x > max.x) return false; // outside x range
-        if (pos.x == p1.x) return false; // perfect vertical allignment with one end
-        if (diff.x == 0)
+    void p2(const Vec2& p2) {set(p1_, p2);}
+
+    Edge(const Vec2& p1, const Vec2& p2)
+        : p1_(p1), p2_(p2), min_(std::min(p1.x, p2.x), std::min(p1.y, p2.y)),
+          max_(std::max(p1.x, p2.x), std::max(p1.y, p2.y)), diff_(p2 - p1), mag_(diff_.mag()),
+          unitDiff_(diff_ / mag_), normal_(-unitDiff_.y, unitDiff_.x) {}
+
+    bool rayCast(const Vec2& pos) const {
+        if (pos.x < min_.x || pos.x > max_.x) return false; // outside x range
+        if (pos.x == p1_.x) return false; // perfect vertical allignment with one end
+        if (diff_.x == 0)
             return false; // if vertices form a verticle line a verticle line cannot intersect
-        return (pos.x - p1.x) / diff.x * diff.y + p1.y > pos.y;
+        return (pos.x - p1_.x) / diff_.x * diff_.y + p1_.y > pos.y;
     }
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NewPolygon.hpp"
 #include "Point.hpp"
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
@@ -500,142 +501,67 @@ class SpringTool : public Tool {
     }
 };
 
-class PolyTool : public Tool {
+class CustomPolyTool : public Tool {
   private:
-    static inline const sf::Color hoverColour = sf::Color::Blue;
-    static constexpr std::array   modes{"Custom", "Square", "Triangle"};
-    sf::ConvexShape               shape{};
-    std::vector<Vec2>             verts{};
-    std::array<sf::Vertex, 2>     line{};
-    Vec2                          newPoint;
-    std::size_t                   mode      = 0;
-    bool                          validPoly = false;
-    bool                          finished  = false;
+    NewPolygon                poly{};
+    std::array<sf::Vertex, 2> line{};
+    Vec2                      newPoint{};
+    bool                      convex = false;
+    bool                      inside = false;
 
     void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) override {}
 
-    inline Vec2 getEdge(std::size_t edge) { return verts[edge] - verts[(edge + 1)]; }
-
-    bool isConvexPoly() {
-        // cool idea here is that the cross product of all of the vertices in order will have
-        // constant sign if convex
-        // lots of repeat calulations but kinda nessecary (also fixed by optimisations)
-        bool sign;
-        if (finished) {
-            sign = std::signbit((newPoint - verts[0]).cross(getEdge(0))); // checks first and new
-            if (std::signbit((verts[verts.size() - 1] - newPoint).cross(newPoint - verts[0])) !=
-                sign)
-                return false; // new and last
-            if (std::signbit(getEdge(verts.size() - 2).cross(verts[verts.size() - 1] - newPoint)) !=
-                sign)
-                return false; // last and second last
-        } else {
-            sign = std::signbit(
-                (verts[verts.size() - 1] - verts[0]).cross(getEdge(0))); // checks first and last
-            if (std::signbit(getEdge(verts.size() - 2).cross(verts[verts.size() - 1] - verts[0])) !=
-                sign)
-                return false; // last and second last
-        }
-
-        for (std::size_t i = 0; i != verts.size() - 2; ++i) {
-            if (std::signbit(getEdge(i).cross(getEdge(i + 1))) != sign)
-                return false; // checks up untill edge size - 1
-        }
-        return true;
-    }
-
-    bool isWithinPoly() {
-        bool inside = rayCast(verts[verts.size() - 1], verts[0], newPoint);
-
-        for (std::size_t i = 0; i != verts.size() - 1; ++i) {
-            if (rayCast(verts[i], verts[i + 1], newPoint)) {
-                inside = !inside;
-            }
-        }
-        return inside;
-    }
-
-    // copied from point class
-    // TODO should all be removed in optimisation of poly collision
-    bool rayCast(const Vec2& v1, const Vec2& v2, const Vec2& p) const {
-        if ((p.x < std::min(v1.x, v2.x)) || (p.x > std::max(v1.x, v2.x)))
-            return false; // if point outisde range of line
-        // if (p.y < std::min(v1.y, v2.y)) return true; // is beneath both vertices
-        if (p.x == v1.x)
-            return false; // to prevent perfect vertical allignment causing collision with both
-                          // lines
-        double deltaX = v2.x - v1.x;
-        if (deltaX == 0)
-            return false; // if vertices form a verticle line a verticle line cannot intersect
-        double deltaY = v2.y - v1.y;
-        return (p.x - v1.x) / deltaX * deltaY + v1.y > p.y;
-    }
-
   public:
-    PolyTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
+    CustomPolyTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
-        newPoint = unvisualize(window.mapPixelToCoords(mousePixPos));
+        sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
+        newPoint              = unvisualize(mousePos);
 
-        // draw shape at end
-        // Is a complete wipe really nessecary? Maybe not but I cba.
-        if (verts.size() > 2) {
-            finished  = isWithinPoly();
-            validPoly = isConvexPoly();
-            if (finished) {
-                shape.setFillColor(sf::Color::Green);
-                ImGui::SetTooltip("Click to finish");
-                shape.setPointCount(verts.size());
-                for (std::size_t x = 0; x != verts.size(); x++)
-                    shape.setPoint(x, visualize(verts[x]));
-            } else if (!validPoly) {
-                shape.setFillColor(sf::Color::Red);
-                ImGui::SetTooltip("Polygons must be convex");
-                shape.setPointCount(verts.size() + 1);
-                for (std::size_t x = 0; x != verts.size(); x++)
-                    shape.setPoint(x, visualize(verts[x]));
-                shape.setPoint(verts.size(), visualize(newPoint)); // draw new point
+        // std::cout << poly.edges.size() << "\n";
+
+        if (!poly.edges.empty()) {
+            if (poly.edges.size() > 2) {
+                convex = poly.isConvex();
+                if (convex) {
+                    poly.shape.setFillColor(sf::Color::White);
+                } else {
+                    poly.shape.setFillColor(sf::Color::Red);
+                }
+                if (!inside) poly.rmvEdge();         // no need to repeat if already hovering inside
+                inside = poly.isContained(newPoint); // update
+                if (inside) {
+                    poly.shape.setFillColor(sf::Color::Green);
+                } else {
+                    poly.addEdge(newPoint);
+                }
             } else {
-                shape.setFillColor(sf::Color::White);
-                shape.setPointCount(verts.size() + 1);
-                for (std::size_t x = 0; x != verts.size(); x++)
-                    shape.setPoint(x, visualize(verts[x]));
-                shape.setPoint(verts.size(), visualize(newPoint)); // draw new point
+                poly.edges.back().p1(newPoint);
+                poly.edges[poly.edges.size() - 2].p2(newPoint);
             }
-            window.draw(shape);
-        }
-        if (verts.size() == 2) {
-            validPoly = false;
-            finished  = false;
-            shape.setFillColor(sf::Color::White);
-            shape.setPointCount(3);
-            shape.setPoint(0, visualize(verts[0]));
-            shape.setPoint(1, visualize(verts[1]));
-            shape.setPoint(2, visualize(newPoint));
-            window.draw(shape);
-        } else if (verts.size() == 1) {
-            validPoly        = false;
-            finished         = false;
-            line[0].position = visualize(verts[0]);
-            line[1].position = visualize(newPoint);
-            window.draw(line.data(), 2, sf::Lines);
+            poly.draw(window, true);
         }
     }
+
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) { // new vert
-                verts.push_back(newPoint);
-            } else if (event.mouseButton.button == sf::Mouse::Right) {
-                if (verts.size() > 1) { // delete one vertex
-                    verts.pop_back();
-                } else if (verts.size() == 1) { // delete final vertex
-                    verts.clear();
+                if (inside && poly.edges.size() > 2) { // if green
+                    // add poly to sim
+                } else if (convex || poly.edges.size() < 3) { // if not red
+                    if (poly.edges.empty()) {
+                        poly = NewPolygon({newPoint, {}});
+                    } else {
+                        poly.addEdge(newPoint);
+                    }
                 }
-            } else {
-                verts.clear();
+            } else if (event.mouseButton.button == sf::Mouse::Right) {
+                if (!poly.edges.empty()) poly.rmvEdge();
             }
         }
     }
     void unequip(Sim& sim) override {}
     void ImTool() override {}
 };
+
+// static constexpr std::array modes{"Custom", "Square", "Triangle"};
