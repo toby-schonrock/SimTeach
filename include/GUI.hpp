@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include "Debug.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -14,7 +15,7 @@ sf::Vector2f visualize(const Vec2& v);
 
 class GUI {
   private:
-    static constexpr float zoomFact = 1.05F;
+    static constexpr float      zoomFact = 1.05F;
     sf::RenderWindow&           window;
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
@@ -117,7 +118,11 @@ class GUI {
             }
         }
         if (polygons) {
-            for (Polygon& poly: sim.polys) poly.draw(window);
+            for (Polygon& poly: sim.polys) {
+                poly.draw(window, false);
+                // DEBUG
+                debugNormals(poly, window, sf::Color::Red);
+            }
         }
         if (points) {
             for (Point& point: sim.points) point.draw(window);

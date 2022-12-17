@@ -23,27 +23,34 @@ class Edge {
     [[nodiscard]] constexpr const Vec2& unitDiff() const { return unitDiff_; }
     [[nodiscard]] constexpr const Vec2& normal() const { return normal_; }
 
-    void set(const Vec2& p1, const Vec2& p2) {
-        p1_    = p1;
-        p2_    = p2;
-        min_.x = std::min(p1.x, p2.x);
-        min_.y = std::min(p1.y, p2.y);
-        max_.x = std::max(p1.x, p2.x);
-        max_.y = std::max(p1.y, p2.y);
-        diff_  = p2 - p1;
-        mag_ = diff_.mag();
-        unitDiff_ = diff_ / mag_;
-        normal_= {-unitDiff_.y, unitDiff_.x};
-    }
-
-    void p1(const Vec2& p1) {set(p1, p2_);}
-
-    void p2(const Vec2& p2) {set(p1_, p2);}
-
     Edge(const Vec2& p1, const Vec2& p2)
         : p1_(p1), p2_(p2), min_(std::min(p1.x, p2.x), std::min(p1.y, p2.y)),
           max_(std::max(p1.x, p2.x), std::max(p1.y, p2.y)), diff_(p2 - p1), mag_(diff_.mag()),
           unitDiff_(diff_ / mag_), normal_(-unitDiff_.y, unitDiff_.x) {}
+
+    void set(const Vec2& p1, const Vec2& p2) {
+        p1_       = p1;
+        p2_       = p2;
+        min_.x    = std::min(p1.x, p2.x);
+        min_.y    = std::min(p1.y, p2.y);
+        max_.x    = std::max(p1.x, p2.x);
+        max_.y    = std::max(p1.y, p2.y);
+        diff_     = p2 - p1;
+        mag_      = diff_.mag();
+        unitDiff_ = diff_ / mag_;
+        normal_   = {-unitDiff_.y, unitDiff_.x};
+    }
+
+    void p1(const Vec2& p1) { set(p1, p2_); }
+
+    void p2(const Vec2& p2) { set(p1_, p2); }
+
+    double distToPoint(const Vec2& pos) const {
+        // finds the shortest distance from the point to the edge
+        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
+        // draws a traingle between the three points and performs h = 2A/b
+        return std::abs(diff_.cross(p1_ - pos) / mag_);
+    }
 
     bool rayCast(const Vec2& pos) const {
         if (pos.x < min_.x || pos.x > max_.x) return false; // outside x range

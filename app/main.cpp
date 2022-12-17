@@ -1,23 +1,15 @@
 #include <array>
 #include <chrono>
-#include <cstddef>
 #include <iostream>
-#include <iterator>
-#include <limits>
-#include <numbers>
-#include <optional>
-#include <string>
 #include <type_traits>
 #include <vector>
 
-#include "Tool.hpp"
 #include "GUI.hpp"
-#include "Point.hpp"
-#include "Polygon.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
+#include "Tool.hpp"
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -67,13 +59,13 @@ int main() {
         ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
                                                // cursor overide)
 
-    Sim  sim1    = Sim::softbody({0, 0}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
-    bool running = false;
+    Sim         sim1         = Sim::softbody({0, 0}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
+    bool        running      = false;
     std::size_t selectedTool = 0;
     // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
     // Sim sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100);
     // Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
-    
+
     std::vector<std::unique_ptr<Tool>> tools;
     tools.push_back(std::make_unique<PointTool>(window, "Points"));
     tools.push_back(std::make_unique<SpringTool>(window, "Springs"));
@@ -87,9 +79,8 @@ int main() {
         std::chrono::system_clock::time_point start = std::chrono::high_resolution_clock::now();
 
         // run the sim
-        int simFrames = 0;
-        std::chrono::nanoseconds sinceVFrame =
-                std::chrono::high_resolution_clock::now() - start;
+        int                      simFrames   = 0;
+        std::chrono::nanoseconds sinceVFrame = std::chrono::high_resolution_clock::now() - start;
         if (running) {
             while ((sinceVFrame.count() < 10'000'000)) { // TODO: min max avg frames test
                 ++simFrames;
@@ -103,7 +94,9 @@ int main() {
                 sinceVFrame = frameTime - start;
             }
         } else {
-            while ((sinceVFrame.count() < 10'000'000)) { sinceVFrame = std::chrono::high_resolution_clock::now() - start; } // spin untill frame has passed
+            while ((sinceVFrame.count() < 10'000'000)) {
+                sinceVFrame = std::chrono::high_resolution_clock::now() - start;
+            } // spin untill frame has passed
         }
 
         sf::Vector2i mousePos = sf::Mouse::getPosition(
@@ -136,11 +129,11 @@ int main() {
         ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
         if (ImGui::BeginTabBar("Tools")) {
             for (std::size_t i = 0; i < tools.size(); ++i) {
-                 if (ImGui::BeginTabItem(tools[i]->name.data())) {
+                if (ImGui::BeginTabItem(tools[i]->name.data())) {
                     if (selectedTool != i) tools[selectedTool]->unequip(sim1); // if changed
                     selectedTool = i;
                     ImGui::EndTabItem();
-                 }
+                }
             }
             ImGui::EndTabBar();
         }

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <vector>
 
-#include "Point.hpp"
 #include "Polygon.hpp"
+#include "Point.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
 
@@ -20,9 +20,9 @@ struct Spring {
 class Sim {
   public:
     std::vector<Polygon> polys;
-    std::vector<Point>   points;
-    std::vector<Spring>  springs;
-    double               gravity;
+    std::vector<Point>      points;
+    std::vector<Spring>     springs;
+    double                  gravity;
 
     void simFrame(double deltaTime) {
         // calculate spring force
@@ -35,7 +35,9 @@ class Sim {
         // collide points with polygons
         for (const Polygon& poly: polys) {
             for (Point& point: points) {
-                if (poly.isBounded(point.pos)) point.polyColHandler(poly);
+                if (poly.isBounded(point.pos) &&
+                    poly.isContained(point.pos)) // not sure if bounded check is still faster
+                    poly.colHandler(point);
             }
         }
     }
@@ -45,7 +47,7 @@ class Sim {
     // TODO this is slow(maybe)
     void removePoint(const std::size_t& pos) {
         if (points.empty() || pos >= points.size()) {
-            std::cout << pos << "\n";
+            std::cout << "Attempted point - " << pos << "\n";
             throw std::logic_error("Asking to remove non existant point.");
         }
 

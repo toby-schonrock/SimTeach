@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Polygon.hpp"
 #include "Vector2.hpp"
+#include "SFML/Graphics.hpp"
+
+sf::Vector2f visualize(const Vec2& v);
 
 class Point {
   public:
@@ -30,66 +32,9 @@ class Point {
     }
 
     void update(double deltaTime, double gravity) {
-        vel += (f / mass + Vec2(0, 1) * gravity) * deltaTime;      // euler integration could be improved
+        vel += (f / mass + Vec2(0, 1) * gravity) *
+               deltaTime; // TODO euler integration could be improved
         pos += vel * deltaTime;
         f = Vec2();
-    }
-
-    void polyColHandler(const Polygon& poly) {
-        bool inside = false;
-
-        double closestDist = distToEdge(poly.points[poly.pointCount - 1], poly.points[0]);
-        Vec2   closestPos  = closestOnLine(
-               poly.points[poly.pointCount - 1], poly.points[0],
-               closestDist); // test distance to side consisting of last and first vertice
-
-        if (rayCast(poly.points[poly.pointCount - 1], poly.points[0])) inside = !inside;
-
-        for (std::size_t i = 0; i != poly.pointCount - 1; ++i) { // iterate through all other sides
-            double dist = distToEdge(poly.points[i], poly.points[i + 1]);
-            if (rayCast(poly.points[i], poly.points[i + 1])) inside = !inside;
-            if (closestDist > dist) { // if new closest side found
-                closestPos  = closestOnLine(poly.points[i], poly.points[i + 1], dist);
-                closestDist = dist;
-            }
-        }
-        if (inside) {
-            if (closestDist > 1e-10) { // to prevent the norm() dividing by ~ 0
-                Vec2 normal = (closestPos - pos);
-                normal      = normal.norm();
-                vel -= (2 * normal.dot(vel) * normal);
-                pos = closestPos;
-            }
-        }
-    }
-
-    // cast a verticle ray from infinty to tPos and sees if it collides with the line created
-    // between v1 and v2
-    bool rayCast(const Vec2& v1, const Vec2& v2) const {
-        if ((pos.x < std::min(v1.x, v2.x)) || (pos.x > std::max(v1.x, v2.x)))
-            return false; // if point outisde range of line
-        double deltaX = std::abs(v2.x - v1.x);
-        if (deltaX == 0.0)
-            return false; // if vertices form a verticle line a verticle line cannot intersect
-        double deltaY = v2.y - v1.y;
-        return std::abs(v1.x - pos.x) / deltaX * deltaY + v1.y > pos.y;
-    }
-
-    // using the shortest distance to the line finds the closest point on the line too pos
-    Vec2 closestOnLine(const Vec2& v1, const Vec2& v2, double dist) const {
-        double c2pd   = (v1 - pos).mag(); // corner to point distance
-        Vec2   result = std::sqrt(c2pd * c2pd - dist * dist) * (v2 - v1).norm(); // pythag
-        return result + v1;
-    }
-
-    // finds the shortest distance from point to line
-    double
-    distToEdge(const Vec2& v1,
-               const Vec2& v2) const { // finds the shortest distance from the point to the edge
-        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-        // draws a traingle between the three points and performs h = 2A/b
-        double TArea = std::abs((v2.x - v1.x) * (v1.y - pos.y) - (v1.x - pos.x) * (v2.y - v1.y));
-        double TBase = (v1 - v2).mag();
-        return TArea / TBase;
     }
 };
