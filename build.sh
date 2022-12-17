@@ -18,6 +18,7 @@ for arg; do
     -v|--verbose) VERBOSE='VERBOSE=1';;
     debug)        TYPE=Debug ;;
     release)      TYPE=Release ;;
+    reldebug)     TYPE=RelWithDebInfo ;;
     clang)        COMPILER=clang ;;
     gcc)          COMPILER=gcc ;;
     clean)        CLEAN=1 ;;

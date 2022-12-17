@@ -47,6 +47,7 @@ class Tool {
     sf::RenderWindow& window;
     std::string       name;
     Tool(sf::RenderWindow& window_, std::string name_) : window(window_), name(std::move(name_)) {}
+    virtual ~Tool() = default;
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
     virtual void event(Sim& sim, const sf::Event& event)          = 0;
     virtual void unequip(Sim& sim)                                = 0;

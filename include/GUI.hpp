@@ -79,10 +79,8 @@ class GUI {
         if (ImGui::CollapsingHeader("fps")) {
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
             ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
-            if (ImPlot::BeginPlot(
-                    "fps", {vsScale * 5.0F, vsScale * 2.5F},
-                    ImPlotFlags_NoInputs |
-                        ImPlotFlags_NoTitle)) { 
+            if (ImPlot::BeginPlot("fps", {vsScale * 5.0F, vsScale * 2.5F},
+                                  ImPlotFlags_NoInputs | ImPlotFlags_NoTitle)) {
                 ImPlot::SetupLegend(ImPlotLocation_SouthWest);
                 ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations); // setup axes
                 ImPlot::SetupAxis(ImAxis_Y1, "visual");
@@ -103,9 +101,9 @@ class GUI {
             ImPlot::PopStyleColor(2);
         }
 
-        static bool springs  = true;
+        static bool points   = false;
+        static bool springs  = false;
         static bool polygons = true;
-        static bool points   = true;
         ImGui::Checkbox("Points", &points);
         ImGui::SameLine();
         ImGui::TextDisabled("%zu", sim.points.size());
