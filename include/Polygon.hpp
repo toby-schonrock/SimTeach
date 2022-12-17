@@ -2,8 +2,8 @@
 
 #include "Edge.hpp"
 #include "Point.hpp"
-#include "Vector2.hpp"
 #include "SFML/Graphics.hpp"
+#include "Vector2.hpp"
 
 sf::Vector2f visualize(const Vec2& v);
 
@@ -14,17 +14,6 @@ class Polygon {
   private:
     Vec2 maxBounds{};
     Vec2 minBounds{};
-
-    void boundsUp() {
-        // TODO doesn't take advantage of mins/maxs already calulates
-        for (const Edge& edge: edges) { // loop over all points
-            Vec2 p      = edge.p1();
-            maxBounds.x = std::max(maxBounds.x, p.x);
-            maxBounds.y = std::max(maxBounds.y, p.y);
-            minBounds.x = std::min(minBounds.x, p.x);
-            minBounds.y = std::min(minBounds.y, p.y);
-        }
-    }
 
   public:
     std::vector<Edge>         edges{};
@@ -49,6 +38,17 @@ class Polygon {
         if (!isConvex())
             throw std::logic_error(
                 "Polygon points given are not convex"); // also updates the direction variable ;)
+    }
+
+    void boundsUp() {
+        // TODO doesn't take advantage of mins/maxs already calulated
+        for (const Edge& edge: edges) { // loop over all points
+            Vec2 p      = edge.p1();
+            maxBounds.x = std::max(maxBounds.x, p.x);
+            maxBounds.y = std::max(maxBounds.y, p.y);
+            minBounds.x = std::min(minBounds.x, p.x);
+            minBounds.y = std::min(minBounds.y, p.y);
+        }
     }
 
     void addEdge(const Vec2& pos) {

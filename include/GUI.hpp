@@ -82,16 +82,15 @@ class GUI {
             if (ImPlot::BeginPlot(
                     "fps", {vsScale * 5.0F, vsScale * 2.5F},
                     ImPlotFlags_NoInputs |
-                        ImPlotFlags_NoTitle)) { // NOLINT "Use of a signed integer operand with a
-                                                // binary bitwise operator" this is implots fault
+                        ImPlotFlags_NoTitle)) { 
                 ImPlot::SetupLegend(ImPlotLocation_SouthWest);
                 ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations); // setup axes
                 ImPlot::SetupAxis(ImAxis_Y1, "visual");
-                ImPlot::SetupAxesLimits(0, 160, 50, 100, ImGuiCond_Always);
+                ImPlot::SetupAxesLimits(0, 160, 30, 100, ImGuiCond_Always);
                 ImPlot::SetupAxis(ImAxis_Y2, "simulation",
                                   ImPlotAxisFlags_Opposite | ImPlotAxisFlags_NoSideSwitch);
                 ImPlot::SetupAxisScale(ImAxis_Y2, ImPlotScale_Log10);
-                ImPlot::SetupAxisLimits(ImAxis_Y2, 1000, 100000);
+                ImPlot::SetupAxisLimits(ImAxis_Y2, 100, 100000);
 
                 ImPlot::PlotLine("visual", &fps.v[0].x, static_cast<int>(fps.v.size()), 1.0L, 0.0L,
                                  ImPlotLineFlags_None, static_cast<int>(fps.pos),
@@ -107,9 +106,15 @@ class GUI {
         static bool springs  = true;
         static bool polygons = true;
         static bool points   = true;
-        ImGui::Checkbox("Springs", &springs);
-        ImGui::Checkbox("Polgons", &polygons);
         ImGui::Checkbox("Points", &points);
+        ImGui::SameLine();
+        ImGui::TextDisabled("%zu", sim.points.size());
+        ImGui::Checkbox("Springs", &springs);
+        ImGui::SameLine();
+        ImGui::TextDisabled("%zu", sim.springs.size());
+        ImGui::Checkbox("Polgons", &polygons);
+        ImGui::SameLine();
+        ImGui::TextDisabled("%zu", sim.polys.size());
         if (springs) {
             for (Spring& spring: sim.springs) {
                 spring.verts[0].position = visualize(sim.points[spring.p1].pos);
@@ -117,15 +122,11 @@ class GUI {
                 window.draw(spring.verts.data(), 2, sf::Lines);
             }
         }
-        if (polygons) {
-            for (Polygon& poly: sim.polys) {
-                poly.draw(window, false);
-                // DEBUG
-                debugNormals(poly, window, sf::Color::Red);
-            }
-        }
         if (points) {
             for (Point& point: sim.points) point.draw(window);
+        }
+        if (polygons) {
+            for (Polygon& poly: sim.polys) poly.draw(window, false);
         }
 
         ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Polygon.hpp"
 #include "Point.hpp"
+#include "Polygon.hpp"
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -503,7 +503,7 @@ class SpringTool : public Tool {
 
 class CustomPolyTool : public Tool {
   private:
-    Polygon                poly{};
+    Polygon                   poly{};
     std::array<sf::Vertex, 2> line{};
     Vec2                      newPoint{};
     bool                      convex = false;
@@ -544,8 +544,9 @@ class CustomPolyTool : public Tool {
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) { // new vert
-                if (inside && poly.edges.size() > 2) { // if green
+                if (inside && poly.edges.size() > 2) {         // if green
                     poly.shape.setFillColor(sf::Color::White);
+                    poly.boundsUp();
                     sim.polys.push_back(poly);
                     poly = Polygon{};
                 } else if (convex || poly.edges.size() < 3) { // if not red
@@ -560,7 +561,7 @@ class CustomPolyTool : public Tool {
             }
         }
     }
-    void unequip(Sim& sim) override {}
+    void unequip(Sim& sim) override { poly = Polygon{}; }
     void ImTool() override {}
 };
 
