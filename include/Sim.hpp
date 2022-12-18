@@ -3,31 +3,46 @@
 #include <iostream>
 #include <vector>
 
-#include "Polygon.hpp"
 #include "Point.hpp"
+#include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
+#include "Visualizers.hpp"
 
 struct Spring {
-    std::array<sf::Vertex, 2> verts; // TODO perhaps store inderictly to save size (more cacheing)
-    double                    springConst;
-    double                    dampFact;
-    double                    stablePoint;
-    std::size_t               p1;
-    std::size_t               p2;
+    double      springConst;
+    double      dampFact;
+    double      stablePoint;
+    std::size_t p1;
+    std::size_t p2;
+
+    void springHandler(Point& point1, Point& point2) const {
+        Vec2 diff = point1.pos - point2.pos; // broken out alot "yes this is faster! really like 3x"
+        double diffMag  = diff.mag();
+        Vec2   diffNorm = diff / diffMag;
+        double ext      = diffMag - stablePoint;
+        double springf  = -springConst * ext; // -ke spring force and also if a diagonal increase
+                                              // spring constant for stability // test
+        double dampf = diffNorm.dot(point2.vel - point1.vel) * dampFact; // damping force
+        Vec2   force = (springf + dampf) * diffNorm;
+        point1.f += force; // equal and opposite reaction
+        point2.f -= force;
+    }
 };
 
 class Sim {
   public:
-    std::vector<Polygon> polys;
-    std::vector<Point>      points;
-    std::vector<Spring>     springs;
-    double                  gravity;
+    std::vector<Polygon>   polys;
+    std::vector<Point>     points;
+    std::vector<VisPoint>  visPoints;
+    std::vector<Spring>    springs;
+    std::vector<VisSpring> visSprings;
+    double                 gravity;
 
     void simFrame(double deltaTime) {
         // calculate spring force
         for (const Spring& spring: springs)
-            springHandler(points[spring.p1], points[spring.p2], spring);
+            spring.springHandler(points[spring.p1], points[spring.p2]);
 
         // update point positions
         for (Point& point: points) point.update(deltaTime, gravity);
@@ -42,21 +57,81 @@ class Sim {
         }
     }
 
-    void addPoint(const Point& p) { points.push_back(p); }
+    void addPoint(const Point& p) {
+        points.push_back(p);
+        visPoints.emplace_back(p);
+    }
 
     // TODO this is slow(maybe)
-    void removePoint(const std::size_t& pos) {
+    void rmvPoint(const std::size_t& pos) {
         if (points.empty() || pos >= points.size()) {
             std::cout << "Attempted point - " << pos << "\n";
             throw std::logic_error("Asking to remove non existant point.");
         }
 
         points.erase(points.begin() + static_cast<long long>(pos));
-        std::erase_if(springs, [pos](const Spring& s) { return s.p1 == pos || s.p2 == pos; });
+        visPoints.erase(visPoints.begin() + static_cast<long long>(pos));
+
+        // manual remove
+        auto curr    = springs.begin();
+        auto visCurr = visSprings.begin();
+        auto last    = springs.end();
+        auto visLast = visSprings.end();
+
+        while (curr < last) {
+            if (curr->p1 == pos || curr->p2 == pos) {
+                std::swap(*curr, *(--last));
+                std::swap(*visCurr, *(--visLast));
+            } else {
+                ++curr;
+                ++visCurr;
+            }
+        }
+        // erase
+        springs.erase(last, springs.end());
+        visSprings.erase(visLast, visSprings.end());
+
         for (Spring& s: springs) {
             if (s.p1 > pos) --s.p1;
             if (s.p2 > pos) --s.p2;
         }
+    }
+
+    void addSpring(const Spring& s) {
+        springs.push_back(s);
+        visSprings.emplace_back();
+    }
+
+    void rmvSpring(const std::size_t& pos) {
+        springs.erase(springs.begin() + static_cast<long long>(pos));
+        visSprings.erase(visSprings.begin() + static_cast<long long>(pos));
+    }
+
+    void updatePointVisPos() {
+        for (std::size_t i = 0; i != points.size(); ++i) {
+            visPoints[i].v[0].position =
+                visualize(points[i].pos) + sf::Vector2f{-points[i].radius, -points[i].radius};
+            visPoints[i].v[1].position =
+                visualize(points[i].pos) + sf::Vector2f{points[i].radius, -points[i].radius};
+            visPoints[i].v[2].position =
+                visualize(points[i].pos) + sf::Vector2f{points[i].radius, points[i].radius};
+            visPoints[i].v[3].position =
+                visualize(points[i].pos) + sf::Vector2f{-points[i].radius, points[i].radius};
+        }
+    }
+
+    void updateSpringVisPos() {
+        for (std::size_t i = 0; i != springs.size(); ++i) {
+            visSprings[i].v[0].position = visualize(points[springs[i].p1].pos);
+            visSprings[i].v[1].position = visualize(points[springs[i].p2].pos);
+        }
+    }
+
+    void resetPointColor(std::size_t i) {
+        visPoints[i].v[0].color = points[i].color;
+        visPoints[i].v[1].color = points[i].color;
+        visPoints[i].v[2].color = points[i].color;
+        visPoints[i].v[3].color = points[i].color;
     }
 
     std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {
@@ -91,36 +166,6 @@ class Sim {
         return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
     }
 
-    // returns all points within the range in reverse point order (easier to delete them)
-    std::vector<std::size_t> findPointsInRange(const Vec2& pos, double range) const {
-        if (points.empty()) throw std::logic_error("Finding points in range with no points?!? ;)");
-        std::vector<std::size_t> pointsInRange;
-        double                   sqrRange = range * range;
-        for (std::size_t i = points.size() - 1; i < points.size();
-             --i) { // uses the wrapping nature of unsigned integers to halt the loop
-            Vec2   diff = pos - points[i].pos;
-            double dist = diff.x * diff.x + diff.y * diff.y;
-            if (dist < sqrRange) {
-                pointsInRange.push_back(i);
-            }
-        }
-        return pointsInRange;
-    }
-
-    static void springHandler(Point& p1, Point& p2, const Spring& spring) {
-        Vec2   diff     = p1.pos - p2.pos; // broken out alot "yes this is faster! really like 3x"
-        double diffMag  = diff.mag();
-        Vec2   diffNorm = diff / diffMag;
-        double ext      = diffMag - spring.stablePoint;
-        double springf =
-            -spring.springConst * ext; // -ke spring force and also if a diagonal increase
-                                       // spring constant for stability // test
-        double dampf = diffNorm.dot(p2.vel - p1.vel) * spring.dampFact; // damping force
-        Vec2   force = (springf + dampf) * diffNorm;
-        p1.f += force; // equal and opposite reaction
-        p2.f -= force;
-    }
-
     static Sim softbody(const Vector2<std::size_t>& size, const Vec2& simPos, float radius,
                         float gravity, float gap, float springConst, float dampFact,
                         sf::Color color = sf::Color::Yellow) {
@@ -143,27 +188,19 @@ class Sim {
                 std::size_t p = x + y * size.x;
                 if (x < size.x - 1) {
                     if (y < size.y - 1) {
-                        sim.springs.push_back({{},
-                                               springConst,
-                                               dampFact,
-                                               std::numbers::sqrt2 * static_cast<double>(gap),
-                                               p,
-                                               x + 1 + (y + 1) * size.x}); // down right
+                        sim.addSpring({springConst, dampFact,
+                                       std::numbers::sqrt2 * static_cast<double>(gap), p,
+                                       x + 1 + (y + 1) * size.x}); // down right
                     }
-                    sim.springs.push_back(
-                        {{}, springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
+                    sim.addSpring({springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
                 }
                 if (y < size.y - 1) {
                     if (x > 0) {
-                        sim.springs.push_back({{},
-                                               springConst,
-                                               dampFact,
-                                               std::numbers::sqrt2 * static_cast<double>(gap),
-                                               p,
-                                               x - 1 + (y + 1) * size.x}); // down left
+                        sim.addSpring({springConst, dampFact,
+                                       std::numbers::sqrt2 * static_cast<double>(gap), p,
+                                       x - 1 + (y + 1) * size.x}); // down left
                     }
-                    sim.springs.push_back(
-                        {{}, springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
+                    sim.addSpring({springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
                 }
             }
         }

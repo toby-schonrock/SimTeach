@@ -16,6 +16,7 @@ sf::Vector2f visualize(const Vec2& v);
 class GUI {
   private:
     static constexpr float      zoomFact = 1.05F;
+    sf::Texture                 pointTexture;
     sf::RenderWindow&           window;
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
@@ -28,6 +29,9 @@ class GUI {
         : window(window_), screen(desktop.width, desktop.height),
           vsScale(static_cast<float>(screen.x) / 20.0F) {
         std::cout << "Scale: " << vsScale << "\n";
+        if (!pointTexture.loadFromFile("point.png"))
+            throw std::logic_error("failed to load point texture");
+        pointTexture.setSmooth(true);
         reset();
     }
 
@@ -101,8 +105,8 @@ class GUI {
             ImPlot::PopStyleColor(2);
         }
 
-        static bool points   = false;
-        static bool springs  = false;
+        static bool points   = true;
+        static bool springs  = true;
         static bool polygons = true;
         ImGui::Checkbox("Points", &points);
         ImGui::SameLine();
@@ -114,14 +118,12 @@ class GUI {
         ImGui::SameLine();
         ImGui::TextDisabled("%zu", sim.polys.size());
         if (springs) {
-            for (Spring& spring: sim.springs) {
-                spring.verts[0].position = visualize(sim.points[spring.p1].pos);
-                spring.verts[1].position = visualize(sim.points[spring.p2].pos);
-                window.draw(spring.verts.data(), 2, sf::Lines);
-            }
+            sim.updateSpringVisPos();
+            window.draw(sim.visSprings[0].v.data(), sim.visSprings.size() * 2, sf::Lines);
         }
         if (points) {
-            for (Point& point: sim.points) point.draw(window);
+            sim.updatePointVisPos();
+            window.draw(sim.visPoints[0].v.data(), sim.visPoints.size() * 4, sf::Quads, &pointTexture);
         }
         if (polygons) {
             for (Polygon& poly: sim.polys) poly.draw(window, false);

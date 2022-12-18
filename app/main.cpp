@@ -1,7 +1,6 @@
 #include <array>
 #include <chrono>
 #include <iostream>
-#include <type_traits>
 #include <vector>
 
 #include "GUI.hpp"
@@ -59,12 +58,13 @@ int main() {
         ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
                                                // cursor overide)
 
-    // Sim         sim1         = Sim::softbody({0, 0}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100);
     bool        running      = false;
     std::size_t selectedTool = 0;
-    // Sim sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 0.0F, 0.2F, 8000, 100);
-    // Sim sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100);
-    Sim sim1 = Sim::softbody({100, 100}, {1, -10}, 0.05F, 2.0F, 0.1F, 10000, 100); // stress test
+    // Sim         sim1 = Sim::softbody({0, 0}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100); // empty
+    // Sim         sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
+    // Sim         sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100);
+    Sim         sim1 = Sim::softbody({100, 100}, {1, -10}, 0.02F, 2.0F, 0.1F, 100000, 100); // stress
+    // test
 
     std::vector<std::unique_ptr<Tool>> tools;
     tools.push_back(std::make_unique<PointTool>(window, "Points"));
@@ -86,7 +86,7 @@ int main() {
                 ++simFrames;
                 std::chrono::system_clock::time_point frameTime =
                     std::chrono::high_resolution_clock::now();
-                constexpr std::chrono::nanoseconds maxFrame{1'000'000};
+                constexpr std::chrono::nanoseconds maxFrame{1'000'000}; // 1 milisecond
                 std::chrono::nanoseconds           deltaTime = std::min(frameTime - last, maxFrame);
                 last                                         = frameTime;
 
@@ -144,12 +144,12 @@ int main() {
         gui.frame(sim1, mousePos);
 
         // DEBUG point
-        Point debugPoint{unvisualize(window.mapPixelToCoords(mousePos)), 1, 0.05F,
-                         sf::Color::Yellow};
-        for (const Polygon& p: sim1.polys) {
-            if (p.isContained(debugPoint.pos)) p.colHandler(debugPoint);
-        }
-        debugPoint.draw(window);
+        // Point debugPoint{unvisualize(window.mapPixelToCoords(mousePos)), 1, 0.05F,
+        //                  sf::Color::Yellow};
+        // for (const Polygon& p: sim1.polys) {
+        //     if (p.isContained(debugPoint.pos)) p.colHandler(debugPoint);
+        // }
+        // debugPoint.draw(window);
 
         ImGui::SFML::Render(window);
         window.display();
