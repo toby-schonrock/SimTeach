@@ -177,7 +177,7 @@ class PointTool : public Tool {
             // color close point for selection
             if (closestDist < toolRange) {
                 hoveredP = closestPoint;
-                sim.visPoints[*hoveredP].setColor(hoverColour);
+                sim.setPointColor(*hoveredP, hoverColour);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
                     ImGui::SetTooltip("Click to delete");
                 }
@@ -206,7 +206,7 @@ class PointTool : public Tool {
             } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
                 selectedP = *hoveredP;
                 hoveredP.reset();
-                sim.visPoints[*selectedP].setColor(selectedColour);
+                sim.setPointColor(*selectedP, selectedColour);
             }
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
@@ -318,8 +318,8 @@ class SpringTool : public Tool {
             hoveredP.reset();               // not be closest anymore
         }
         if (hoveredS) {
-            sim.visSprings[*hoveredS].setColor( // reset last closest line color as it may  not be
-                sf::Color::White);              // closest anymore
+            sim.setSpringColor(               // reset last closest line color as it may  not be
+                *hoveredS, sf::Color::White); // closest anymore
             hoveredS.reset();
         }
 
@@ -335,7 +335,7 @@ class SpringTool : public Tool {
                  *selectedP !=
                      closestP)) { // if (in range) and (not selected or the selected != closest)
                 hoveredP = closestP;
-                sim.visPoints[*hoveredP].setColor(hoverPColour);
+                sim.setPointColor(*hoveredP, hoverPColour);
             }
 
             if (selectedP) { // if selected point (in making spring mode)
@@ -368,7 +368,7 @@ class SpringTool : public Tool {
                     auto [closestS, closestSDist] = sim.findClosestSpring(unvisualize(mousePos));
                     if (closestSDist < toolRange) {
                         hoveredS = closestS;
-                        sim.visSprings[*hoveredS].setColor(hoverSColour);
+                        sim.setSpringColor(*hoveredS, hoverSColour);
                     }
                 }
             }
@@ -378,7 +378,7 @@ class SpringTool : public Tool {
     void event(Sim& sim, const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (selectedS) {
-                sim.visSprings[*selectedS].setColor(sf::Color::White);
+                sim.setSpringColor(*selectedS, sf::Color::White);
                 selectedS.reset(); // unselect (close edit)
             } else if (selectedP && event.mouseButton.button !=
                                         sf::Mouse::Left) { // if not a left click unselect point
@@ -398,14 +398,14 @@ class SpringTool : public Tool {
                         removeSpring(sim, *hoveredS); // only do it if there is a highlighted
                 } else if (hoveredP) {
                     selectedP = *hoveredP;
-                    sim.visPoints[*selectedP].setColor(selectedPColour);
+                    sim.setPointColor(*selectedP, selectedPColour);
                     hoveredP.reset();
                 }
             } else if (event.mouseButton.button == sf::Mouse::Right) { // selecting a spring
                 if (hoveredS) {
                     selectedS = hoveredS;
                     hoveredS.reset();
-                    sim.visSprings[*selectedS].setColor(selectedSColour);
+                    sim.setSpringColor(*selectedS, selectedSColour);
                 }
             }
         } else if (event.type == sf::Event::KeyPressed) {
@@ -429,11 +429,11 @@ class SpringTool : public Tool {
             hoveredP.reset();
         }
         if (selectedS) {
-            sim.visSprings[*selectedS].setColor(sf::Color::White);
+            sim.setSpringColor(*selectedS, sf::Color::White);
             selectedS.reset();
         }
         if (hoveredS) {
-            sim.visSprings[*hoveredS].setColor(sf::Color::White);
+            sim.setSpringColor(*hoveredS, sf::Color::White);
             hoveredS.reset();
         }
     }

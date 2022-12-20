@@ -7,7 +7,6 @@
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
-#include "Visualizers.hpp"
 
 struct Spring {
     double      springConst;
@@ -32,12 +31,13 @@ struct Spring {
 
 class Sim {
   public:
-    std::vector<Polygon>   polys;
-    std::vector<Point>     points;
-    std::vector<VisPoint>  visPoints;
-    std::vector<Spring>    springs;
-    std::vector<VisSpring> visSprings;
-    double                 gravity;
+    std::vector<sf::Vertex> pointVerts;
+    std::vector<sf::Vertex> springVerts;
+    std::vector<Polygon>    polys;
+    std::vector<Point>      points;
+    std::vector<Spring>     springs;
+
+    double gravity;
 
     void simFrame(double deltaTime) {
         // calculate spring force
@@ -59,7 +59,10 @@ class Sim {
 
     void addPoint(const Point& p) {
         points.push_back(p);
-        visPoints.emplace_back(p);
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{0, 0});
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{15, 0});
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{15, 15});
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{0, 15});
     }
 
     // TODO this is slow(maybe)
@@ -70,26 +73,28 @@ class Sim {
         }
 
         points.erase(points.begin() + static_cast<long long>(pos));
-        visPoints.erase(visPoints.begin() + static_cast<long long>(pos));
+        pointVerts.erase(pointVerts.begin() + static_cast<long long>(pos * 4),
+                         pointVerts.begin() + static_cast<long long>(pos * 4 + 4));
 
         // manual remove
         auto curr    = springs.begin();
-        auto visCurr = visSprings.begin();
+        auto visCurr = springVerts.begin();
         auto last    = springs.end();
-        auto visLast = visSprings.end();
+        auto visLast = springVerts.end();
 
         while (curr < last) {
+            visCurr += 2; // can be done either way as will be reverted by move
             if (curr->p1 == pos || curr->p2 == pos) {
-                std::swap(*curr, *(--last));
-                std::swap(*visCurr, *(--visLast));
+                *curr        = std::move(*(--last));
+                *(--visCurr) = std::move(*(--visLast));
+                *(--visCurr) = std::move(*(--visLast));
             } else {
                 ++curr;
-                ++visCurr;
             }
         }
         // erase
         springs.erase(last, springs.end());
-        visSprings.erase(visLast, visSprings.end());
+        springVerts.erase(visLast, springVerts.end());
 
         for (Spring& s: springs) {
             if (s.p1 > pos) --s.p1;
@@ -99,39 +104,55 @@ class Sim {
 
     void addSpring(const Spring& s) {
         springs.push_back(s);
-        visSprings.emplace_back();
+        springVerts.emplace_back();
+        springVerts.emplace_back();
     }
 
     void rmvSpring(const std::size_t& pos) {
         springs.erase(springs.begin() + static_cast<long long>(pos));
-        visSprings.erase(visSprings.begin() + static_cast<long long>(pos));
+        springVerts.erase(springVerts.begin() + static_cast<long long>(pos * 2),
+                          springVerts.begin() + static_cast<long long>(pos * 2 + 2));
     }
 
     void updatePointVisPos() {
         for (std::size_t i = 0; i != points.size(); ++i) {
-            visPoints[i].v[0].position =
+            pointVerts[i * 4].position =
                 visualize(points[i].pos) + sf::Vector2f{-points[i].radius, -points[i].radius};
-            visPoints[i].v[1].position =
+            pointVerts[i * 4 + 1].position =
                 visualize(points[i].pos) + sf::Vector2f{points[i].radius, -points[i].radius};
-            visPoints[i].v[2].position =
+            pointVerts[i * 4 + 2].position =
                 visualize(points[i].pos) + sf::Vector2f{points[i].radius, points[i].radius};
-            visPoints[i].v[3].position =
+            pointVerts[i * 4 + 3].position =
                 visualize(points[i].pos) + sf::Vector2f{-points[i].radius, points[i].radius};
         }
     }
 
     void updateSpringVisPos() {
         for (std::size_t i = 0; i != springs.size(); ++i) {
-            visSprings[i].v[0].position = visualize(points[springs[i].p1].pos);
-            visSprings[i].v[1].position = visualize(points[springs[i].p2].pos);
+            springVerts[i * 2].position     = visualize(points[springs[i].p1].pos);
+            springVerts[i * 2 + 1].position = visualize(points[springs[i].p2].pos);
         }
     }
 
+    void setPointColor(std::size_t i, sf::Color color) {
+        i *= 4;
+        pointVerts[i].color     = color;
+        pointVerts[i + 1].color = color;
+        pointVerts[i + 2].color = color;
+        pointVerts[i + 3].color = color;
+    }
+
     void resetPointColor(std::size_t i) {
-        visPoints[i].v[0].color = points[i].color;
-        visPoints[i].v[1].color = points[i].color;
-        visPoints[i].v[2].color = points[i].color;
-        visPoints[i].v[3].color = points[i].color;
+        pointVerts[i * 4].color     = points[i].color;
+        pointVerts[i * 4 + 1].color = points[i].color;
+        pointVerts[i * 4 + 2].color = points[i].color;
+        pointVerts[i * 4 + 3].color = points[i].color;
+    }
+
+    void setSpringColor(std::size_t i, sf::Color color) {
+        i *= 2;
+        springVerts[i].color     = color;
+        springVerts[i + 1].color = color;
     }
 
     std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {

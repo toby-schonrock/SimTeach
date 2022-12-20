@@ -119,11 +119,11 @@ class GUI {
         ImGui::TextDisabled("%zu", sim.polys.size());
         if (springs) {
             sim.updateSpringVisPos();
-            window.draw(sim.visSprings[0].v.data(), sim.visSprings.size() * 2, sf::Lines);
+            window.draw(sim.springVerts.data(), sim.springVerts.size(), sf::Lines);
         }
         if (points) {
             sim.updatePointVisPos();
-            window.draw(sim.visPoints[0].v.data(), sim.visPoints.size() * 4, sf::Quads, &pointTexture);
+            window.draw(sim.pointVerts.data(), sim.pointVerts.size(), sf::Quads, &pointTexture);
         }
         if (polygons) {
             for (Polygon& poly: sim.polys) poly.draw(window, false);
