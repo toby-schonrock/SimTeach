@@ -62,8 +62,8 @@ int main() {
     std::size_t selectedTool = 0;
     // Sim         sim1 = Sim::softbody({0, 0}, {14, 1}, 0.05F, 2.0F, 0.2F, 5000, 100); // empty
     // Sim         sim1 = Sim::softbody({1, 2}, {3, 0}, 0.05F, 2.0F, 0.2F, 8000, 100);
-    Sim         sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100); // default
-    // Sim         sim1 = Sim::softbody({100, 100}, {1, -10}, 0.02F, 2.0F, 0.1F, 100000, 100); // stress
+    // Sim         sim1 = Sim::softbody({25, 25}, {14, 1}, 0.05F, 2.0F, 0.2F, 10000, 100); // default
+    Sim         sim1 = Sim::softbody({100, 100}, {1, -10}, 0.02F, 2.0F, 0.1F, 100000, 100); // stress
     // test
 
     std::vector<std::unique_ptr<Tool>> tools;

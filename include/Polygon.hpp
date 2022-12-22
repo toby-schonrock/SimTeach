@@ -17,7 +17,7 @@ class Polygon {
 
   public:
     std::vector<Edge>         edges{};
-    sf::ConvexShape           shape; // kind of annoying having to store this same with point TODO
+    sf::ConvexShape           shape;
     std::array<sf::Vertex, 2> line{};
     bool direction; // the way round the points go - true is anticlockwise (i think)
 
@@ -53,7 +53,7 @@ class Polygon {
 
     void addEdge(const Vec2& pos) {
         if (edges.empty())
-            throw std::logic_error("cant add one edge if empty poly must have two edges");
+            throw std::logic_error("cant addEdge if empty poly : poly must have two edges");
         edges.back().p2(pos);
         edges.emplace_back(pos, edges.front().p1());
         shape.setPointCount(edges.size());

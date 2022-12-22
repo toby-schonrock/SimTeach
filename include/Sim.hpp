@@ -60,9 +60,9 @@ class Sim {
     void addPoint(const Point& p) {
         points.push_back(p);
         pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{0, 0});
-        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{15, 0});
-        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{15, 15});
-        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{0, 15});
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{300, 0});
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{300, 300});
+        pointVerts.emplace_back(sf::Vector2f{}, p.color, sf::Vector2f{0, 300});
     }
 
     // TODO this is slow(maybe)
