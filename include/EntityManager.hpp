@@ -88,26 +88,4 @@ class EntityManager {
             springVerts[i * 2 + 1].position = visualize(points[springs[i].p2].pos);
         }
     }
-
-    // TODO maybe colour stuff should not be in here does seem appropriate -> gui
-    void setPointColor(std::size_t i, sf::Color color) {
-        i *= 4;
-        pointVerts[i].color     = color;
-        pointVerts[i + 1].color = color;
-        pointVerts[i + 2].color = color;
-        pointVerts[i + 3].color = color;
-    }
-
-    void resetPointColor(std::size_t i) {
-        pointVerts[i * 4].color     = points[i].color;
-        pointVerts[i * 4 + 1].color = points[i].color;
-        pointVerts[i * 4 + 2].color = points[i].color;
-        pointVerts[i * 4 + 3].color = points[i].color;
-    }
-
-    void setSpringColor(std::size_t i, sf::Color color) {
-        i *= 2;
-        springVerts[i].color     = color;
-        springVerts[i + 1].color = color;
-    }
 };

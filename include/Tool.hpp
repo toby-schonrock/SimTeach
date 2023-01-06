@@ -41,6 +41,27 @@ class Tool {
     sf::RenderWindow& window;
     EntityManager&    entities;
 
+    void setPointColor(std::size_t i, sf::Color color) {
+        i *= 4;
+        entities.pointVerts[i].color     = color;
+        entities.pointVerts[i + 1].color = color;
+        entities.pointVerts[i + 2].color = color;
+        entities.pointVerts[i + 3].color = color;
+    }
+
+    void resetPointColor(std::size_t i) {
+        entities.pointVerts[i * 4].color     = entities.points[i].color;
+        entities.pointVerts[i * 4 + 1].color = entities.points[i].color;
+        entities.pointVerts[i * 4 + 2].color = entities.points[i].color;
+        entities.pointVerts[i * 4 + 3].color = entities.points[i].color;
+    }
+
+    void setSpringColor(std::size_t i, sf::Color color) {
+        i *= 2;
+        entities.springVerts[i].color     = color;
+        entities.springVerts[i + 1].color = color;
+    }
+
   public:
     std::string name;
 
@@ -147,8 +168,8 @@ class PointTool : public Tool {
     }
 
   public:
-    PointTool(sf::RenderWindow& window, EntityManager& entities, const std::string& name)
-        : Tool(window, entities, name) {}
+    PointTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
+        : Tool(window_, entities_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
@@ -168,8 +189,8 @@ class PointTool : public Tool {
             ImEdit(mousePixPos);
         } else { // if none selected
             if (hoveredP) {
-                entities.resetPointColor(*hoveredP); // reset last closest point color as it may
-                hoveredP.reset();               // not be closest anymore
+                resetPointColor(*hoveredP); // reset last closest point color as it may
+                hoveredP.reset();           // not be closest anymore
             }
 
             // determine new closest point
@@ -178,7 +199,7 @@ class PointTool : public Tool {
             // color close point for selection
             if (closestDist < toolRange) {
                 hoveredP = closestPoint;
-                entities.setPointColor(*hoveredP, hoverColour);
+                setPointColor(*hoveredP, hoverColour);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
                     ImGui::SetTooltip("Click to delete");
                 }
@@ -190,9 +211,9 @@ class PointTool : public Tool {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (dragging) {
                 if (event.mouseButton.button != sf::Mouse::Middle)
-                    dragging = false;            // drag ends on mouse click (except for move)
-            } else if (selectedP) {              // click off edit
-                entities.resetPointColor(*selectedP); // when click off return color to normal
+                    dragging = false;        // drag ends on mouse click (except for move)
+            } else if (selectedP) {          // click off edit
+                resetPointColor(*selectedP); // when click off return color to normal
                 selectedP.reset();
             } else if (event.mouseButton.button == sf::Mouse::Left) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
@@ -206,7 +227,7 @@ class PointTool : public Tool {
             } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
                 selectedP = *hoveredP;
                 hoveredP.reset();
-                entities.setPointColor(*selectedP, selectedColour);
+                setPointColor(*selectedP, selectedColour);
             }
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
@@ -222,11 +243,11 @@ class PointTool : public Tool {
     void unequip() override {
         dragging = false;
         if (selectedP) {
-            entities.resetPointColor(*selectedP);
+            resetPointColor(*selectedP);
             selectedP.reset();
         }
         if (hoveredP) {
-            entities.resetPointColor(*hoveredP);
+            resetPointColor(*hoveredP);
             hoveredP.reset();
         }
     }
@@ -259,8 +280,8 @@ class SpringTool : public Tool {
     bool validHover = false; // wether the current hover is an acceptable second point
 
     void ImEdit(const sf::Vector2i& mousePixPos) override { // NOLINT ik I dont use mousepos
-        Spring&      spring       = entities.springs[*selectedS];
-        Vec2         springPos    = (entities.points[spring.p1].pos + entities.points[spring.p2].pos) / 2;
+        Spring& spring    = entities.springs[*selectedS];
+        Vec2    springPos = (entities.points[spring.p1].pos + entities.points[spring.p2].pos) / 2;
         sf::Vector2i springPixPos = window.mapCoordsToPixel(visualize(springPos));
         ImGui::SetNextWindowPos({static_cast<float>(springPixPos.x) + 10.0F,
                                  static_cast<float>(springPixPos.y) + 10.0F},
@@ -303,8 +324,8 @@ class SpringTool : public Tool {
     }
 
   public:
-    SpringTool(sf::RenderWindow& window, EntityManager& entities, const std::string& name)
-        : Tool(window, entities, name) {}
+    SpringTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
+        : Tool(window_, entities_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
@@ -314,11 +335,11 @@ class SpringTool : public Tool {
 
         // hover stuff
         if (hoveredP) {
-            entities.resetPointColor(*hoveredP); // reset last closest point color as it may
-            hoveredP.reset();               // not be closest anymore
+            resetPointColor(*hoveredP); // reset last closest point color as it may
+            hoveredP.reset();           // not be closest anymore
         }
         if (hoveredS) {
-            entities.setSpringColor(               // reset last closest line color as it may  not be
+            setSpringColor(                   // reset last closest line color as it may  not be
                 *hoveredS, sf::Color::White); // closest anymore
             hoveredS.reset();
         }
@@ -335,18 +356,18 @@ class SpringTool : public Tool {
                  *selectedP !=
                      closestP)) { // if (in range) and (not selected or the selected != closest)
                 hoveredP = closestP;
-                entities.setPointColor(*hoveredP, hoverPColour);
+                setPointColor(*hoveredP, hoverPColour);
             }
 
             if (selectedP) { // if selected point (in making spring mode)
                 line[0].position = visualize(entities.points[*selectedP].pos);
                 if (hoveredP) {
-                    auto pos = std::find_if(entities.springs.begin(),
-                                            entities.springs.end(), // check if spring already exists
-                                            [hp = *hoveredP, sp = *selectedP](const Spring& s) {
-                                                return (s.p1 == hp && s.p2 == sp) ||
-                                                       (s.p1 == sp && s.p2 == hp);
-                                            });
+                    auto pos = std::find_if(
+                        entities.springs.begin(),
+                        entities.springs.end(), // check if spring already exists
+                        [hp = *hoveredP, sp = *selectedP](const Spring& s) {
+                            return (s.p1 == hp && s.p2 == sp) || (s.p1 == sp && s.p2 == hp);
+                        });
 
                     line[1].position = visualize(entities.points[*hoveredP].pos);
                     if (pos == entities.springs.end()) {
@@ -365,11 +386,10 @@ class SpringTool : public Tool {
             } else { // if not making a spring (!selectedP)
                 // determine new closest spring
                 if (!entities.springs.empty()) {
-                    auto [closestS, closestSDist] =
-                        sim.findClosestSpring(unvisualize(mousePos));
+                    auto [closestS, closestSDist] = sim.findClosestSpring(unvisualize(mousePos));
                     if (closestSDist < toolRange) {
                         hoveredS = closestS;
-                        entities.setSpringColor(*hoveredS, hoverSColour);
+                        setSpringColor(*hoveredS, hoverSColour);
                     }
                 }
             }
@@ -379,11 +399,11 @@ class SpringTool : public Tool {
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (selectedS) {
-                entities.setSpringColor(*selectedS, sf::Color::White);
+                setSpringColor(*selectedS, sf::Color::White);
                 selectedS.reset(); // unselect (close edit)
             } else if (selectedP && event.mouseButton.button !=
                                         sf::Mouse::Left) { // if not a left click unselect point
-                entities.resetPointColor(*selectedP);
+                resetPointColor(*selectedP);
                 selectedP.reset();
             } else if (event.mouseButton.button == sf::Mouse::Left) {
                 if (selectedP) {
@@ -391,21 +411,21 @@ class SpringTool : public Tool {
                         defSpring.p1 = *selectedP;
                         defSpring.p2 = *hoveredP;
                         entities.addSpring(defSpring);
-                        entities.resetPointColor(*selectedP); // hovered will be reset anyway
+                        resetPointColor(*selectedP); // hovered will be reset anyway
                         selectedP.reset();
                     }
                 } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
                     if (hoveredS) removeSpring(*hoveredS); // only do it if there is a highlighted
                 } else if (hoveredP) {
                     selectedP = *hoveredP;
-                    entities.setPointColor(*selectedP, selectedPColour);
+                    setPointColor(*selectedP, selectedPColour);
                     hoveredP.reset();
                 }
             } else if (event.mouseButton.button == sf::Mouse::Right) { // selecting a spring
                 if (hoveredS) {
                     selectedS = hoveredS;
                     hoveredS.reset();
-                    entities.setSpringColor(*selectedS, selectedSColour);
+                    setSpringColor(*selectedS, selectedSColour);
                 }
             }
         } else if (event.type == sf::Event::KeyPressed) {
@@ -421,19 +441,19 @@ class SpringTool : public Tool {
 
     void unequip() override {
         if (selectedP) {
-            entities.resetPointColor(*selectedP);
+            resetPointColor(*selectedP);
             selectedP.reset();
         }
         if (hoveredP) {
-            entities.resetPointColor(*hoveredP);
+            resetPointColor(*hoveredP);
             hoveredP.reset();
         }
         if (selectedS) {
-            entities.setSpringColor(*selectedS, sf::Color::White);
+            setSpringColor(*selectedS, sf::Color::White);
             selectedS.reset();
         }
         if (hoveredS) {
-            entities.setSpringColor(*hoveredS, sf::Color::White);
+            setSpringColor(*hoveredS, sf::Color::White);
             hoveredS.reset();
         }
     }
@@ -461,8 +481,8 @@ class CustomPolyTool : public Tool {
     void ImEdit(const sf::Vector2i& mousePixPos) override {}
 
   public:
-    CustomPolyTool(sf::RenderWindow& window, EntityManager& entities, const std::string& name)
-        : Tool(window, entities, name) {}
+    CustomPolyTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
+        : Tool(window_, entities_, name_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);

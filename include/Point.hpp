@@ -9,7 +9,7 @@ struct Point {
   public:
     sf::Color color;
     Vec2      pos;
-    Vec2      vel{}; 
+    Vec2      vel{};
     Vec2      f;
     double    mass = 1.0;
 
