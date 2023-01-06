@@ -40,3 +40,6 @@ class Vector2 {
 
 using Vec2  = Vector2<double>;
 using Vec2I = Vector2<int>;
+using Vec2U = Vector2<unsigned>;
+using Vec2F = Vector2<float>;
+

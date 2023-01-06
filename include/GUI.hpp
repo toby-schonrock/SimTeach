@@ -5,9 +5,8 @@
 #include "Debug.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Window.hpp"
-#include "Sim.hpp"
-#include "Vector2.hpp"
+#include "SFML/Window.hpp"  
+#include "EntityManager.hpp"
 #include "imgui.h"
 #include "implot.h"
 
@@ -21,13 +20,15 @@ class GUI {
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
     const float                 vsScale; // window scaling
+    float                 radius;
+
   public:
     sf::View         view;
     RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
 
-    GUI(const sf::VideoMode& desktop, sf::RenderWindow& window_)
+    GUI(const sf::VideoMode& desktop, sf::RenderWindow& window_, float radius_ = 0.05F)
         : window(window_), screen(desktop.width, desktop.height),
-          vsScale(static_cast<float>(screen.x) / 20.0F) {
+          vsScale(static_cast<float>(screen.x) / 20.0F), radius(radius_) {
         std::cout << "Scale: " << vsScale << "\n";
         if (!pointTexture.loadFromFile("point.png"))
             throw std::logic_error("failed to load point texture");
@@ -56,8 +57,8 @@ class GUI {
         }
     }
 
-    void frame(Sim& sim, const sf::Vector2i& mousePixPos) {
-        interface(sim);
+    void frame(EntityManager& entities, const sf::Vector2i& mousePixPos) {
+        interface(entities);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -74,7 +75,7 @@ class GUI {
         }
     }
 
-    void interface(Sim& sim) {
+    void interface(EntityManager& entities) {
         ImGui::Begin("GUI", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);
@@ -110,23 +111,24 @@ class GUI {
         static bool polygons = true;
         ImGui::Checkbox("Points", &points);
         ImGui::SameLine();
-        ImGui::TextDisabled("%zu", sim.points.size());
+        ImGui::TextDisabled("%zu", entities.points.size());
         ImGui::Checkbox("Springs", &springs);
         ImGui::SameLine();
-        ImGui::TextDisabled("%zu", sim.springs.size());
+        ImGui::TextDisabled("%zu", entities.springs.size());
         ImGui::Checkbox("Polgons", &polygons);
         ImGui::SameLine();
-        ImGui::TextDisabled("%zu", sim.polys.size());
+        ImGui::TextDisabled("%zu", entities.polys.size());
         if (springs) {
-            sim.updateSpringVisPos();
-            window.draw(sim.springVerts.data(), sim.springVerts.size(), sf::Lines);
+            entities.updateSpringVisPos();
+            window.draw(entities.springVerts.data(), entities.springVerts.size(), sf::Lines);
         }
         if (points) {
-            sim.updatePointVisPos();
-            window.draw(sim.pointVerts.data(), sim.pointVerts.size(), sf::Quads, &pointTexture);
+            ImGui::DragFloat("Radius", &radius, 0.001F, 0.005F, 100000,"%.3f", ImGuiSliderFlags_AlwaysClamp);
+            entities.updatePointVisPos(radius);
+            window.draw(entities.pointVerts.data(), entities.pointVerts.size(), sf::Quads, &pointTexture);
         }
         if (polygons) {
-            for (Polygon& poly: sim.polys) poly.draw(window, false);
+            for (Polygon& poly: entities.polys) poly.draw(window, false);
         }
 
         ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);

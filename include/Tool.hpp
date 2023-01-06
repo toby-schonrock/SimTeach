@@ -1,14 +1,10 @@
 #pragma once
 
-#include "Point.hpp"
-#include "Polygon.hpp"
-#include "SFML/Config.hpp"
-#include "SFML/Graphics.hpp"
-#include "SFML/Window.hpp"
+#include "EntityManager.hpp"
 #include "Sim.hpp"
-#include "Vector2.hpp"
 #include "imgui.h"
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <optional>
 
@@ -41,40 +37,44 @@ static void HelpMarker(
 
 class Tool {
   protected:
-    virtual void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
+    virtual void      ImEdit(const sf::Vector2i& mousePixPos) = 0;
+    sf::RenderWindow& window;
+    EntityManager&    entities;
 
   public:
-    sf::RenderWindow& window;
-    std::string       name;
-    Tool(sf::RenderWindow& window_, std::string name_) : window(window_), name(std::move(name_)) {}
+    std::string name;
+
+    Tool(sf::RenderWindow& window_, EntityManager& entities_, std::string name_)
+        : window(window_), entities(entities_), name(std::move(name_)) {}
+
     virtual ~Tool()                                               = default;
     virtual void frame(Sim& sim, const sf::Vector2i& mousePixPos) = 0;
-    virtual void event(Sim& sim, const sf::Event& event)          = 0;
-    virtual void unequip(Sim& sim)                                = 0;
+    virtual void event(const sf::Event& event)                    = 0;
+    virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
   private:
     static inline const sf::Color selectedColour = sf::Color::Magenta;
     static inline const sf::Color hoverColour    = sf::Color::Blue;
-    Point                         defPoint       = Point({0.0F, 0.0F}, 1.0F, 0.05F, sf::Color::Red);
+    Point                         defPoint       = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red);
     std::optional<std::size_t>    hoveredP       = std::nullopt;
     std::optional<std::size_t>    selectedP      = std::nullopt;
     double                        toolRange      = 1;
     bool                          dragging       = false;
     bool                          inside         = false;
 
-    void removePoint(Sim& sim, const std::size_t& pos) {
-        sim.rmvPoint(pos);
+    void removePoint(const std::size_t& pos) {
+        entities.rmvPoint(pos);
         if (*selectedP == pos) selectedP.reset();
         if (*hoveredP == pos) hoveredP.reset();
     }
 
-    void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) override {
-        Point&       point = sim.points[*selectedP];
+    void ImEdit(const sf::Vector2i& mousePixPos) override {
+        Point&       point = entities.points[*selectedP];
         sf::Vector2i pointPixPos;
 
         if (dragging == true) { // if dragging
@@ -109,14 +109,14 @@ class PointTool : public Tool {
 
         // set as tools settings
         if (ImGui::Button("copy")) {
-            defPoint = sim.points[*selectedP];
+            defPoint = entities.points[*selectedP];
         }
         ImGui::SameLine();
         HelpMarker("Copy settings to the tool");
 
         // delete
         if (ImGui::Button("delete")) {
-            removePoint(sim, *selectedP);
+            removePoint(*selectedP);
         }
         ImGui::SameLine();
         HelpMarker("LControl + LClick or Delete");
@@ -147,27 +147,28 @@ class PointTool : public Tool {
     }
 
   public:
-    PointTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
+    PointTool(sf::RenderWindow& window, EntityManager& entities, const std::string& name)
+        : Tool(window, entities, name) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
-        auto poly     = std::find_if(sim.polys.begin(), sim.polys.end(),
+        auto poly     = std::find_if(entities.polys.begin(), entities.polys.end(),
                                      [mousePos](const Polygon& p) { return p.isContained(mousePos); });
 
-        if (poly == sim.polys.end()) {
+        if (poly == entities.polys.end()) {
             inside = false;
         } else {
             inside = true;
             ImGui::SetTooltip("Cant place point in polygon");
         }
 
-        if (sim.points.size() == 0) return;
+        if (entities.points.size() == 0) return;
 
         if (selectedP) { // edit menu
-            ImEdit(sim, mousePixPos);
+            ImEdit(mousePixPos);
         } else { // if none selected
             if (hoveredP) {
-                sim.resetPointColor(*hoveredP); // reset last closest point color as it may
+                entities.resetPointColor(*hoveredP); // reset last closest point color as it may
                 hoveredP.reset();               // not be closest anymore
             }
 
@@ -177,7 +178,7 @@ class PointTool : public Tool {
             // color close point for selection
             if (closestDist < toolRange) {
                 hoveredP = closestPoint;
-                sim.setPointColor(*hoveredP, hoverColour);
+                entities.setPointColor(*hoveredP, hoverColour);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
                     ImGui::SetTooltip("Click to delete");
                 }
@@ -185,48 +186,47 @@ class PointTool : public Tool {
         }
     }
 
-    void event(Sim& sim, const sf::Event& event) override {
+    void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (dragging) {
                 if (event.mouseButton.button != sf::Mouse::Middle)
                     dragging = false;            // drag ends on mouse click (except for move)
             } else if (selectedP) {              // click off edit
-                sim.resetPointColor(*selectedP); // when click off return color to normal
+                entities.resetPointColor(*selectedP); // when click off return color to normal
                 selectedP.reset();
             } else if (event.mouseButton.button == sf::Mouse::Left) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
-                    if (hoveredP)
-                        removePoint(sim, *hoveredP); // only do it if there is a highlighted
-                } else if (!inside) {                // make new point
+                    if (hoveredP) removePoint(*hoveredP); // only do it if there is a highlighted
+                } else if (!inside) {                     // make new point
                     Vec2 pos = unvisualize(
                         window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
                     defPoint.pos = pos;
-                    sim.addPoint(defPoint);
+                    entities.addPoint(defPoint);
                 }
             } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
                 selectedP = *hoveredP;
                 hoveredP.reset();
-                sim.setPointColor(*selectedP, selectedColour);
+                entities.setPointColor(*selectedP, selectedColour);
             }
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
                 if (selectedP) {
-                    removePoint(sim, *selectedP);
+                    removePoint(*selectedP);
                 } else if (hoveredP) {
-                    removePoint(sim, *hoveredP);
+                    removePoint(*hoveredP);
                 }
             }
         }
     }
 
-    void unequip(Sim& sim) override {
+    void unequip() override {
         dragging = false;
         if (selectedP) {
-            sim.resetPointColor(*selectedP);
+            entities.resetPointColor(*selectedP);
             selectedP.reset();
         }
         if (hoveredP) {
-            sim.resetPointColor(*hoveredP);
+            entities.resetPointColor(*hoveredP);
             hoveredP.reset();
         }
     }
@@ -258,10 +258,9 @@ class SpringTool : public Tool {
     double                        toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
 
-    void ImEdit(Sim&                sim,
-                const sf::Vector2i& mousePixPos) override { // NOLINT ik I dont use mousepos
-        Spring&      spring       = sim.springs[*selectedS];
-        Vec2         springPos    = (sim.points[spring.p1].pos + sim.points[spring.p2].pos) / 2;
+    void ImEdit(const sf::Vector2i& mousePixPos) override { // NOLINT ik I dont use mousepos
+        Spring&      spring       = entities.springs[*selectedS];
+        Vec2         springPos    = (entities.points[spring.p1].pos + entities.points[spring.p2].pos) / 2;
         sf::Vector2i springPixPos = window.mapCoordsToPixel(visualize(springPos));
         ImGui::SetNextWindowPos({static_cast<float>(springPixPos.x) + 10.0F,
                                  static_cast<float>(springPixPos.y) + 10.0F},
@@ -272,14 +271,14 @@ class SpringTool : public Tool {
 
         // set as tools settings
         if (ImGui::Button("set default")) {
-            defSpring = sim.springs[*selectedS];
+            defSpring = entities.springs[*selectedS];
         }
         ImGui::SameLine();
         HelpMarker("Copys settings to the tool");
 
         // delete
         if (ImGui::Button("delete")) {
-            removeSpring(sim, *selectedS);
+            removeSpring(*selectedS);
         }
         ImGui::SameLine();
         HelpMarker("LControl + LClick or Delete");
@@ -297,34 +296,35 @@ class SpringTool : public Tool {
         ImGui::InputDouble("natural length", &spring.stablePoint);
     }
 
-    void removeSpring(Sim& sim, const std::size_t& pos) {
-        sim.rmvSpring(pos);
+    void removeSpring(const std::size_t& pos) {
+        entities.rmvSpring(pos);
         if (*selectedS == pos) selectedS.reset();
         if (*hoveredS == pos) hoveredS.reset();
     }
 
   public:
-    SpringTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
+    SpringTool(sf::RenderWindow& window, EntityManager& entities, const std::string& name)
+        : Tool(window, entities, name) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
             ImGui::SetTooltip("Click to delete");
         }
-        if (sim.points.size() == 0) return; // tool is useless if there are no points
+        if (entities.points.size() == 0) return; // tool is useless if there are no points
 
         // hover stuff
         if (hoveredP) {
-            sim.resetPointColor(*hoveredP); // reset last closest point color as it may
+            entities.resetPointColor(*hoveredP); // reset last closest point color as it may
             hoveredP.reset();               // not be closest anymore
         }
         if (hoveredS) {
-            sim.setSpringColor(               // reset last closest line color as it may  not be
+            entities.setSpringColor(               // reset last closest line color as it may  not be
                 *hoveredS, sf::Color::White); // closest anymore
             hoveredS.reset();
         }
 
         if (selectedS) { // if in spring editing mode
-            ImEdit(sim, mousePixPos);
+            ImEdit(mousePixPos);
         } else { // if in normal mode
             sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
             // determine new closest point (needs to happend wether adding or not)
@@ -335,21 +335,21 @@ class SpringTool : public Tool {
                  *selectedP !=
                      closestP)) { // if (in range) and (not selected or the selected != closest)
                 hoveredP = closestP;
-                sim.setPointColor(*hoveredP, hoverPColour);
+                entities.setPointColor(*hoveredP, hoverPColour);
             }
 
             if (selectedP) { // if selected point (in making spring mode)
-                line[0].position = visualize(sim.points[*selectedP].pos);
+                line[0].position = visualize(entities.points[*selectedP].pos);
                 if (hoveredP) {
-                    auto pos = std::find_if(sim.springs.begin(),
-                                            sim.springs.end(), // check if spring already exists
+                    auto pos = std::find_if(entities.springs.begin(),
+                                            entities.springs.end(), // check if spring already exists
                                             [hp = *hoveredP, sp = *selectedP](const Spring& s) {
                                                 return (s.p1 == hp && s.p2 == sp) ||
                                                        (s.p1 == sp && s.p2 == hp);
                                             });
 
-                    line[1].position = visualize(sim.points[*hoveredP].pos);
-                    if (pos == sim.springs.end()) {
+                    line[1].position = visualize(entities.points[*hoveredP].pos);
+                    if (pos == entities.springs.end()) {
                         setLineColor(line, sf::Color::Green);
                         validHover = true;
                     } else {
@@ -364,76 +364,76 @@ class SpringTool : public Tool {
                 window.draw(line.data(), 2, sf::Lines);
             } else { // if not making a spring (!selectedP)
                 // determine new closest spring
-                if (!sim.springs.empty()) {
-                    auto [closestS, closestSDist] = sim.findClosestSpring(unvisualize(mousePos));
+                if (!entities.springs.empty()) {
+                    auto [closestS, closestSDist] =
+                        sim.findClosestSpring(unvisualize(mousePos));
                     if (closestSDist < toolRange) {
                         hoveredS = closestS;
-                        sim.setSpringColor(*hoveredS, hoverSColour);
+                        entities.setSpringColor(*hoveredS, hoverSColour);
                     }
                 }
             }
         }
     }
 
-    void event(Sim& sim, const sf::Event& event) override {
+    void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (selectedS) {
-                sim.setSpringColor(*selectedS, sf::Color::White);
+                entities.setSpringColor(*selectedS, sf::Color::White);
                 selectedS.reset(); // unselect (close edit)
             } else if (selectedP && event.mouseButton.button !=
                                         sf::Mouse::Left) { // if not a left click unselect point
-                sim.resetPointColor(*selectedP);
+                entities.resetPointColor(*selectedP);
                 selectedP.reset();
             } else if (event.mouseButton.button == sf::Mouse::Left) {
                 if (selectedP) {
                     if (validHover) { // if the hover is valid make new spring
                         defSpring.p1 = *selectedP;
                         defSpring.p2 = *hoveredP;
-                        sim.springs.push_back(defSpring);
-                        sim.resetPointColor(*selectedP); // hovered will be reset anyway
+                        entities.addSpring(defSpring);
+                        entities.resetPointColor(*selectedP); // hovered will be reset anyway
                         selectedP.reset();
                     }
                 } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
-                    if (hoveredS)
-                        removeSpring(sim, *hoveredS); // only do it if there is a highlighted
+                    if (hoveredS) removeSpring(*hoveredS); // only do it if there is a highlighted
                 } else if (hoveredP) {
                     selectedP = *hoveredP;
-                    sim.setPointColor(*selectedP, selectedPColour);
+                    entities.setPointColor(*selectedP, selectedPColour);
                     hoveredP.reset();
                 }
             } else if (event.mouseButton.button == sf::Mouse::Right) { // selecting a spring
                 if (hoveredS) {
                     selectedS = hoveredS;
                     hoveredS.reset();
-                    sim.setSpringColor(*selectedS, selectedSColour);
+                    entities.setSpringColor(*selectedS, selectedSColour);
                 }
             }
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
                 if (selectedP) {
-                    removeSpring(sim, *selectedS);
+                    removeSpring(*selectedS);
                 } else if (hoveredP) {
-                    removeSpring(sim, *hoveredS);
+                    removeSpring(*hoveredS);
                 }
             }
         }
     }
 
-    void unequip(Sim& sim) override {
+    void unequip() override {
         if (selectedP) {
-            sim.resetPointColor(*selectedP);
+            entities.resetPointColor(*selectedP);
             selectedP.reset();
         }
         if (hoveredP) {
-            sim.resetPointColor(*hoveredP);
+            entities.resetPointColor(*hoveredP);
             hoveredP.reset();
         }
         if (selectedS) {
-            sim.setSpringColor(*selectedS, sf::Color::White);
+            entities.setSpringColor(*selectedS, sf::Color::White);
             selectedS.reset();
         }
         if (hoveredS) {
-            sim.setSpringColor(*hoveredS, sf::Color::White);
+            entities.setSpringColor(*hoveredS, sf::Color::White);
             hoveredS.reset();
         }
     }
@@ -458,10 +458,11 @@ class CustomPolyTool : public Tool {
     bool                      convex = false;
     bool                      inside = false;
 
-    void ImEdit(Sim& sim, const sf::Vector2i& mousePixPos) override {}
+    void ImEdit(const sf::Vector2i& mousePixPos) override {}
 
   public:
-    CustomPolyTool(sf::RenderWindow& window_, const std::string& name_) : Tool(window_, name_) {}
+    CustomPolyTool(sf::RenderWindow& window, EntityManager& entities, const std::string& name)
+        : Tool(window, entities, name) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
@@ -490,13 +491,13 @@ class CustomPolyTool : public Tool {
         }
     }
 
-    void event(Sim& sim, const sf::Event& event) override {
+    void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) { // new vert
                 if (inside && poly.edges.size() > 2) {         // if green
                     poly.shape.setFillColor(sf::Color::White);
                     poly.boundsUp();
-                    sim.polys.push_back(poly);
+                    entities.polys.push_back(poly);
                     poly = Polygon{};
                 } else if (convex || poly.edges.size() < 3) { // if not red
                     if (poly.edges.empty()) {
@@ -510,8 +511,55 @@ class CustomPolyTool : public Tool {
             }
         }
     }
-    void unequip(Sim& sim) override { poly = Polygon{}; }
+    void unequip() override { poly = Polygon{}; }
     void ImTool() override {}
 };
 
-// static constexpr std::array modes{"Custom", "Square", "Triangle"};
+// enum ObjectType : bool { ObjectType_Points = false, ObjectType_Springs = true };
+
+// class SimReference {
+//   protected:
+//     ObjectType     type;
+//     bool           isVector;
+//     std::ptrdiff_t propertyOffset;
+//     std::size_t    index;
+
+//   public:
+//     SimReference(ObjectType type_, bool isVector_, const std::size_t& index_)
+//         : type(type_), isVector(isVector_), index(index_) {}
+//     virtual ~SimReference()                            = default;
+//     SimReference(const SimReference& other)            = delete;
+//     SimReference& operator=(const SimReference& other) = delete;
+
+//     virtual float getValue(const Sim& sim) = 0;
+// };
+
+// class DiffReference : public SimReference {
+//   private:
+//     std::size_t index2;
+
+//   public:
+//     DiffReference(ObjectType type_, bool isVector_, const std::size_t& index_)
+//         : SimReference(type_, isVector_, index_) {}
+
+//     float getValue(const Sim& sim) override { if (type) }
+// };
+
+// class GraphTool : public Tool {
+//   private:
+//     std::vector<RingBuffer<Vec2F>> graphs;
+
+//     void ImEdit(const sf::Vector2i& mousePixPos) override {}
+
+//   public:
+//     GraphTool(sf::RenderWindow& window, EntityManager sim, const std::string& name)
+//         : Tool(window, sim, name) {}
+
+//     void drawGraph(std::size_t i) {}
+
+//     void addGraph(std::size_t buffer) { graphs.emplace_back(buffer); }
+
+//     void frame() {}
+
+//     void interface() {}
+// };
