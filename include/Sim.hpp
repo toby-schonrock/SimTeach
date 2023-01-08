@@ -22,14 +22,13 @@ class Sim {
     
     void simFrame(double deltaTime) {
         // calculate spring force
-        for (const Spring& spring: entMan.springs)
-            spring.springHandler(entMan.points[spring.p1], entMan.points[spring.p2]);
+        std::for_each(std::execution::par_unseq, entMan.springs.begin(), entMan.springs.end(),
+                      [&](Spring& spring) { spring.springHandler(entMan.points[spring.p1], entMan.points[spring.p2]); });
 
         // update point positions
-        std::for_each(std::execution::par_unseq, entMan.points.begin(), entMan.points.end(),
+        std::for_each(entMan.points.begin(), entMan.points.end(),
                       [d = deltaTime, g = gravity](Point& point) { point.update(d, g); });
 
-        std::cout << "got to polys loop" << std::endl;
         // collide points with polygons
         for (const Polygon& poly: entMan.polys) {
             for (Point& point: entMan.points) {
@@ -38,7 +37,6 @@ class Sim {
                     poly.colHandler(point);
             }
         }
-        std::cout << "got past polys loop" << std::endl;
     }
 
     std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {

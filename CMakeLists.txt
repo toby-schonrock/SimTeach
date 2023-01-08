@@ -41,6 +41,9 @@ set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
 add_subdirectory(ext/SFML)
 
+set(TBB_TEST OFF)
+add_subdirectory(ext/oneTBB)
+
 add_library(sfml INTERFACE)
 target_include_directories(sfml INTERFACE ext/SFML/include)
 target_link_libraries(sfml INTERFACE sfml-graphics sfml-window sfml-system Threads::Threads)
@@ -62,9 +65,8 @@ target_include_directories(imgui-sfml INTERFACE ext/imgui-sfml)
 target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui implot)
 target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui)
 
-
 find_package(Threads REQUIRED)
 add_executable(softbody app/main.cpp)
 target_include_directories(softbody PRIVATE include)
-target_link_libraries(softbody PRIVATE imgui-sfml ${PROJECT_STATIC_OPTIONS})
+target_link_libraries(softbody PRIVATE imgui-sfml TBB::tbb ${PROJECT_STATIC_OPTIONS})
 target_compile_options(softbody PRIVATE ${PROJECT_COMPILE_OPTIONS})
