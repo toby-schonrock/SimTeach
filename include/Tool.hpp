@@ -279,7 +279,7 @@ class SpringTool : public Tool {
     double                        toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
 
-    void ImEdit(const sf::Vector2i& mousePixPos) override { // NOLINT ik I dont use mousepos
+    void ImEdit([[maybe_unused]]const sf::Vector2i& mousePixPos) override {
         Spring& spring    = entities.springs[*selectedS];
         Vec2    springPos = (entities.points[spring.p1].pos + entities.points[spring.p2].pos) / 2;
         sf::Vector2i springPixPos = window.mapCoordsToPixel(visualize(springPos));
@@ -478,13 +478,13 @@ class CustomPolyTool : public Tool {
     bool                      convex = false;
     bool                      inside = false;
 
-    void ImEdit(const sf::Vector2i& mousePixPos) override {}
+    void ImEdit([[maybe_unused]]const sf::Vector2i& mousePixPos) override {}
 
   public:
     CustomPolyTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
         : Tool(window_, entities_, name_) {}
 
-    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+    void frame([[maybe_unused]]Sim& sim, const sf::Vector2i& mousePixPos) override {
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
         newPoint              = unvisualize(mousePos);
 
@@ -534,36 +534,6 @@ class CustomPolyTool : public Tool {
     void unequip() override { poly = Polygon{}; }
     void ImTool() override {}
 };
-
-// enum ObjectType : bool { ObjectType_Points = false, ObjectType_Springs = true };
-
-// class SimReference {
-//   protected:
-//     ObjectType     type;
-//     bool           isVector;
-//     std::ptrdiff_t propertyOffset;
-//     std::size_t    index;
-
-//   public:
-//     SimReference(ObjectType type_, bool isVector_, const std::size_t& index_)
-//         : type(type_), isVector(isVector_), index(index_) {}
-//     virtual ~SimReference()                            = default;
-//     SimReference(const SimReference& other)            = delete;
-//     SimReference& operator=(const SimReference& other) = delete;
-
-//     virtual float getValue(const Sim& sim) = 0;
-// };
-
-// class DiffReference : public SimReference {
-//   private:
-//     std::size_t index2;
-
-//   public:
-//     DiffReference(ObjectType type_, bool isVector_, const std::size_t& index_)
-//         : SimReference(type_, isVector_, index_) {}
-
-//     float getValue(const Sim& sim) override { if (type) }
-// };
 
 // class GraphTool : public Tool {
 //   private:

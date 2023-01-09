@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
 #include "Vector2.hpp"
+#include "Graph.hpp"
 
 class EntityManager {
   public:
@@ -13,6 +14,7 @@ class EntityManager {
     std::vector<Polygon>    polys;
     std::vector<Point>      points;
     std::vector<Spring>     springs;
+    // Graph g; // TODO test
 
     void addPoint(const Point& p) {
         points.push_back(p);

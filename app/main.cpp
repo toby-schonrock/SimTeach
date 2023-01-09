@@ -63,7 +63,7 @@ int main() {
     GUI gui(desktop, window, 0.05F);
 
     // Sim sim1(entities, 0.2F);                                                          // empty
-    Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100);     // default
+    Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
     // Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
 
     std::size_t                        selectedTool = 0;
@@ -112,10 +112,11 @@ int main() {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed &&
                        event.key.code == sf::Keyboard::Space) {
+                if (!running) tools[selectedTool]->unequip();
                 running = !running;
             } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
                 gui.event(event, mousePos);
-                tools[selectedTool]->event(event);
+                if (!running) tools[selectedTool]->event(event);
             }
         }
 
@@ -124,25 +125,29 @@ int main() {
         // draw
         window.clear();
 
-        ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
-        sf::Vector2u windowSize = window.getSize();
-        ImVec2       IMSize     = ImGui::GetWindowSize();
-        ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F}, ImGuiCond_Always);
-        if (ImGui::BeginTabBar("Tools")) {
-            for (std::size_t i = 0; i < tools.size(); ++i) {
-                if (ImGui::BeginTabItem(tools[i]->name.data())) {
-                    if (selectedTool != i) tools[selectedTool]->unequip(); // if changed
-                    selectedTool = i;
-                    ImGui::EndTabItem();
+        if (!running) {
+            ImGui::Begin("Tool Settings", NULL,
+                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+            ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
+            sf::Vector2u windowSize = window.getSize();
+            ImVec2       IMSize     = ImGui::GetWindowSize();
+            ImGui::SetWindowPos({static_cast<float>(windowSize.x) - IMSize.x, -1.0F},
+                                ImGuiCond_Always);
+            if (ImGui::BeginTabBar("Tools")) {
+                for (std::size_t i = 0; i < tools.size(); ++i) {
+                    if (ImGui::BeginTabItem(tools[i]->name.data())) {
+                        if (selectedTool != i) tools[selectedTool]->unequip(); // if changed
+                        selectedTool = i;
+                        ImGui::EndTabItem();
+                    }
                 }
+                ImGui::EndTabBar();
             }
-            ImGui::EndTabBar();
+            tools[selectedTool]->ImTool();
+            ImGui::End();
+            tools[selectedTool]->frame(sim1, mousePos);
         }
-        tools[selectedTool]->ImTool();
-        ImGui::End();
 
-        tools[selectedTool]->frame(sim1, mousePos);
         gui.frame(entities, mousePos);
 
         ImGui::SFML::Render(window);

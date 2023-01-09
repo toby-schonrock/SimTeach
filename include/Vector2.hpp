@@ -4,16 +4,20 @@
 #include <iostream>
 #include <ostream>
 
-
 template <typename T>
 class Vector2 {
   public:
     T x{};
     T y{};
 
+    constexpr Vector2() = default;
+
     constexpr Vector2(T x_, T y_) : x(x_), y(y_) {}
 
-    constexpr Vector2() = default;
+    template <typename U>
+    explicit operator Vector2<U>() const {
+        return Vector2<U>(static_cast<U>(x), static_cast<U>(y));
+    }
 
     constexpr T       mag() const { return std::hypot(x, y); }
     constexpr Vector2 norm() const { return *this / this->mag(); }
@@ -42,4 +46,3 @@ using Vec2  = Vector2<double>;
 using Vec2I = Vector2<int>;
 using Vec2U = Vector2<unsigned>;
 using Vec2F = Vector2<float>;
-

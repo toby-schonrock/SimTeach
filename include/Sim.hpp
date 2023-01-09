@@ -21,7 +21,7 @@ class Sim {
     Sim(EntityManager& entMan_, double gravity_ = 0) : entMan(entMan_), gravity(gravity_) {}
     
     void simFrame(double deltaTime) {
-        // calculate spring force
+        // calculate spring force worth doing in parralel
         std::for_each(std::execution::par_unseq, entMan.springs.begin(), entMan.springs.end(),
                       [&](Spring& spring) { spring.springHandler(entMan.points[spring.p1], entMan.points[spring.p2]); });
 
