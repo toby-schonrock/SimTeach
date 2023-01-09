@@ -22,7 +22,7 @@ class Sim {
     
     void simFrame(double deltaTime) {
         // calculate spring force worth doing in parralel
-        std::for_each(std::execution::par_unseq, entMan.springs.begin(), entMan.springs.end(),
+        std::for_each(entMan.springs.begin(), entMan.springs.end(),
                       [&](Spring& spring) { spring.springHandler(entMan.points[spring.p1], entMan.points[spring.p2]); });
 
         // update point positions
