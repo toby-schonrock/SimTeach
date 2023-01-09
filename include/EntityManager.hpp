@@ -14,7 +14,7 @@ class EntityManager {
     std::vector<Polygon>    polys;
     std::vector<Point>      points;
     std::vector<Spring>     springs;
-    Graph                   g{{5, ObjectType::Point, Property::Position}}; // TODO test
+    std::vector<Graph>      graphs;
 
     void addPoint(const Point& p) {
         points.push_back(p);

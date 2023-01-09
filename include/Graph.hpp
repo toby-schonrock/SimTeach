@@ -2,6 +2,7 @@
 
 #include "GraphReference.hpp"
 #include "RingBuffer.hpp"
+#include "imgui_internal.h"
 #include "implot.h"
 #include <optional>
 #include <string>
@@ -37,15 +38,13 @@ class Graph {
     void add(float t, const EntityManager& entities) { data.add({t, getValue(entities)}); }
 
     void draw() {
-        ImGui::Begin("test");
-        if (ImPlot::BeginPlot("graph1")) {
+        if (ImPlot::BeginPlot("Graph")) {
             ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_AutoFit);
-            ImPlot::SetupAxis(ImAxis_Y1, "Yes", ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxis(ImAxis_Y1, getPropLbl(y->prop).begin(), ImPlotAxisFlags_AutoFit);
             ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
             ImPlot::PlotLine("test", &data.v[0].x, &data.v[0].y, static_cast<int>(data.v.size()),
                              ImPlotLineFlags_None, static_cast<int>(data.pos), sizeof(Vec2F));
             ImPlot::EndPlot();
         }
-        ImGui::End();
     }
 };

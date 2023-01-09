@@ -5,6 +5,8 @@
 
 #include "EntityManager.hpp"
 #include "GUI.hpp"
+#include "Graph.hpp"
+#include "GraphMananager.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -60,7 +62,10 @@ int main() {
     // nesecary sim stuff
     EntityManager entities;
 
-    GUI gui(desktop, window, 0.05F);
+    entities.graphs.emplace_back(5, ObjectType::Point, Property::Position);
+
+    GUI          gui(entities, desktop, window, 0.05F);
+    GraphManager graphs{entities};
 
     // Sim sim1(entities, 0.2F);                                                          // empty
     Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
@@ -151,14 +156,12 @@ int main() {
             ImGui::End();
             tools[selectedTool]->frame(sim1, mousePos);
         } else {
-            entities.g.add(
+            graphs.updateDraw(
                 static_cast<float>((std::chrono::high_resolution_clock::now() - runtime).count()) /
-                    1e9F,
-                entities);
-            entities.g.draw();
+                1e9F);
         }
 
-        gui.frame(entities, mousePos);
+        gui.frame(mousePos);
 
         ImGui::SFML::Render(window);
         window.display();

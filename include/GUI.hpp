@@ -14,6 +14,7 @@ sf::Vector2f visualize(const Vec2& v);
 
 class GUI {
   private:
+    EntityManager& entities;
     static constexpr float      zoomFact = 1.05F;
     sf::Texture                 pointTexture;
     sf::RenderWindow&           window;
@@ -26,8 +27,8 @@ class GUI {
     sf::View         view;
     RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
 
-    GUI(const sf::VideoMode& desktop, sf::RenderWindow& window_, float radius_ = 0.05F)
-        : window(window_), screen(desktop.width, desktop.height),
+    GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_, float radius_ = 0.05F)
+        : entities(entities_), window(window_), screen(desktop.width, desktop.height),
           vsScale(static_cast<float>(screen.x) / 20.0F), radius(radius_) {
         std::cout << "Scale: " << vsScale << "\n";
         if (!pointTexture.loadFromFile("point.png"))
@@ -57,8 +58,8 @@ class GUI {
         }
     }
 
-    void frame(EntityManager& entities, const sf::Vector2i& mousePixPos) {
-        interface(entities);
+    void frame(const sf::Vector2i& mousePixPos) {
+        interface();
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -75,7 +76,7 @@ class GUI {
         }
     }
 
-    void interface(EntityManager& entities) {
+    void interface() {
         ImGui::Begin("GUI", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);

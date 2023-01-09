@@ -10,9 +10,8 @@ class EntityManager;
 enum class ObjectType { Point, Spring, Const };
 enum class Property { Position, Velocity, Extension, Force };
 
-using namespace std::string_view_literals;
-constexpr static std::array ObjectTypeLbl{"Point"sv, "Spring"sv, "Const"sv};
-constexpr static std::array PropLbl{"Position"sv, "Velocity"sv, "Extension"sv, "Force"sv};
+constexpr static std::array ObjectTypeLbl{"Point", "Spring", "Const"};
+constexpr static std::array PropLbl{"Position", "Velocity", "Extension", "Force"};
 
 inline std::string_view getTypeLbl(ObjectType type) {
     return ObjectTypeLbl[static_cast<std::size_t>(type)];
