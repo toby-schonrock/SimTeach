@@ -73,6 +73,7 @@ int main() {
     tools.push_back(std::make_unique<CustomPolyTool>(window, entities, "Custom Poly"));
 
     bool                                  running = false;
+    std::chrono::system_clock::time_point runtime;
     std::chrono::system_clock::time_point last =
         std::chrono::high_resolution_clock::now(); // setting time of previous frame to be now
     sf::Clock
@@ -112,7 +113,10 @@ int main() {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed &&
                        event.key.code == sf::Keyboard::Space) {
-                if (!running) tools[selectedTool]->unequip();
+                if (!running) {
+                    tools[selectedTool]->unequip();
+                    runtime = std::chrono::high_resolution_clock::now();
+                }
                 running = !running;
             } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
                 gui.event(event, mousePos);
@@ -146,6 +150,12 @@ int main() {
             tools[selectedTool]->ImTool();
             ImGui::End();
             tools[selectedTool]->frame(sim1, mousePos);
+        } else {
+            entities.g.add(
+                static_cast<float>((std::chrono::high_resolution_clock::now() - runtime).count()) /
+                    1e9F,
+                entities);
+            entities.g.draw();
         }
 
         gui.frame(entities, mousePos);

@@ -21,6 +21,7 @@ class Vector2 {
 
     constexpr T       mag() const { return std::hypot(x, y); }
     constexpr Vector2 norm() const { return *this / this->mag(); }
+    constexpr Vector2 abs() const { return {std::abs(x), std::abs(y)}; }
     constexpr double  dot(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
     constexpr double  cross(const Vector2& rhs) const { return x * rhs.y - y * rhs.x; }
 

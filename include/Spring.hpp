@@ -22,4 +22,16 @@ struct Spring {
         point1.f += force; // equal and opposite reaction
         point2.f -= force;
     }
+
+    Vec2 forceCalc(const Point& point1, const Point& point2) const {
+        Vec2 diff = point1.pos - point2.pos; // broken out alot "yes this is faster! really like 3x"
+        double diffMag  = diff.mag();
+        Vec2   diffNorm = diff / diffMag;
+        double ext      = diffMag - stablePoint;
+        double springf  = -springConst * ext; // -ke spring force and also if a diagonal increase
+                                              // spring constant for stability // test
+        double dampf = diffNorm.dot(point2.vel - point1.vel) * dampFact; // damping force
+        Vec2   force = (springf + dampf) * diffNorm;
+        return force;
+    }
 };
