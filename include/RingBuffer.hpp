@@ -20,4 +20,9 @@ class RingBuffer {
             if (pos >= size) pos = 0; // wrap
         }
     }
+
+    void reset() {
+        pos = 0;
+        v.clear();
+    }
 };

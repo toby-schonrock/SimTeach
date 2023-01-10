@@ -62,7 +62,7 @@ int main() {
     // nesecary sim stuff
     EntityManager entities;
 
-    entities.graphs.emplace_back(5, ObjectType::Point, Property::Position);
+    entities.graphs.emplace_back(DataReference{5, ObjectType::Point, Property::Position});
 
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
@@ -76,6 +76,7 @@ int main() {
     tools.push_back(std::make_unique<PointTool>(window, entities, "Points"));
     tools.push_back(std::make_unique<SpringTool>(window, entities, "Springs"));
     tools.push_back(std::make_unique<CustomPolyTool>(window, entities, "Custom Poly"));
+    tools.push_back(std::make_unique<GraphTool>(window, entities, "Graphs"));
 
     bool                                  running = false;
     std::chrono::system_clock::time_point runtime;

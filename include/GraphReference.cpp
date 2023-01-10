@@ -26,4 +26,5 @@ Vec2F DataReference::getValue(const EntityManager& entities) {
     case ObjectType::Const:
         return value;
     }
+    throw std::logic_error("Reached end of get value");
 }

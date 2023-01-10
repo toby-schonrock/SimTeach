@@ -74,7 +74,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -279,7 +279,7 @@ class SpringTool : public Tool {
     double                        toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
 
-    void ImEdit([[maybe_unused]]const sf::Vector2i& mousePixPos) override {
+    void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {
         Spring& spring    = entities.springs[*selectedS];
         Vec2    springPos = (entities.points[spring.p1].pos + entities.points[spring.p2].pos) / 2;
         sf::Vector2i springPixPos = window.mapCoordsToPixel(visualize(springPos));
@@ -478,13 +478,13 @@ class CustomPolyTool : public Tool {
     bool                      convex = false;
     bool                      inside = false;
 
-    void ImEdit([[maybe_unused]]const sf::Vector2i& mousePixPos) override {}
+    void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
 
   public:
     CustomPolyTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
         : Tool(window_, entities_, name_) {}
 
-    void frame([[maybe_unused]]Sim& sim, const sf::Vector2i& mousePixPos) override {
+    void frame([[maybe_unused]] Sim& sim, const sf::Vector2i& mousePixPos) override {
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
         newPoint              = unvisualize(mousePos);
 
@@ -535,21 +535,31 @@ class CustomPolyTool : public Tool {
     void ImTool() override {}
 };
 
-// class GraphTool : public Tool {
-//   private:
-//     std::vector<RingBuffer<Vec2F>> graphs;
+class GraphTool : public Tool {
+  private:
+    std::optional<std::size_t> selected;
+    // static inline const ImPlot::color
 
-//     void ImEdit(const sf::Vector2i& mousePixPos) override {}
+    void ImEdit(const sf::Vector2i& mousePixPos) override {}
 
-//   public:
-//     GraphTool(sf::RenderWindow& window, EntityManager sim, const std::string& name)
-//         : Tool(window, sim, name) {}
+    void DrawGraphs() {
+        ImGui::Begin("Graphs");
+        for (Graph& g: entities.graphs) {
+            g.draw();
+            ImGui::Text("Is hovered: %s", ImGui::IsItemHovered() ? "true" : "false");
+        }
+        ImGui::End();
+    }
 
-//     void drawGraph(std::size_t i) {}
+  public:
+    GraphTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
+        : Tool(window_, entities_, name_) {}
 
-//     void addGraph(std::size_t buffer) { graphs.emplace_back(buffer); }
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override { DrawGraphs(); }
 
-//     void frame() {}
+    virtual void event(const sf::Event& event) {}
+    virtual void unequip() {}
+    virtual void ImTool() {}
 
-//     void interface() {}
-// };
+    void interface() {}
+};

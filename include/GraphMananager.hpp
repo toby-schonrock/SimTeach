@@ -18,11 +18,9 @@ class GraphManager {
         ImGui::End();
     }
 
-    void draw() {
-        ImGui::Begin("Graphs");
+    void reset() {
         for (Graph& g: entities.graphs) {
-            g.draw();
+            g.data.reset();
         }
-        ImGui::End();
     }
 };
