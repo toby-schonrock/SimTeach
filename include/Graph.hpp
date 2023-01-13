@@ -4,6 +4,8 @@
 #include "RingBuffer.hpp"
 #include "imgui_internal.h"
 #include "implot.h"
+#include <cstddef>
+#include <cstdio>
 #include <optional>
 #include <string>
 #include <vector>
@@ -37,8 +39,8 @@ class Graph {
 
     void add(float t, const EntityManager& entities) { data.add({t, getValue(entities)}); }
 
-    void draw() {
-        if (ImPlot::BeginPlot("Graph")) {
+    void draw(const std::size_t& i) {
+        if (ImPlot::BeginPlot(("Graph - " + std::to_string(i)).data())) {
             ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_AutoFit);
             ImPlot::SetupAxis(ImAxis_Y1, getPropLbl(y->prop).begin(), ImPlotAxisFlags_AutoFit);
             ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);

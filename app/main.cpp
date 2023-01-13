@@ -121,10 +121,11 @@ int main() {
                        event.key.code == sf::Keyboard::Space) {
                 if (!running) {
                     tools[selectedTool]->unequip();
+                    graphs.reset();
                     runtime = std::chrono::high_resolution_clock::now();
                 }
                 running = !running;
-            } else if (!(imguIO.WantCaptureMouse && event.type == sf::Event::MouseButtonPressed)) {
+            } else {
                 gui.event(event, mousePos);
                 if (!running) tools[selectedTool]->event(event);
             }

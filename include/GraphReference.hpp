@@ -9,6 +9,7 @@ class EntityManager;
 
 enum class ObjectType { Point, Spring, Const };
 enum class Property { Position, Velocity, Extension, Force };
+enum class Component { Position, Velocity, Extension, Force };f
 
 constexpr static std::array ObjectTypeLbl{"Point", "Spring", "Const"};
 constexpr static std::array PropLbl{"Position", "Velocity", "Extension", "Force"};

@@ -2,6 +2,7 @@
 
 #include "EntityManager.hpp"
 #include "Graph.hpp"
+#include <cstddef>
 
 class GraphManager {
     EntityManager& entities;
@@ -11,9 +12,9 @@ class GraphManager {
 
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
-        for (Graph& g: entities.graphs) {
-            g.add(t, entities);
-            g.draw();
+        for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
+            entities.graphs[i].add(t, entities);
+            entities.graphs[i].draw(i);
         }
         ImGui::End();
     }

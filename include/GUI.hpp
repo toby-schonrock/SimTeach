@@ -45,7 +45,7 @@ class GUI {
     }
 
     void event(const sf::Event& event, const sf::Vector2i& mousePixPos) {
-        if (event.type == sf::Event::MouseWheelMoved) {
+        if (event.type == sf::Event::MouseWheelMoved && !ImGui::GetIO().WantCaptureMouse) {
             float        zoom = (event.mouseWheel.delta == 1) ? 1 / zoomFact : zoomFact;
             sf::Vector2f diff = window.mapPixelToCoords(mousePixPos) - view.getCenter();
             view.zoom(zoom);

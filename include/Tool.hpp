@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EntityManager.hpp"
+#include "SFML/Window/Mouse.hpp"
 #include "Sim.hpp"
 #include "imgui.h"
 #include <cmath>
@@ -74,7 +75,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
@@ -208,7 +209,7 @@ class PointTool : public Tool {
     }
 
     void event(const sf::Event& event) override {
-        if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
             if (dragging) {
                 if (event.mouseButton.button != sf::Mouse::Middle)
                     dragging = false;        // drag ends on mouse click (except for move)
@@ -397,7 +398,7 @@ class SpringTool : public Tool {
     }
 
     void event(const sf::Event& event) override {
-        if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
             if (selectedS) {
                 setSpringColor(*selectedS, sf::Color::White);
                 selectedS.reset(); // unselect (close edit)
@@ -512,7 +513,7 @@ class CustomPolyTool : public Tool {
     }
 
     void event(const sf::Event& event) override {
-        if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
             if (event.mouseButton.button == sf::Mouse::Left) { // new vert
                 if (inside && poly.edges.size() > 2) {         // if green
                     poly.shape.setFillColor(sf::Color::White);
@@ -537,18 +538,23 @@ class CustomPolyTool : public Tool {
 
 class GraphTool : public Tool {
   private:
-    std::optional<std::size_t> selected;
+    std::optional<std::size_t> selectedG;
+    std::optional<std::size_t> hoveredG;
     // static inline const ImPlot::color
 
     void ImEdit(const sf::Vector2i& mousePixPos) override {}
 
     void DrawGraphs() {
+        std::optional<std::size_t> newHover = std::nullopt;
         ImGui::Begin("Graphs");
-        for (Graph& g: entities.graphs) {
-            g.draw();
-            ImGui::Text("Is hovered: %s", ImGui::IsItemHovered() ? "true" : "false");
+        for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
+            entities.graphs[i].draw(i);
+            if (ImGui::IsItemHovered()) {
+                newHover = i;
+            }
         }
         ImGui::End();
+        hoveredG = newHover;
     }
 
   public:
@@ -557,9 +563,18 @@ class GraphTool : public Tool {
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override { DrawGraphs(); }
 
-    virtual void event(const sf::Event& event) {}
+    virtual void event(const sf::Event& event) {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                selectedG = hoveredG;
+            }
+        }
+    }
     virtual void unequip() {}
-    virtual void ImTool() {}
+    virtual void ImTool() override {
+        if (hoveredG) ImGui::Text("selected %zu", *hoveredG);
+        if (selectedG) ImGui::Text("selected %zu", *selectedG);
+    }
 
     void interface() {}
 };
