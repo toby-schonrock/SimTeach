@@ -3,6 +3,7 @@
 #include <optional>
 
 #include "Debug.hpp"
+#include "GraphMananager.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -31,8 +32,7 @@ class GUI {
 
   public:
     sf::View         view;
-    RingBuffer<Vec2> fps         = RingBuffer<Vec2>(160);
-    std::size_t      graphBuffer = 5000;
+    RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
 
     GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_,
         float radius_ = 0.05F)
@@ -66,8 +66,8 @@ class GUI {
         }
     }
 
-    void frame(const sf::Vector2i& mousePixPos, Sim& sim) {
-        interface(sim);
+    void frame(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs) {
+        interface(sim, graphs);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -84,7 +84,7 @@ class GUI {
         }
     }
 
-    void interface(Sim& sim) {
+    void interface(Sim& sim, GraphManager& graphs) {
         ImGui::Begin("GUI", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);
@@ -146,10 +146,11 @@ class GUI {
         ImGui_DragDouble("Gravity", &sim.gravity, 0.001F, -100, 100, "%.3f",
                          ImGuiSliderFlags_AlwaysClamp);
         ImGui::SetNextItemWidth(100.0F);
-        static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(graphBuffer);
+        static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(
+            graphs.graphBuffer); // TODO maybe does this work with size_t ?
         ImGui_DragUnsigned("Graph buffer", &graphBufferTemp, 1.0F, 100, 20000, "%zu",
                            ImGuiSliderFlags_AlwaysClamp);
-        graphBuffer = graphBufferTemp;
+        graphs.graphBuffer = graphBufferTemp;
         ImGui::SameLine();
         HelpMarker("Graph data is collected every visual frame. The buffer size determines how "
                    "many visual frames before old data is overwritten. This value cannot be "

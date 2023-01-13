@@ -59,15 +59,18 @@ int main() {
         ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
                                                // cursor overide)
 
-    // nesecary sim stuff
+    // necessary sim stuff
     EntityManager entities;
-
-    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Position}, Component::x);
-    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Velocity}, Component::x);
-    entities.graphs.emplace_back(DataReference{0, ObjectType::Spring, Property::Extension}, Component::x);
 
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
+
+    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Position},
+                                 Component::x, graphs.graphBuffer);
+    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Velocity},
+                                 Component::x, graphs.graphBuffer);
+    entities.graphs.emplace_back(DataReference{0, ObjectType::Spring, Property::Extension},
+                                 Component::x, graphs.graphBuffer);
 
     // Sim sim1(entities, 0.2F);                                                          // empty
     Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
@@ -78,7 +81,7 @@ int main() {
     tools.push_back(std::make_unique<PointTool>(window, entities, "Points"));
     tools.push_back(std::make_unique<SpringTool>(window, entities, "Springs"));
     tools.push_back(std::make_unique<CustomPolyTool>(window, entities, "Custom Poly"));
-    tools.push_back(std::make_unique<GraphTool>(window, entities, "Graphs"));
+    tools.push_back(std::make_unique<GraphTool>(window, entities, graphs, "Graphs"));
 
     bool                                  running = false;
     std::chrono::system_clock::time_point runtime;
@@ -123,7 +126,7 @@ int main() {
                        event.key.code == sf::Keyboard::Space) {
                 if (!running) { // when space bar to run
                     tools[selectedTool]->unequip();
-                    graphs.reset(gui.graphBuffer);
+                    graphs.reset();
                     runtime = std::chrono::high_resolution_clock::now();
                 }
                 running = !running;
@@ -165,7 +168,7 @@ int main() {
                 1e9F);
         }
 
-        gui.frame(mousePos, sim1);
+        gui.frame(mousePos, sim1, graphs);
 
         ImGui::SFML::Render(window);
         window.display();

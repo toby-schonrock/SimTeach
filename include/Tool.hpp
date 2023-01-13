@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EntityManager.hpp"
+#include "GraphMananager.hpp"
 #include "ImguiHelpers.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
@@ -185,9 +186,10 @@ class PointTool : public Tool {
             if (closestDist < toolRange) {
                 hoveredP = closestPoint;
                 setPointColor(*hoveredP, hoverColour);
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                     ImGui::SetTooltip("Click to delete");
-                } else if (inside) ImGui::SetTooltip("Cant place point in polygon");
+                else if (inside)
+                    ImGui::SetTooltip("Cant place point in polygon");
             }
         }
     }
@@ -522,6 +524,7 @@ class CustomPolyTool : public Tool {
 
 class GraphTool : public Tool {
   private:
+    GraphManager&              graphs;
     std::optional<std::size_t> selectedG;
     std::optional<std::size_t> hoveredG;
     // static inline const ImPlot::color
@@ -543,28 +546,32 @@ class GraphTool : public Tool {
             if ((hoveredG && i == *hoveredG) || (selectedG && i == *selectedG))
                 ImPlot::PopStyleColor();
         }
-        ImGui::End();
         hoveredG = newHover;
-        if (ImGui::Button("Make New")) {
-            entities.graphs.emplace_back();
+        if (ImGui::Button("Make new")) {
+            graphs.makeNew();
+            std::cout << "made new" << std::endl;
         }
+        ImGui::End();
     }
 
   public:
-    GraphTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
-        : Tool(window_, entities_, name_) {}
+    GraphTool(sf::RenderWindow& window_, EntityManager& entities_, GraphManager& graphs_,
+              const std::string& name_)
+        : Tool(window_, entities_, name_), graphs(graphs_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override { DrawGraphs(); }
 
-    virtual void event(const sf::Event& event) {
+    void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 selectedG = hoveredG;
             }
         }
     }
-    virtual void unequip() {}
-    virtual void ImTool() override {
+
+    void unequip() override {}
+
+    void ImTool() override {
         if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (selectedG) ImGui::Text("selected %zu", *selectedG);
     }

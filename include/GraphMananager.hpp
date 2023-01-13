@@ -5,9 +5,11 @@
 #include <cstddef>
 
 class GraphManager {
+  private:
     EntityManager& entities;
 
-    public:
+  public:
+    std::size_t graphBuffer = 5000;
     GraphManager(EntityManager& entities_) : entities(entities_) {}
 
     void updateDraw(float t) {
@@ -19,15 +21,19 @@ class GraphManager {
         ImGui::End();
     }
 
-    void reset(std::size_t bufferSize) {
+    void reset() {
         for (Graph& g: entities.graphs) {
-            g.data = RingBuffer<Vec2F>(bufferSize);
+            g.data = RingBuffer<Vec2F>(graphBuffer);
         }
+    }
+
+    void makeNew() {
+        entities.graphs.emplace_back(graphBuffer);
     }
 
     bool valid() { // TODO remove me see graph.cpp
         for (Graph& g: entities.graphs) {
-            if (!g.isValid(entities)) return false; 
+            if (!g.isValid(entities)) return false;
         }
         return true;
     }
