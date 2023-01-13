@@ -41,7 +41,7 @@ class Polygon {
     }
 
     void boundsUp() {
-        // TODO doesn't take advantage of mins/maxs already calulated
+        // TODO doesn't take advantage of mins/maxs already calulated in edges
         for (const Edge& edge: edges) { // loop over all points
             Vec2 p      = edge.p1();
             maxBounds.x = std::max(maxBounds.x, p.x);

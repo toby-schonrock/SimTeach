@@ -1,7 +1,8 @@
 #pragma once
 
 #include "EntityManager.hpp"
-#include "SFML/Window/Mouse.hpp"
+#include "ImguiHelpers.hpp"
+#include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "imgui.h"
 #include <cmath>
@@ -15,26 +16,10 @@ const ImGuiWindowFlags editFlags =
 sf::Vector2f visualize(const Vec2& v);
 Vec2         unvisualize(const sf::Vector2f& v);
 
-inline bool ImGui_DragDouble(const char* label, double* v, float v_speed = 1.0f, double v_min = 0,
-                             double v_max = 0, const char* format = 0, ImGuiSliderFlags flags = 0) {
-    return ImGui::DragScalar(label, ImGuiDataType_Double, v, v_speed, &v_min, &v_max, format,
-                             flags);
-}
+bool ImGui_DragDouble(const char* label, double* v, float v_speed, double v_min, double v_max,
+                      const char* format, ImGuiSliderFlags flags);
 
-static void HelpMarker(
-    const char*
-        desc) // taken from dear imgui demo
-              // https://github.com/ocornut/imgui/blob/9aae45eb4a05a5a1f96be1ef37eb503a12ceb889/imgui_demo.cpp#L191
-{
-    ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(desc);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
-}
+void HelpMarker(const char* desc);
 
 class Tool {
   protected:
@@ -75,7 +60,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -181,7 +166,6 @@ class PointTool : public Tool {
             inside = false;
         } else {
             inside = true;
-            ImGui::SetTooltip("Cant place point in polygon");
         }
 
         if (entities.points.size() == 0) return;
@@ -203,7 +187,7 @@ class PointTool : public Tool {
                 setPointColor(*hoveredP, hoverColour);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
                     ImGui::SetTooltip("Click to delete");
-                }
+                } else if (inside) ImGui::SetTooltip("Cant place point in polygon");
             }
         }
     }
@@ -548,13 +532,22 @@ class GraphTool : public Tool {
         std::optional<std::size_t> newHover = std::nullopt;
         ImGui::Begin("Graphs");
         for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
+            if (selectedG && i == *selectedG)
+                ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.114F, 1.267F, 0.282F, 0.2F});
+            else if (hoveredG && i == *hoveredG)
+                ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.133F, 0.114F, 0.282F, 0.2F});
             entities.graphs[i].draw(i);
             if (ImGui::IsItemHovered()) {
                 newHover = i;
             }
+            if ((hoveredG && i == *hoveredG) || (selectedG && i == *selectedG))
+                ImPlot::PopStyleColor();
         }
         ImGui::End();
         hoveredG = newHover;
+        if (ImGui::Button("Make New")) {
+            entities.graphs.emplace_back();
+        }
     }
 
   public:
@@ -572,7 +565,7 @@ class GraphTool : public Tool {
     }
     virtual void unequip() {}
     virtual void ImTool() override {
-        if (hoveredG) ImGui::Text("selected %zu", *hoveredG);
+        if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (selectedG) ImGui::Text("selected %zu", *selectedG);
     }
 

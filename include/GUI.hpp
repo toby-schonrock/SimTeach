@@ -5,29 +5,37 @@
 #include "Debug.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Window.hpp"  
-#include "EntityManager.hpp"
+#include "SFML/Window.hpp"
+#include "Sim.hpp"
 #include "imgui.h"
 #include "implot.h"
 
 sf::Vector2f visualize(const Vec2& v);
 
+bool ImGui_DragDouble(const char* label, double* v, float v_speed, double v_min, double v_max,
+                      const char* format, ImGuiSliderFlags flags);
+bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_speed, std::uint32_t v_min,
+                        std::uint32_t v_max, const char* format, ImGuiSliderFlags flags);
+void HelpMarker(const char* desc);
+
 class GUI {
   private:
-    EntityManager& entities;
+    EntityManager&              entities;
     static constexpr float      zoomFact = 1.05F;
     sf::Texture                 pointTexture;
     sf::RenderWindow&           window;
     std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
     const float                 vsScale; // window scaling
-    float                 radius;
+    float                       radius;
 
   public:
     sf::View         view;
-    RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
+    RingBuffer<Vec2> fps         = RingBuffer<Vec2>(160);
+    std::size_t      graphBuffer = 5000;
 
-    GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_, float radius_ = 0.05F)
+    GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_,
+        float radius_ = 0.05F)
         : entities(entities_), window(window_), screen(desktop.width, desktop.height),
           vsScale(static_cast<float>(screen.x) / 20.0F), radius(radius_) {
         std::cout << "Scale: " << vsScale << "\n";
@@ -58,8 +66,8 @@ class GUI {
         }
     }
 
-    void frame(const sf::Vector2i& mousePixPos) {
-        interface();
+    void frame(const sf::Vector2i& mousePixPos, Sim& sim) {
+        interface(sim);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -76,7 +84,7 @@ class GUI {
         }
     }
 
-    void interface() {
+    void interface(Sim& sim) {
         ImGui::Begin("GUI", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);
@@ -124,15 +132,29 @@ class GUI {
             window.draw(entities.springVerts.data(), entities.springVerts.size(), sf::Lines);
         }
         if (points) {
-            ImGui::DragFloat("Radius", &radius, 0.001F, 0.005F, 100000,"%.3f", ImGuiSliderFlags_AlwaysClamp);
+            ImGui::SetNextItemWidth(100.0F);
+            ImGui::DragFloat("Point Radius", &radius, 0.001F, 0.005F, 100000, "%.3f",
+                             ImGuiSliderFlags_AlwaysClamp);
             entities.updatePointVisPos(radius);
-            window.draw(entities.pointVerts.data(), entities.pointVerts.size(), sf::Quads, &pointTexture);
+            window.draw(entities.pointVerts.data(), entities.pointVerts.size(), sf::Quads,
+                        &pointTexture);
         }
         if (polygons) {
             for (Polygon& poly: entities.polys) poly.draw(window, false);
         }
-
-        ImGui::Text("View: (%F, %F)", view.getSize().x, view.getSize().y);
+        ImGui::SetNextItemWidth(100.0F);
+        ImGui_DragDouble("Gravity", &sim.gravity, 0.001F, -100, 100, "%.3f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SetNextItemWidth(100.0F);
+        static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(graphBuffer);
+        ImGui_DragUnsigned("Graph buffer", &graphBufferTemp, 1.0F, 100, 20000, "%zu",
+                           ImGuiSliderFlags_AlwaysClamp);
+        graphBuffer = graphBufferTemp;
+        ImGui::SameLine();
+        HelpMarker("Graph data is collected every visual frame. The buffer size determines how "
+                   "many visual frames before old data is overwritten. This value cannot be "
+                   "changed whilst playing.");
+        ImGui::Text("View size: (%F, %F)", view.getSize().x, view.getSize().y);
         ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
         if (ImGui::Button("reset view")) reset();
         ImGui::End();

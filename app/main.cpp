@@ -62,7 +62,9 @@ int main() {
     // nesecary sim stuff
     EntityManager entities;
 
-    entities.graphs.emplace_back(DataReference{5, ObjectType::Point, Property::Position});
+    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Position}, Component::x);
+    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Velocity}, Component::x);
+    entities.graphs.emplace_back(DataReference{0, ObjectType::Spring, Property::Extension}, Component::x);
 
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
@@ -119,9 +121,9 @@ int main() {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed &&
                        event.key.code == sf::Keyboard::Space) {
-                if (!running) {
+                if (!running) { // when space bar to run
                     tools[selectedTool]->unequip();
-                    graphs.reset();
+                    graphs.reset(gui.graphBuffer);
                     runtime = std::chrono::high_resolution_clock::now();
                 }
                 running = !running;
@@ -163,7 +165,7 @@ int main() {
                 1e9F);
         }
 
-        gui.frame(mousePos);
+        gui.frame(mousePos, sim1);
 
         ImGui::SFML::Render(window);
         window.display();

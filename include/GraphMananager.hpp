@@ -19,9 +19,16 @@ class GraphManager {
         ImGui::End();
     }
 
-    void reset() {
+    void reset(std::size_t bufferSize) {
         for (Graph& g: entities.graphs) {
-            g.data.reset();
+            g.data = RingBuffer<Vec2F>(bufferSize);
         }
+    }
+
+    bool valid() { // TODO remove me see graph.cpp
+        for (Graph& g: entities.graphs) {
+            if (!g.isValid(entities)) return false; 
+        }
+        return true;
     }
 };
