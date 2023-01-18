@@ -24,6 +24,14 @@ class Vector2 {
     constexpr Vector2 abs() const { return {std::abs(x), std::abs(y)}; }
     constexpr double  dot(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
     constexpr double  cross(const Vector2& rhs) const { return x * rhs.y - y * rhs.x; }
+    constexpr T       distToLine(const Vector2& p1, const Vector2& p2) const {
+        Vector2 line  = p2 - p1;
+        Vector2 diff1 = *this - p1;
+        if (diff1.dot(line) < 0) return diff1.mag();
+        Vector2 diff2 = *this - p2;
+        if (diff2.dot(line) > 0) return diff2.mag();
+        return std::abs(line.cross(diff1)) / line.mag();
+    }
 
     // clang-format off
     constexpr Vector2& operator+=(const Vector2& obj) { x += obj.x; y += obj.y; return *this; }

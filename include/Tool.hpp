@@ -299,8 +299,11 @@ class SpringTool : public Tool {
     }
 
     void springInputs(Spring& spring) const {
+        ImGui::SetNextItemWidth(100.0F);
         ImGui::InputDouble("spring constant", &spring.springConst);
+        ImGui::SetNextItemWidth(100.0F);
         ImGui::InputDouble("damping factor", &spring.dampFact);
+        ImGui::SetNextItemWidth(100.0F);
         ImGui::InputDouble("natural length", &spring.stablePoint);
     }
 
@@ -527,6 +530,10 @@ class GraphTool : public Tool {
     GraphManager&              graphs;
     std::optional<std::size_t> selectedG;
     std::optional<std::size_t> hoveredG;
+    std::optional<std::size_t> hoveredP;
+    std::optional<std::size_t> hoveredS;
+    bool                       selectingPoint  = false;
+    bool                       selectingSpring = false;
     // static inline const ImPlot::color
 
     void ImEdit(const sf::Vector2i& mousePixPos) override {}
@@ -547,10 +554,6 @@ class GraphTool : public Tool {
                 ImPlot::PopStyleColor();
         }
         hoveredG = newHover;
-        if (ImGui::Button("Make new")) {
-            graphs.makeNew();
-            std::cout << "made new" << std::endl;
-        }
         ImGui::End();
     }
 
@@ -572,6 +575,8 @@ class GraphTool : public Tool {
     void unequip() override {}
 
     void ImTool() override {
+        ImGui::Button("Make New Point Graph");
+        ImGui::Button("Make New Spring Graph");
         if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (selectedG) ImGui::Text("selected %zu", *selectedG);
     }

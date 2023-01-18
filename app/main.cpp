@@ -5,8 +5,6 @@
 
 #include "EntityManager.hpp"
 #include "GUI.hpp"
-#include "Graph.hpp"
-#include "GraphMananager.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -72,9 +70,9 @@ int main() {
     entities.graphs.emplace_back(DataReference{0, ObjectType::Spring, Property::Extension},
                                  Component::x, graphs.graphBuffer);
 
-    // Sim sim1(entities, 0.2F);                                                          // empty
-    Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
-    // Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
+    // Sim sim1(entities, 0.2F);                                                        // empty
+    // Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100);  // default
+    Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
 
     std::size_t                        selectedTool = 0;
     std::vector<std::unique_ptr<Tool>> tools;
@@ -124,12 +122,14 @@ int main() {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed &&
                        event.key.code == sf::Keyboard::Space) {
-                if (!running) { // when space bar to run
+                if (running) { // when space bar to run
+                    running = false;
+                } else {
                     tools[selectedTool]->unequip();
                     graphs.reset();
                     runtime = std::chrono::high_resolution_clock::now();
+                    running = true;
                 }
-                running = !running;
             } else {
                 gui.event(event, mousePos);
                 if (!running) tools[selectedTool]->event(event);

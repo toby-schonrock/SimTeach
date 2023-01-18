@@ -48,8 +48,6 @@ class Graph {
         if (y2 && y2->type == type && y2->index == old) y2->index = updated;
     }
 
-    bool isValid(const EntityManager& entities);
-
     void checkDeleteIndex(ObjectType type, std::size_t i) {
         if (y && y->type == type && y->index == i) y.reset();
         if (y2 && y2->type == type && y2->index == i) y2.reset();
@@ -61,7 +59,8 @@ class Graph {
         if (ImPlot::BeginPlot(("Graph " + std::to_string(i)).data(), {-1, 0},
                               ImPlotFlags_NoLegend | ImPlotFlags_NoTitle)) {
             ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_AutoFit);
-            ImPlot::SetupAxis(ImAxis_Y1, y ? (getPropLbl(y->prop) + " - " + getCompLbl(comp)).data() : "",
+            ImPlot::SetupAxis(ImAxis_Y1,
+                              y ? (getPropLbl(y->prop) + " - " + getCompLbl(comp)).data() : "",
                               ImPlotAxisFlags_AutoFit);
             ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
             ImPlot::PlotLine("Line", &data.v[0].x, &data.v[0].y, static_cast<int>(data.v.size()),

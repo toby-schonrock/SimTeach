@@ -1,10 +1,10 @@
 #pragma once
 
 #include <algorithm>
+#include <execution>
 #include <functional>
 #include <iostream>
 #include <vector>
-#include <execution>
 
 #include "EntityManager.hpp"
 #include "Point.hpp"
@@ -16,14 +16,15 @@
 class Sim {
   public:
     EntityManager& entities;
-    double gravity;
+    double         gravity;
 
     Sim(EntityManager& entities_, double gravity_ = 0) : entities(entities_), gravity(gravity_) {}
-    
+
     void simFrame(double deltaTime) {
         // calculate spring force worth doing in parralel
-        std::for_each(entities.springs.begin(), entities.springs.end(),
-                      [&](Spring& spring) { spring.springHandler(entities.points[spring.p1], entities.points[spring.p2]); });
+        std::for_each(entities.springs.begin(), entities.springs.end(), [&](Spring& spring) {
+            spring.springHandler(entities.points[spring.p1], entities.points[spring.p2]);
+        });
 
         // update point positions
         std::for_each(entities.points.begin(), entities.points.end(),
@@ -40,7 +41,8 @@ class Sim {
     }
 
     std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {
-        if (entities.points.empty()) throw std::logic_error("Finding closest point with no points?!? ;)");
+        if (entities.points.empty())
+            throw std::logic_error("Finding closest point with no points?!? ;)");
         double      closestDist = std::numeric_limits<double>::infinity();
         std::size_t closestPos  = 0;
         for (std::size_t i = 0; i != entities.points.size(); ++i) {
@@ -55,14 +57,13 @@ class Sim {
     }
 
     std::pair<std::size_t, double> findClosestSpring(const Vec2 pos) const {
-        if (entities.springs.empty()) throw std::logic_error("Finding closest spring with no springs?!? ;)");
+        if (entities.springs.empty())
+            throw std::logic_error("Finding closest spring with no springs?!? ;)");
         double      closestDist = std::numeric_limits<double>::infinity();
         std::size_t closestPos  = 0;
         for (std::size_t i = 0; i != entities.springs.size(); ++i) {
-            Vec2   springPos = 0.5 * (entities.points[entities.springs[i].p1].pos +
-                                    entities.points[entities.springs[i].p2].pos); // average of both entMan.points
-            Vec2   diff      = pos - springPos;
-            double dist      = diff.x * diff.x + diff.y * diff.y;
+            double dist = pos.distToLine(entities.points[entities.springs[i].p1].pos,
+                                         entities.points[entities.springs[i].p2].pos);
             if (dist < closestDist) {
                 closestDist = dist;
                 closestPos  = i;
@@ -71,8 +72,8 @@ class Sim {
         return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
     }
 
-    static Sim softbody(EntityManager& entMan, const Vector2<std::size_t>& size, const Vec2& simPos, float gravity,
-                        float gap, float springConst, float dampFact,
+    static Sim softbody(EntityManager& entMan, const Vector2<std::size_t>& size, const Vec2& simPos,
+                        float gravity, float gap, float springConst, float dampFact,
                         sf::Color color = sf::Color::Yellow) {
         Sim sim     = Sim(entMan);
         sim.gravity = gravity;
@@ -94,16 +95,16 @@ class Sim {
                 if (x < size.x - 1) {
                     if (y < size.y - 1) {
                         entMan.addSpring({springConst, dampFact,
-                                       std::numbers::sqrt2 * static_cast<double>(gap), p,
-                                       x + 1 + (y + 1) * size.x}); // down right
+                                          std::numbers::sqrt2 * static_cast<double>(gap), p,
+                                          x + 1 + (y + 1) * size.x}); // down right
                     }
                     entMan.addSpring({springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
                 }
                 if (y < size.y - 1) {
                     if (x > 0) {
                         entMan.addSpring({springConst, dampFact,
-                                       std::numbers::sqrt2 * static_cast<double>(gap), p,
-                                       x - 1 + (y + 1) * size.x}); // down left
+                                          std::numbers::sqrt2 * static_cast<double>(gap), p,
+                                          x - 1 + (y + 1) * size.x}); // down left
                     }
                     entMan.addSpring({springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
                 }

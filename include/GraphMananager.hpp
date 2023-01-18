@@ -26,15 +26,4 @@ class GraphManager {
             g.data = RingBuffer<Vec2F>(graphBuffer);
         }
     }
-
-    void makeNew() {
-        entities.graphs.emplace_back(graphBuffer);
-    }
-
-    bool valid() { // TODO remove me see graph.cpp
-        for (Graph& g: entities.graphs) {
-            if (!g.isValid(entities)) return false;
-        }
-        return true;
-    }
 };
