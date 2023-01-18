@@ -2,6 +2,7 @@
 
 #include "EntityManager.hpp"
 #include "GraphMananager.hpp"
+#include "GraphReference.hpp"
 #include "ImguiHelpers.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
@@ -61,7 +62,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
@@ -530,13 +531,24 @@ class GraphTool : public Tool {
     GraphManager&              graphs;
     std::optional<std::size_t> selectedG;
     std::optional<std::size_t> hoveredG;
-    std::optional<std::size_t> hoveredP;
-    std::optional<std::size_t> hoveredS;
-    bool                       selectingPoint  = false;
-    bool                       selectingSpring = false;
+    std::optional<std::size_t> hoveredO;
+
+    // new graph properties
+    std::optional<ObjectType>  type;
+    std::optional<std::size_t> index;
+    std::optional<Property>    prop;
+    std::optional<Component>   comp;
+
     // static inline const ImPlot::color
 
     void ImEdit(const sf::Vector2i& mousePixPos) override {}
+
+    void ResetGraph() {
+        type  = std::nullopt;
+        index = std::nullopt;
+        prop  = std::nullopt;
+        comp  = std::nullopt;
+    }
 
     void DrawGraphs() {
         std::optional<std::size_t> newHover = std::nullopt;
@@ -562,7 +574,12 @@ class GraphTool : public Tool {
               const std::string& name_)
         : Tool(window_, entities_, name_), graphs(graphs_) {}
 
-    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override { DrawGraphs(); }
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override { 
+        DrawGraphs();
+        if (type) {
+
+        }
+     }
 
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
@@ -575,8 +592,15 @@ class GraphTool : public Tool {
     void unequip() override {}
 
     void ImTool() override {
-        ImGui::Button("Make New Point Graph");
-        ImGui::Button("Make New Spring Graph");
+        if (ImGui::BeginPopupContextItem("Type")) {
+            if (ImGui::Selectable("Point")) type = ObjectType::Point;
+            if (ImGui::Selectable("Spring")) type = ObjectType::Spring;
+            ImGui::EndPopup();
+        }
+        if (ImGui::Button("Make New Graph")) {
+            ResetGraph();
+            ImGui::OpenPopup("Type");
+        }
         if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (selectedG) ImGui::Text("selected %zu", *selectedG);
     }
