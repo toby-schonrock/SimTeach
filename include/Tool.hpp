@@ -1,16 +1,23 @@
 #pragma once
 
 #include "EntityManager.hpp"
+#include "Graph.hpp"
 #include "GraphMananager.hpp"
 #include "GraphReference.hpp"
 #include "ImguiHelpers.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "imgui.h"
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <optional>
+
+static inline const sf::Color selectedPColour = sf::Color::Magenta;
+static inline const sf::Color hoverPColour    = sf::Color::Blue;
+static inline const sf::Color selectedSColour = sf::Color::Magenta;
+static inline const sf::Color hoverSColour    = sf::Color::Blue;
 
 const ImGuiWindowFlags editFlags =
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
@@ -62,19 +69,17 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
   private:
-    static inline const sf::Color selectedColour = sf::Color::Magenta;
-    static inline const sf::Color hoverColour    = sf::Color::Blue;
-    Point                         defPoint       = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red);
-    std::optional<std::size_t>    hoveredP       = std::nullopt;
-    std::optional<std::size_t>    selectedP      = std::nullopt;
-    double                        toolRange      = 1;
-    bool                          dragging       = false;
-    bool                          inside         = false;
+    Point                      defPoint  = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red);
+    std::optional<std::size_t> hoveredP  = std::nullopt;
+    std::optional<std::size_t> selectedP = std::nullopt;
+    double                     toolRange = 1;
+    bool                       dragging  = false;
+    bool                       inside    = false;
 
     void removePoint(const std::size_t& pos) {
         entities.rmvPoint(pos);
@@ -186,7 +191,7 @@ class PointTool : public Tool {
             // color close point for selection
             if (closestDist < toolRange) {
                 hoveredP = closestPoint;
-                setPointColor(*hoveredP, hoverColour);
+                setPointColor(*hoveredP, hoverPColour);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                     ImGui::SetTooltip("Click to delete");
                 else if (inside)
@@ -215,7 +220,7 @@ class PointTool : public Tool {
             } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
                 selectedP = *hoveredP;
                 hoveredP.reset();
-                setPointColor(*selectedP, selectedColour);
+                setPointColor(*selectedP, selectedPColour);
             }
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
@@ -254,17 +259,13 @@ class PointTool : public Tool {
 
 class SpringTool : public Tool {
   private:
-    static inline const sf::Color selectedPColour = sf::Color::Magenta;
-    static inline const sf::Color hoverPColour    = sf::Color::Blue;
-    static inline const sf::Color selectedSColour = sf::Color::Magenta;
-    static inline const sf::Color hoverSColour    = sf::Color::Blue;
-    Spring                        defSpring{10, 1.0, 0.2, 0, 0};
-    std::array<sf::Vertex, 2>     line{sf::Vertex{}, sf::Vertex{}};
-    std::optional<std::size_t>    selectedS = std::nullopt;
-    std::optional<std::size_t>    hoveredS  = std::nullopt;
-    std::optional<std::size_t>    selectedP = std::nullopt;
-    std::optional<std::size_t>    hoveredP  = std::nullopt;
-    double                        toolRange = 1;
+    Spring                     defSpring{10, 1.0, 0.2, 0, 0};
+    std::array<sf::Vertex, 2>  line{sf::Vertex{}, sf::Vertex{}};
+    std::optional<std::size_t> selectedS = std::nullopt;
+    std::optional<std::size_t> hoveredS  = std::nullopt;
+    std::optional<std::size_t> selectedP = std::nullopt;
+    std::optional<std::size_t> hoveredP  = std::nullopt;
+    double                     toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
 
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {
@@ -531,9 +532,13 @@ class GraphTool : public Tool {
     GraphManager&              graphs;
     std::optional<std::size_t> selectedG;
     std::optional<std::size_t> hoveredG;
-    std::optional<std::size_t> hoveredO;
+    std::optional<std::size_t> hoveredS;
+    std::optional<std::size_t> graphS2;
+    std::optional<std::size_t> hoveredP;
+    std::optional<std::size_t> graphP2;
 
     // new graph properties
+    bool                       selectingType = false;
     std::optional<ObjectType>  type;
     std::optional<std::size_t> index;
     std::optional<Property>    prop;
@@ -544,10 +549,11 @@ class GraphTool : public Tool {
     void ImEdit(const sf::Vector2i& mousePixPos) override {}
 
     void ResetGraph() {
-        type  = std::nullopt;
-        index = std::nullopt;
-        prop  = std::nullopt;
-        comp  = std::nullopt;
+        selectingType = false;
+        type          = std::nullopt;
+        index         = std::nullopt;
+        prop          = std::nullopt;
+        comp          = std::nullopt;
     }
 
     void DrawGraphs() {
@@ -575,11 +581,35 @@ class GraphTool : public Tool {
         : Tool(window_, entities_, name_), graphs(graphs_) {}
 
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        if (hoveredP) { // color resets
+            resetPointColor(*hoveredP);
+            hoveredP.reset();
+        }
+        if (hoveredS) {
+            setSpringColor(*hoveredS, sf::Color::White);
+            hoveredS.reset();
+        }
+        if (index) {
+            if (type == ObjectType::Point) {
+                setPointColor(*index, selectedPColour);
+            } else { // other option should only be spring
+                setSpringColor(*index, selectedSColour);
+            }
+        }
         if (prop && !comp) {
             if (ImGui::BeginPopupContextItem("Component")) {
-                if (ImGui::Selectable("Magnitude")) comp = Component::vec;
-                if (ImGui::Selectable("x-component")) comp = Component::x;
-                if (ImGui::Selectable("y-component")) comp = Component::y;
+                if (ImGui::Selectable("Magnitude")) {
+                    comp = Component::vec;
+                    ResetGraph();
+                }
+                if (ImGui::Selectable("x-component")) {
+                    comp = Component::x;
+                    ResetGraph();
+                }
+                if (ImGui::Selectable("y-component")) {
+                    comp = Component::y;
+                    ResetGraph();
+                }
                 ImGui::EndPopup();
             }
             ImGui::OpenPopup("Component");
@@ -596,7 +626,24 @@ class GraphTool : public Tool {
             }
             ImGui::OpenPopup("Property");
         } else if (type) {
+            Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
             ImGui::SetTooltip("Select a %s", getTypeLbl(*type).c_str());
+            if (type == ObjectType::Point) {
+                auto [closestP, closestSDist] = sim.findClosestPoint(mousePos);
+                hoveredP                      = closestP;
+                setPointColor(*hoveredP, hoverPColour);
+            } else { // other option should only be spring
+                auto [closestS, closestSDist] = sim.findClosestSpring(mousePos);
+                hoveredS                      = closestS;
+                setSpringColor(*hoveredS, hoverSColour);
+            }
+        } else if (selectingType) {
+            if (ImGui::BeginPopupContextItem("Type")) {
+                if (ImGui::Selectable("Point")) type = ObjectType::Point;
+                if (ImGui::Selectable("Spring")) type = ObjectType::Spring;
+                ImGui::EndPopup();
+            }
+            ImGui::OpenPopup("Type");
         } else {
             DrawGraphs();
         }
@@ -605,9 +652,14 @@ class GraphTool : public Tool {
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                selectedG = hoveredG;
+                if (hoveredG) { // 
+                    selectedG = hoveredG;
+                }
                 if (type && !index) {
-                    index = 0;
+                    if (type == ObjectType::Point)
+                        index = *hoveredP;
+                    else
+                        index = hoveredS;
                 }
             }
         } else if (event.type == sf::Event::KeyPressed) {
@@ -622,13 +674,7 @@ class GraphTool : public Tool {
     void ImTool() override {
         if (ImGui::Button("Make New Graph")) {
             ResetGraph();
-            if (ImGui::BeginPopupContextItem("Type")) {
-                if (ImGui::Selectable("Point")) type = ObjectType::Point;
-                if (ImGui::Selectable("Spring")) type = ObjectType::Spring;
-                ImGui::EndPopup();
-            }
-            ImGui::OpenPopup("Type");
-            index = 0;
+            selectingType = true;
         }
         if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (selectedG) ImGui::Text("selected %zu", *selectedG);

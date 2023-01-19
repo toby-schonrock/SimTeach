@@ -71,8 +71,8 @@ int main() {
                                  Component::x, graphs.graphBuffer);
 
     // Sim sim1(entities, 0.2F);                                                        // empty
-    // Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100);  // default
-    Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
+    Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
+    // Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
 
     std::size_t                        selectedTool = 0;
     std::vector<std::unique_ptr<Tool>> tools;
