@@ -56,11 +56,10 @@ class Graph {
     void add(float t, const EntityManager& entities) { data.add({t, getValue(entities)}); }
 
     void draw(const std::size_t& i) {
-        if (ImPlot::BeginPlot(("Graph " + std::to_string(i)).data(), {-1, 0},
+        if (ImPlot::BeginPlot(("Graph " + std::to_string(i)).c_str(), {-1, 0},
                               ImPlotFlags_NoLegend | ImPlotFlags_NoTitle)) {
             ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_AutoFit);
-            ImPlot::SetupAxis(ImAxis_Y1,
-                              y ? (getPropLbl(y->prop) + " - " + getCompLbl(comp)).data() : "",
+            ImPlot::SetupAxis(ImAxis_Y1, (getPropLbl(y->prop) + " - " + getCompLbl(comp)).c_str(),
                               ImPlotAxisFlags_AutoFit);
             ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
             ImPlot::PlotLine("Line", &data.v[0].x, &data.v[0].y, static_cast<int>(data.v.size()),

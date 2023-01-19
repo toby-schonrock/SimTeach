@@ -62,7 +62,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -574,32 +574,61 @@ class GraphTool : public Tool {
               const std::string& name_)
         : Tool(window_, entities_, name_), graphs(graphs_) {}
 
-    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override { 
-        DrawGraphs();
-        if (type) {
-
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        if (prop && !comp) {
+            if (ImGui::BeginPopupContextItem("Component")) {
+                if (ImGui::Selectable("Magnitude")) comp = Component::vec;
+                if (ImGui::Selectable("x-component")) comp = Component::x;
+                if (ImGui::Selectable("y-component")) comp = Component::y;
+                ImGui::EndPopup();
+            }
+            ImGui::OpenPopup("Component");
+        } else if (index) {
+            if (ImGui::BeginPopupContextItem("Property")) {
+                if (*type == ObjectType::Spring) {
+                    if (ImGui::Selectable("Extension")) prop = Property::Extension;
+                    if (ImGui::Selectable("Force")) prop = Property::Force;
+                } else if (*type == ObjectType::Point) {
+                    if (ImGui::Selectable("Position")) prop = Property::Position;
+                    if (ImGui::Selectable("Velocity")) prop = Property::Velocity;
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::OpenPopup("Property");
+        } else if (type) {
+            ImGui::SetTooltip("Select a %s", getTypeLbl(*type).c_str());
+        } else {
+            DrawGraphs();
         }
-     }
+    }
 
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 selectedG = hoveredG;
+                if (type && !index) {
+                    index = 0;
+                }
+            }
+        } else if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Escape) {
+                ResetGraph();
             }
         }
     }
 
-    void unequip() override {}
+    void unequip() override { ResetGraph(); }
 
     void ImTool() override {
-        if (ImGui::BeginPopupContextItem("Type")) {
-            if (ImGui::Selectable("Point")) type = ObjectType::Point;
-            if (ImGui::Selectable("Spring")) type = ObjectType::Spring;
-            ImGui::EndPopup();
-        }
         if (ImGui::Button("Make New Graph")) {
             ResetGraph();
+            if (ImGui::BeginPopupContextItem("Type")) {
+                if (ImGui::Selectable("Point")) type = ObjectType::Point;
+                if (ImGui::Selectable("Spring")) type = ObjectType::Spring;
+                ImGui::EndPopup();
+            }
             ImGui::OpenPopup("Type");
+            index = 0;
         }
         if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (selectedG) ImGui::Text("selected %zu", *selectedG);
