@@ -69,7 +69,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -549,11 +549,50 @@ class GraphTool : public Tool {
     void ImEdit(const sf::Vector2i& mousePixPos) override {}
 
     void ResetGraph() {
+        if (index) {
+            if (type == ObjectType::Point) {
+                resetPointColor(*index);
+            } else {
+                setSpringColor(*index, sf::Color::White);
+            }
+        }
         selectingType = false;
         type          = std::nullopt;
         index         = std::nullopt;
         prop          = std::nullopt;
         comp          = std::nullopt;
+    }
+
+    void highlightGraph(std::size_t i) {
+        Graph& g = entities.graphs[i];
+        if (g.y.type == ObjectType::Point) {
+            setPointColor(g.y.index, selectedPColour);
+        } else {
+            setSpringColor(g.y.index, selectedSColour);
+        }
+        if (g.y2) {
+            if (g.y2->type == ObjectType::Point) {
+                setPointColor(g.y2->index, selectedPColour);
+            } else {
+                setSpringColor(g.y2->index, selectedSColour);
+            }
+        }
+    }
+
+    void resetGraphHighlight(std::size_t i) {
+        Graph& g = entities.graphs[i];
+        if (g.y.type == ObjectType::Point) {
+            resetPointColor(g.y.index);
+        } else {
+            setSpringColor(g.y.index, sf::Color::White);
+        }
+        if (g.y2) {
+            if (g.y2->type == ObjectType::Point) {
+                resetPointColor(g.y2->index);
+            } else {
+                setSpringColor(g.y2->index, sf::Color::White);
+            }
+        }
     }
 
     void DrawGraphs() {
@@ -652,12 +691,17 @@ class GraphTool : public Tool {
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                if (hoveredG) { // 
-                    selectedG = hoveredG;
+                if (hoveredG) { // new graph selected
+                    if (selectedG) resetGraphHighlight(*selectedG); // reset old graph
+                    selectedG = *hoveredG;
+                    highlightGraph(*selectedG);
+                } else if (selectedG) { // deselect graph
+                    resetGraphHighlight(*selectedG);
+                    selectedG.reset();
                 }
                 if (type && !index) {
                     if (type == ObjectType::Point)
-                        index = *hoveredP;
+                        index = hoveredP;
                     else
                         index = hoveredS;
                 }
@@ -674,6 +718,10 @@ class GraphTool : public Tool {
     void ImTool() override {
         if (ImGui::Button("Make New Graph")) {
             ResetGraph();
+            if (selectedG) {
+                resetGraphHighlight(*selectedG);
+                selectedG.reset();
+            }
             selectingType = true;
         }
         if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
