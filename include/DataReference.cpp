@@ -1,4 +1,4 @@
-#include "GraphReference.hpp"
+#include "DataReference.hpp"
 #include "EntityManager.hpp"
 
 Vec2F DataReference::getValue(const EntityManager& entities) {

@@ -63,7 +63,7 @@ target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui implot)
 target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui)
 
 find_package(Threads REQUIRED)
-add_executable(softbody app/main.cpp include/GraphReference.cpp)
+add_executable(softbody app/main.cpp include/DataReference.cpp)
 target_include_directories(softbody PRIVATE include)
 target_link_libraries(softbody PRIVATE imgui-sfml ${PROJECT_STATIC_OPTIONS})
 target_compile_options(softbody PRIVATE ${PROJECT_COMPILE_OPTIONS})

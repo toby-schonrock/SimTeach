@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GraphReference.hpp"
+#include "DataReference.hpp"
 #include "RingBuffer.hpp"
 #include "implot.h"
 #include <cstddef>
