@@ -744,12 +744,12 @@ class GraphTool : public Tool {
             selectingType = true;
         } else if (selectingType)
             ImGui::EndDisabled();
-        if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
+        // if (hoveredG) ImGui::Text("hovered %zu", *hoveredG);
         if (!selectedG) {
             ImGui::BeginDisabled();
         }
         ImGui::SetNextItemOpen(selectedG.has_value());
-        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_OpenOnArrow)) {
             if (selectedG) {
                 Graph& g = entities.graphs[*selectedG];
                 ImGui::BeginGroup();

@@ -23,24 +23,6 @@ Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, v.y); }
 
 Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y); }
 
-// void displaySimSettings(SoftBody& sb, float& gravity) {
-//     ImGui::Begin("Settings");
-//     ImGui::DragFloat("Gravity", &gravity, 0.01F);
-//     ImGui::DragFloat("Gap", &sb.gap, 0.005F);
-//     ImGui::DragFloat("Spring Constant", &sb.springConst, 10.0F, 0.0F, 20000.0F);
-//     ImGui::DragFloat("Damping Factor", &sb.dampFact, 1.0F, 0.0F, 300.0F);
-//     ImGui::DragInt("Size X", &sb.size.x, 1, 2, 50);
-//     ImGui::DragInt("Size Y", &sb.size.y, 1, 2, 50);
-//     ImGui::DragFloat("Zoom", &vsScale, 1, 0, 250);
-//     if (ImGui::Button("Reset sim")) sb.reset();
-//     ImGui::SameLine();
-//     if (ImGui::Button("Default sim")) {
-//         sb      = SoftBody(Vec2I(25, 25), 0.2F, Vec2(3, 0), 8000, 100);
-//         gravity = 2.0F;
-//     }
-//     ImGui::End();
-// }
-
 int main() {
     // SFML
     sf::VideoMode       desktop = sf::VideoMode::getDesktopMode();

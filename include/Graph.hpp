@@ -40,15 +40,16 @@ class Graph {
     Graph(const DataReference& y_, const DataReference& y2_, Component comp_, std::size_t buffer)
         : data(buffer), y(y_), y2(y2_), comp(comp_) {}
 
-    // void updateIndex(ObjectType type, std::size_t old, std::size_t updated) {
-    //     if (y.type == type && y.index == old) y.index = updated;
-    //     if (y2 && y2->type == type && y2->index == old) y2->index = updated;
-    // }
+    void updateIndex(ObjectType type, std::size_t old, std::size_t updated) {
+        if (y.type == type && y.index == old) y.index = updated;
+        if (y2 && y2->type == type && y2->index == old) y2->index = updated;
+    }
 
-    // bool checkDeleteIndex(ObjectType type, std::size_t i) {
-    //     if (y.type == type && y.index == i) return true;
-    //     if (y2 && y2->type == type && y2->index == i) y2.reset();
-    // }
+    bool checkDeleteIndex(ObjectType type, std::size_t i) {
+        if (y.type == type && y.index == i) return true;
+        if (y2 && y2->type == type && y2->index == i) y2.reset();
+        return false;
+    }
 
     void add(float t, const EntityManager& entities) { data.add({t, getValue(entities)}); }
 
