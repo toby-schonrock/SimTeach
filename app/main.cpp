@@ -13,7 +13,6 @@
 #include "Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
-#include "implot.h"
 
 sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y));

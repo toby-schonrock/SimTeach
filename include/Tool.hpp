@@ -16,6 +16,8 @@ static inline const sf::Color hoverPColour    = sf::Color::Blue;
 static inline const sf::Color selectedSColour = sf::Color::Magenta;
 static inline const sf::Color hoverSColour    = sf::Color::Blue;
 
+static inline const ImVec4 coloredText = {1, 1, 0, 1};
+
 const ImGuiWindowFlags editFlags =
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
@@ -749,33 +751,34 @@ class GraphTool : public Tool {
             ImGui::BeginDisabled();
         }
         ImGui::SetNextItemOpen(selectedG.has_value());
-        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_OpenOnArrow)) {
+        if (ImGui::CollapsingHeader("Graph properties",
+                                    ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Bullet)) {
             if (selectedG) {
                 Graph& g = entities.graphs[*selectedG];
-                ImGui::BeginGroup();
-                ImGui::Text("Type");
-                ImGui::Text("Property");
-                ImGui::Text("Component");
-                ImGui::Text("Index");
-                ImGui::EndGroup();
-                ImGui::SameLine();
-                ImGui::BeginGroup();
-                ImGui::Text("-");
-                ImGui::Text("-");
-                ImGui::Text("-");
-                ImGui::Text("-");
-                ImGui::EndGroup();
-                ImGui::SameLine();
-                ImGui::BeginGroup();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
-                ImGui::Text("%s", getTypeLbl(g.y.type).c_str());
-                ImGui::Text("%s", getPropLbl(g.y.prop).c_str());
-                ImGui::Text("%s", getCompLbl(g.comp).c_str());
-                ImGui::Text("%zu", g.y.index);
-                ImGui::PopStyleColor();
-                ImGui::EndGroup();
-                ImGui::SameLine();
-                ImGui::Button("Edit");
+                int    c = static_cast<int>(g.comp);
+                ImGui::Combo("Component", &c, CompLbl.data(), CompLbl.size());
+                g.comp = static_cast<Component>(c);
+                ImGui::SetNextItemOpen(true);
+                if (ImGui::TreeNode("%s", g.y2 ? "Base reference" : "Data reference")) {
+                    ImGui::Text("Object type -");
+                    ImGui::SameLine();
+                    ImGui::TextColored(coloredText, "%s", getTypeLbl(g.y.type).c_str());
+                    int p = static_cast<int>(g.y.prop);
+                    if (g.y.type == ObjectType::Point)
+                        ImGui::Combo("Property", &p, PropLbl.data(), 2);
+                    else
+                        ImGui::Combo("Property", &p, PropLbl.data() + 2,
+                                     2); // offset for spring properties
+                    g.y.prop = static_cast<Property>(p);
+                    ImGui::Text("Index");
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
+                    ImGui::Text("%s", getPropLbl(g.y.prop).c_str());
+                    ImGui::Text("%zu", g.y.index);
+                    ImGui::PopStyleColor();
+                    ImGui::EndGroup();
+                    ImGui::SameLine();
+                    ImGui::Button("Edit");
+                }
             }
         }
         if (!selectedG) ImGui::EndDisabled();
