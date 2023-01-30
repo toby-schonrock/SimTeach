@@ -8,8 +8,13 @@
 class EntityManager;
 
 enum class ObjectType { Point, Spring, Const };
-enum class Property { Position, Velocity, Extension, Force }; // todo maybe convert to member function pointers
-enum class Component { x, y, vec};
+enum class Property {
+    Position,
+    Velocity,
+    Extension,
+    Force
+}; // todo maybe convert to member function pointers
+enum class Component { x, y, vec };
 
 constexpr static std::array ObjectTypeLbl{"Point", "Spring", "Const"};
 constexpr static std::array PropLbl{"Position", "Velocity", "Extension", "Force"};
@@ -19,13 +24,9 @@ inline std::string getTypeLbl(ObjectType type) {
     return ObjectTypeLbl[static_cast<std::size_t>(type)];
 }
 
-inline std::string getPropLbl(Property prop) {
-    return PropLbl[static_cast<std::size_t>(prop)];
-}
+inline std::string getPropLbl(Property prop) { return PropLbl[static_cast<std::size_t>(prop)]; }
 
-inline std::string getCompLbl(Component comp) {
-    return CompLbl[static_cast<std::size_t>(comp)];
-}
+inline std::string getCompLbl(Component comp) { return CompLbl[static_cast<std::size_t>(comp)]; }
 
 class DataReference {
   public:
