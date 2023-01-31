@@ -68,7 +68,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
@@ -558,6 +558,7 @@ class GraphTool : public Tool {
             }
         }
         makingDiff = false;
+        makingNew  = false;
         type       = std::nullopt;
         index      = std::nullopt;
         prop       = std::nullopt;
@@ -644,7 +645,8 @@ class GraphTool : public Tool {
             }
         }
 
-        if (!makingNew || (makingNew && comp)) // if normal or just finished making a new graph
+        if (!makingDiff &&
+            (!makingNew || (makingNew && comp))) // if normal or just finished making a new graph
             DrawGraphs();
         else {          // if making new
             if (prop) { // Component selection
@@ -699,6 +701,8 @@ class GraphTool : public Tool {
                 }
                 ImGui::OpenPopup("Type");
             } else if (makingDiff) { // selecting the object to take the difference from
+                ImGui::SetTooltip("Select a %s",
+                                  getTypeLbl(entities.graphs[*selectedG].y.type).c_str());
                 Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
                 if (entities.graphs[*selectedG].y.type == ObjectType::Point) {
                     auto [closestP, closestSDist] = sim.findClosestPoint(mousePos);
@@ -720,7 +724,8 @@ class GraphTool : public Tool {
                     if (selectedG) resetGraphHighlight(*selectedG); // reset old graph
                     selectedG = *hoveredG;
                     highlightGraph(*selectedG);
-                } else if (makingDiff) { // selecting object for diff graph
+                } else if (makingDiff &&
+                           !ImGui::GetIO().WantCaptureMouse) { // selecting object for diff graph
                     makingDiff      = false;
                     DataReference d = entities.graphs[*selectedG].y;
                     d.index         = d.type == ObjectType::Point ? *hoveredP : *hoveredS;
@@ -728,7 +733,8 @@ class GraphTool : public Tool {
                 } else if (selectedG && !ImGui::GetIO().WantCaptureMouse) { // deselect graph
                     resetGraphHighlight(*selectedG);
                     selectedG.reset();
-                } else if (type && !index) { // selecting object for new graph
+                } else if (type && !index &&
+                           !ImGui::GetIO().WantCaptureMouse) { // selecting object for new graph
                     if (type == ObjectType::Point)
                         index = hoveredP;
                     else
@@ -774,17 +780,20 @@ class GraphTool : public Tool {
             if (selectedG) {
                 Graph& g    = entities.graphs[*selectedG];
                 bool   diff = g.y2.has_value() || makingDiff;
-                if (ImGui::Checkbox("Difference", &diff)) { // if difference
-                    if (ImGui::IsItemClicked()) {           // if difference selected
-                        makingDiff = true;
-                    }
-                    ImGui::BulletText("%s", "Base reference");
-                    ImGui::Indent(20.0F);
-                } else if (ImGui::IsItemClicked()) { // if difference deselected
+                ImGui::Checkbox("Difference", &diff);
+                if (ImGui::IsItemActive()) { // if difference selected
+                    makingDiff = true;
+                } else if (ImGui::IsItemDeactivated()) { // if difference deselected
+                    g.y2.reset();
                 }
+
                 ImGui::Text("Object type -");
                 ImGui::SameLine();
                 ImGui::TextColored(coloredText, "%s", getTypeLbl(g.y.type).c_str());
+
+                int c = static_cast<int>(g.comp);
+                ImGui::Combo("Component", &c, CompLbl.data(), CompLbl.size());
+                g.comp = static_cast<Component>(c);
 
                 int p;
                 if (g.y.type == ObjectType::Point) {
@@ -798,17 +807,17 @@ class GraphTool : public Tool {
                 }
                 g.y.prop = static_cast<Property>(p);
 
-                if (!g.y2) {
-                    int c = static_cast<int>(g.comp);
-                    ImGui::Combo("Component", &c, CompLbl.data(), CompLbl.size());
-                    g.comp = static_cast<Component>(c);
-                }
-
                 ImGui::Text("Index");
                 ImGui::SameLine();
                 ImGui::TextColored(coloredText, "%zu", g.y.index);
 
-                if (g.y2) ImGui::Unindent(20.0F);
+                if (g.y2) {
+                    ImGui::Indent(20.0F);
+                    ImGui::Text("Diff Index");
+                    ImGui::SameLine();
+                    ImGui::TextColored(coloredText, "%zu", g.y2->index);
+                    g.y2.
+                }
             }
         }
         if (!selectedG) ImGui::EndDisabled();
