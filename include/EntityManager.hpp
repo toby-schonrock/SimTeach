@@ -41,7 +41,7 @@ class EntityManager {
         auto        PEnd   = graphs.end();
         while (PStart < PEnd) {
             if ((*PStart).checkDeleteIndex(ObjectType::Point, pos)) { // remove invalid point graphs
-                std::cout << "graph " << PStart - graphs.begin()
+                std::cout << "Graph " << PStart - graphs.begin()
                           << " removed due to removal of point " << pos << "\n";
                 *PStart = std::move(*(--PEnd));
             } else {
@@ -59,14 +59,11 @@ class EntityManager {
         pointVerts[pos * 4 + 2] = std::move(pointVerts[pointVerts.size() - 2]);
         pointVerts[pos * 4 + 3] = std::move(pointVerts.back());
         pointVerts.erase(pointVerts.end() - 4, pointVerts.end());
-        std::cout << "pointVert size: " << pointVerts.size() << "\n";
 
         // manual remove
         std::size_t end = springs.size();
         for (std::size_t curr = 0; curr < end; curr++) {
             if (springs[curr].p1 == pos || springs[curr].p2 == pos) { // delete
-                std::cout << "spring " << curr << " removed"
-                          << "\n";
                 rmvSpring(curr);
                 curr--; // to still check the moved one
                 end--;
@@ -85,7 +82,7 @@ class EntityManager {
         while (start < end) {
             if ((*start).checkDeleteIndex(ObjectType::Spring,
                                           pos)) { // remove invalid spring graphs
-                std::cout << "graph " << start - graphs.begin()
+                std::cout << "Graph " << start - graphs.begin()
                           << " removed due to removal of spring " << pos << "\n";
                 *start = std::move(*(--end));
             } else {

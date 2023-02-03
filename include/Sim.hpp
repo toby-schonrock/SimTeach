@@ -85,7 +85,7 @@ class Sim {
         sim.entities.points.reserve(size.x * size.y);
         for (unsigned x = 0; x != size.x; ++x) {
             for (unsigned y = 0; y != size.y; ++y) {
-                entMan.addPoint({Vec2(x, y) * gap + simPos, 1.0, color});
+                entMan.addPoint({Vec2(x, y) * gap + simPos, 1.0, color, false});
             }
         }
 

@@ -5,6 +5,7 @@
 #include "ImguiHelpers.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
+#include "Spring.hpp"
 #include "Vector2.hpp"
 #include "imgui.h"
 #include <cstddef>
@@ -73,7 +74,7 @@ class Tool {
 
 class PointTool : public Tool {
   private:
-    Point                      defPoint  = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red);
+    Point                      defPoint  = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red, false);
     std::optional<std::size_t> hoveredP  = std::nullopt;
     std::optional<std::size_t> selectedP = std::nullopt;
     double                     toolRange = 1;
@@ -109,23 +110,24 @@ class PointTool : public Tool {
 
         // properties
 
-        ImGui::Text("position:");
+        ImGui::SetNextItemWidth(110);
+        Vec2F posTemp = Vec2F(point.pos);
+        ImGui::DragFloat2("Position", &posTemp.x, 0.01F);
+        point.pos = Vec2(posTemp);
         ImGui::SameLine();
         if (ImGui::Button("drag")) {
             dragging = true;
             sf::Mouse::setPosition(pointPixPos, window);
         }
-        ImGui::InputDouble("posx", &(point.pos.x));
-        ImGui::InputDouble("posy", &(point.pos.y));
 
         pointInputs(point);
 
         // set as tools settings
-        if (ImGui::Button("copy")) {
+        if (ImGui::Button("Set As Default")) {
             defPoint = entities.points[*selectedP];
         }
         ImGui::SameLine();
-        HelpMarker("Copy settings to the tool");
+        HelpMarker("Copy settings to the spring tool");
 
         // delete
         if (ImGui::Button("delete")) {
@@ -137,15 +139,24 @@ class PointTool : public Tool {
     }
 
     static void pointInputs(Point& point) {
-        ImGui::Text("velocity:");
+        ImGui::Checkbox("Fixed", &point.fixed);
+        if (point.fixed) {
+            ImGui::BeginDisabled();
+            point.vel = Vec2();
+        }
+        ImGui::SetNextItemWidth(110);
+        Vec2F velTemp = Vec2F(point.vel);
+        ImGui::DragFloat2("Velocity", &velTemp.x, 0.01F);
+        point.vel = Vec2(velTemp);
         ImGui::SameLine();
         if (ImGui::Button("reset")) {
             point.vel = Vec2();
         }
-        ImGui::InputDouble("velx", &(point.vel.x), 0, 0, "%.3f");
-        ImGui::InputDouble("vely", &(point.vel.y), 0, 0, "%.3f");
+        if (point.fixed) {
+            ImGui::EndDisabled();
+        }
 
-        ImGui_DragDouble("mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
+        ImGui_DragDouble("Mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
 
         // akward colour translation stuff // remember point.color does not draw that color (needs a
@@ -153,7 +164,7 @@ class PointTool : public Tool {
         float imcol[4] = {
             static_cast<float>(point.color.r) / 255, static_cast<float>(point.color.g) / 255,
             static_cast<float>(point.color.b) / 255, static_cast<float>(point.color.a) / 255};
-        ImGui::ColorPicker4("color", imcol);
+        ImGui::ColorPicker4("Color", imcol);
         point.color = sf::Color(
             static_cast<uint8_t>(imcol[0] * 255.0F), static_cast<uint8_t>(imcol[1] * 255.0F),
             static_cast<uint8_t>(imcol[2] * 255.0F), static_cast<uint8_t>(imcol[3] * 255.0F));
@@ -266,6 +277,7 @@ class SpringTool : public Tool {
     std::optional<std::size_t> hoveredP  = std::nullopt;
     double                     toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
+    bool autoSizing = false;
 
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {
         Spring& spring    = entities.springs[*selectedS];
@@ -277,6 +289,8 @@ class SpringTool : public Tool {
         ImGui::Begin("edit spring", NULL, editFlags);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
         springInputs(spring);
+        ImGui::SetNextItemWidth(100.0F);
+        ImGui::InputDouble("natural length", &spring.stablePoint, 0, 0, "%.3f");
 
         // set as tools settings
         if (ImGui::Button("set default")) {
@@ -304,8 +318,6 @@ class SpringTool : public Tool {
         ImGui::InputDouble("spring constant", &spring.springConst, 0, 0, "%.3f");
         ImGui::SetNextItemWidth(100.0F);
         ImGui::InputDouble("damping factor", &spring.dampFact, 0, 0, "%.3f");
-        ImGui::SetNextItemWidth(100.0F);
-        ImGui::InputDouble("natural length", &spring.stablePoint, 0, 0, "%.3f");
     }
 
     void removeSpring(const std::size_t& pos) {
@@ -365,6 +377,7 @@ class SpringTool : public Tool {
                         setLineColor(line, sf::Color::Green);
                         validHover = true;
                     } else {
+                        ImGui::SetTooltip("Spring already exists");
                         setLineColor(line, sf::Color::Red);
                         validHover = false;
                     }
@@ -399,9 +412,11 @@ class SpringTool : public Tool {
             } else if (event.mouseButton.button == sf::Mouse::Left) {
                 if (selectedP) {
                     if (validHover) { // if the hover is valid make new spring
-                        defSpring.p1 = *selectedP;
-                        defSpring.p2 = *hoveredP;
                         entities.addSpring(defSpring);
+                        Spring& s = entities.springs.back();
+                        s.p1 = *selectedP;
+                        s.p2 = *hoveredP;
+                        if(autoSizing) s.stablePoint = (entities.points[s.p1].pos - entities.points[s.p2].pos).mag();
                         resetPointColor(*selectedP); // hovered will be reset anyway
                         selectedP.reset();
                     }
@@ -450,13 +465,20 @@ class SpringTool : public Tool {
     }
 
     void ImTool() override {
-        ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+        ImGui_DragDouble("Range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Checkbox("Auto sizing", &autoSizing);
+        ImGui::SameLine();
+        HelpMarker("Springs natural length will be auto set to the distance between the two points");
         if (ImGui::CollapsingHeader(
                 "new spring",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
             springInputs(defSpring);
+            if (autoSizing) ImGui::BeginDisabled();
+            ImGui::SetNextItemWidth(100.0F);
+            ImGui::InputDouble("natural length", &defSpring.stablePoint, 0, 0, "%.3f");
+            if (autoSizing) ImGui::EndDisabled();
         }
     }
 };
@@ -827,7 +849,9 @@ class GraphTool : public Tool {
                         ImGui::TextColored(coloredText, "%zu", *g.y2);
                     } else {
                         ImGui::TextColored((selectedPColour), "%zu",
-                                           g.type == ObjectType::Point ? *hoveredP : *hoveredS); // TODO make a new color
+                                           g.type == ObjectType::Point
+                                               ? *hoveredP
+                                               : *hoveredS); // TODO make a new color
                     }
                 } else if (oldState == DiffState::Const) {
                     ImGui::DragFloat2("Value", &g.constDiff->x);
