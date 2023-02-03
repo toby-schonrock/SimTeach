@@ -1,11 +1,11 @@
 #pragma once
 
-#include "DataReference.hpp"
 #include "Graph.hpp"
 #include "GraphMananager.hpp"
 #include "ImguiHelpers.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
+#include "Vector2.hpp"
 #include "imgui.h"
 #include <cstddef>
 #include <iostream>
@@ -68,7 +68,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
@@ -536,7 +536,7 @@ class GraphTool : public Tool {
     std::optional<std::size_t> graphS2;
     std::optional<std::size_t> hoveredP;
     std::optional<std::size_t> graphP2;
-    bool                       makingDiff;
+    bool                       makingIndexDiff;
 
     // new graph properties
     bool                       makingNew;
@@ -557,43 +557,33 @@ class GraphTool : public Tool {
                 setSpringColor(*index, sf::Color::White);
             }
         }
-        makingDiff = false;
-        makingNew  = false;
-        type       = std::nullopt;
-        index      = std::nullopt;
-        prop       = std::nullopt;
-        comp       = std::nullopt;
+        makingIndexDiff = false;
+        makingNew       = false;
+        type            = std::nullopt;
+        index           = std::nullopt;
+        prop            = std::nullopt;
+        comp            = std::nullopt;
     }
 
     void highlightGraph(std::size_t i) {
         Graph& g = entities.graphs[i];
-        if (g.y.type == ObjectType::Point) {
-            setPointColor(g.y.index, selectedPColour);
+        if (g.type == ObjectType::Point) {
+            setPointColor(g.y, selectedPColour);
+            if (g.y2) setPointColor(*g.y2, selectedPColour);
         } else {
-            setSpringColor(g.y.index, selectedSColour);
-        }
-        if (g.y2) {
-            if (g.y2->type == ObjectType::Point) {
-                setPointColor(g.y2->index, selectedPColour);
-            } else {
-                setSpringColor(g.y2->index, selectedSColour);
-            }
+            setSpringColor(g.y, selectedSColour);
+            if (g.y2) setSpringColor(*g.y2, selectedSColour);
         }
     }
 
     void resetGraphHighlight(std::size_t i) {
         Graph& g = entities.graphs[i];
-        if (g.y.type == ObjectType::Point) {
-            resetPointColor(g.y.index);
+        if (g.type == ObjectType::Point) {
+            resetPointColor(g.y);
+            if (g.y2) resetPointColor(*g.y2);
         } else {
-            setSpringColor(g.y.index, sf::Color::White);
-        }
-        if (g.y2) {
-            if (g.y2->type == ObjectType::Point) {
-                resetPointColor(g.y2->index);
-            } else {
-                setSpringColor(g.y2->index, sf::Color::White);
-            }
+            setSpringColor(g.y, sf::Color::White);
+            if (g.y2) setSpringColor(*g.y2, sf::Color::White);
         }
     }
 
@@ -645,7 +635,7 @@ class GraphTool : public Tool {
             }
         }
 
-        if (!makingDiff &&
+        if (!makingIndexDiff &&
             (!makingNew || (makingNew && comp))) // if normal or just finished making a new graph
             DrawGraphs();
         else {          // if making new
@@ -672,6 +662,7 @@ class GraphTool : public Tool {
             } else if (index) { // Property selection
                 if (ImGui::BeginPopupContextItem("Property")) {
                     if (*type == ObjectType::Spring) {
+                        if (ImGui::Selectable("Length")) prop = Property::Length;
                         if (ImGui::Selectable("Extension")) prop = Property::Extension;
                         if (ImGui::Selectable("Force")) prop = Property::Force;
                     } else if (*type == ObjectType::Point) {
@@ -700,11 +691,11 @@ class GraphTool : public Tool {
                     ImGui::EndPopup();
                 }
                 ImGui::OpenPopup("Type");
-            } else if (makingDiff) { // selecting the object to take the difference from
+            } else if (makingIndexDiff) { // selecting the object to take the difference from
                 ImGui::SetTooltip("Select a %s",
-                                  getTypeLbl(entities.graphs[*selectedG].y.type).c_str());
+                                  getTypeLbl(entities.graphs[*selectedG].type).c_str());
                 Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
-                if (entities.graphs[*selectedG].y.type == ObjectType::Point) {
+                if (entities.graphs[*selectedG].type == ObjectType::Point) {
                     auto [closestP, closestSDist] = sim.findClosestPoint(mousePos);
                     hoveredP                      = closestP;
                     setPointColor(*hoveredP, hoverPColour);
@@ -724,13 +715,14 @@ class GraphTool : public Tool {
                     if (selectedG) resetGraphHighlight(*selectedG); // reset old graph
                     selectedG = *hoveredG;
                     highlightGraph(*selectedG);
-                } else if (makingDiff &&
+                } else if (makingIndexDiff &&
                            !ImGui::GetIO().WantCaptureMouse) { // selecting object for diff graph
-                    makingDiff      = false;
-                    DataReference d = entities.graphs[*selectedG].y;
-                    d.index         = d.type == ObjectType::Point ? *hoveredP : *hoveredS;
-                    entities.graphs[*selectedG].y2 = d;
+                    makingIndexDiff = false;
+                    entities.graphs[*selectedG].y2 =
+                        entities.graphs[*selectedG].type == ObjectType::Point ? *hoveredP
+                                                                              : *hoveredS;
                     highlightGraph(*selectedG);
+                    hoveredP.reset(); // to prevent unhighliting on new point creation
                 } else if (selectedG && !ImGui::GetIO().WantCaptureMouse) { // deselect graph
                     resetGraphHighlight(*selectedG);
                     selectedG.reset();
@@ -777,60 +769,68 @@ class GraphTool : public Tool {
             ImGui::BeginDisabled();
         }
         if (!selectedG) ImGui::SetNextItemOpen(false);
-        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_OpenOnArrow)) {
+        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_DefaultOpen)) {
             if (selectedG) {
-                Graph& g    = entities.graphs[*selectedG];
-                bool   diff = g.y2.has_value() || makingDiff;
-                ImGui::Checkbox("Difference", &diff);
-                if (ImGui::IsItemActive() && diff == false) { // if difference selected
-                    makingDiff = true;
-                } else if (ImGui::IsItemActive() && diff == true) { // if difference deselected
-                    if (g.y2 && g.y2->type == ObjectType::Point)
-                        resetPointColor(g.y2->index);
-                    else if (g.y2 && g.y2->type == ObjectType::Spring)
-                        setSpringColor(g.y2->index, sf::Color::White);
-                    g.y2.reset();
-                }
-
+                Graph& g = entities.graphs[*selectedG];
                 ImGui::Text("Object type -");
                 ImGui::SameLine();
-                ImGui::TextColored(coloredText, "%s", getTypeLbl(g.y.type).c_str());
+                ImGui::TextColored(coloredText, "%s", getTypeLbl(g.type).c_str());
 
                 int c = static_cast<int>(g.comp);
                 ImGui::Combo("Component", &c, CompLbl.data(), CompLbl.size());
                 g.comp = static_cast<Component>(c);
 
                 int p;
-                if (g.y.type == ObjectType::Point) {
-                    p = static_cast<int>(g.y.prop);
+                if (g.type == ObjectType::Point) {
+                    p = static_cast<int>(g.prop);
                     ImGui::Combo("Property", &p, PropLbl.data(), 2);
                 } else {
-                    p = static_cast<int>(g.y.prop) - 2;
+                    p = static_cast<int>(g.prop) - 2;
                     ImGui::Combo("Property", &p, PropLbl.data() + 2,
-                                 2); // offset for spring properties
+                                 3); // offset for spring properties
                     p += 2;
                 }
-                g.y.prop = static_cast<Property>(p);
+                g.prop = static_cast<Property>(p);
 
                 ImGui::Text("Index");
                 ImGui::SameLine();
-                ImGui::TextColored(coloredText, "%zu", g.y.index);
+                ImGui::TextColored(coloredText, "%zu", g.y);
 
-                if (g.y2) {
-                    ImGui::BulletText("Difference");
-                    bool co = g.y2->type == ObjectType::Const;
-                    ImGui::Checkbox("Const", &co);
-                    if (co) {
-                        g.y2->type = ObjectType::Const;
-                        ImGui::DragFloat2("Value", &g.y2->value.x);
-                    } else {
-                        g.y2->type = g.y.type;
-                        ImGui::Text("Diff Index");
-                        ImGui::SameLine();
-                        ImGui::TextColored(coloredText, "%zu", g.y2->index);
+                enum class DiffState { None, Index, Const };
+                constexpr static std::array DiffStatusLbl{"None", "Index", "Const"};
+
+                DiffState oldState =
+                    g.y2 ? DiffState::Index : (g.constDiff ? DiffState::Const : DiffState::None);
+                if (makingIndexDiff) oldState = DiffState::Index;
+                int temp = static_cast<int>(oldState);
+                ImGui::Combo("Difference", &temp, DiffStatusLbl.data(), DiffStatusLbl.size());
+                DiffState newState = static_cast<DiffState>(temp);
+                if (newState != oldState) { // if state changed
+                    if (newState == DiffState::Index) {
+                        makingIndexDiff = true;
                     }
-
-                    g.y2->prop = g.y.prop;
+                    if (newState == DiffState::Const) {
+                        g.constDiff = Vec2F{};
+                    }
+                    if (oldState == DiffState::Index) {
+                        if (g.type == ObjectType::Point)
+                            resetPointColor(*g.y2);
+                        else
+                            setSpringColor(*g.y2, sf::Color::White);
+                        g.y2.reset();
+                    }
+                }
+                if (oldState == DiffState::Index) { // old state to allow changing index
+                    ImGui::Text("Diff Index");
+                    ImGui::SameLine();
+                    if (g.y2) {
+                        ImGui::TextColored(coloredText, "%zu", *g.y2);
+                    } else {
+                        ImGui::TextColored((selectedPColour), "%zu",
+                                           g.type == ObjectType::Point ? *hoveredP : *hoveredS); // TODO make a new color
+                    }
+                } else if (oldState == DiffState::Const) {
+                    ImGui::DragFloat2("Value", &g.constDiff->x);
                 }
             }
         }

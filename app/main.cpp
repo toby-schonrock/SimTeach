@@ -44,12 +44,13 @@ int main() {
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
 
-    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Position},
-                                 Component::x, graphs.graphBuffer);
-    entities.graphs.emplace_back(DataReference{0, ObjectType::Point, Property::Velocity},
-                                 Component::x, graphs.graphBuffer);
-    entities.graphs.emplace_back(DataReference{0, ObjectType::Spring, Property::Extension},
-                                 Component::x, graphs.graphBuffer);
+    // example graphs
+    // entities.graphs.emplace_back(0, ObjectType::Point, Property::Position,
+    //                              Component::x, graphs.graphBuffer);
+    // entities.graphs.emplace_back(0, 2, ObjectType::Point, Property::Velocity,
+    //                              Component::x, graphs.graphBuffer);
+    // entities.graphs.emplace_back(0, ObjectType::Spring, Property::Extension,
+    //                              Component::x, graphs.graphBuffer);
 
     // Sim sim1(entities, 0.2F);                                                        // empty
     Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default

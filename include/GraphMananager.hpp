@@ -2,7 +2,6 @@
 
 #include "EntityManager.hpp"
 #include "Graph.hpp"
-#include "DataReference.hpp"
 #include <cstddef>
 
 class GraphManager {
@@ -23,7 +22,7 @@ class GraphManager {
     }
 
     void addGraph(const std::size_t& index, ObjectType type, Property prop, Component comp) {
-        entities.graphs.emplace_back(DataReference{index, type, prop}, comp, graphBuffer);
+        entities.graphs.emplace_back(index, type, prop, comp, graphBuffer);
     }
 
     void reset() {
