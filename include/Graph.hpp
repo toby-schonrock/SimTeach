@@ -30,9 +30,9 @@ class Graph {
 
   public:
     RingBuffer<Vec2F>            data;
-    DataReference y;
+    DataReference                y; // TODO - move the property and type outside
     std::optional<DataReference> y2;
-    Component                    comp = Component::vec;
+    Component                    comp = Component::vec; 
 
     Graph(const DataReference& y_, Component comp_, std::size_t buffer)
         : data(buffer), y(y_), y2(std::nullopt), comp(comp_) {}

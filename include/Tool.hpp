@@ -68,7 +68,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -730,6 +730,7 @@ class GraphTool : public Tool {
                     DataReference d = entities.graphs[*selectedG].y;
                     d.index         = d.type == ObjectType::Point ? *hoveredP : *hoveredS;
                     entities.graphs[*selectedG].y2 = d;
+                    highlightGraph(*selectedG);
                 } else if (selectedG && !ImGui::GetIO().WantCaptureMouse) { // deselect graph
                     resetGraphHighlight(*selectedG);
                     selectedG.reset();
@@ -781,9 +782,13 @@ class GraphTool : public Tool {
                 Graph& g    = entities.graphs[*selectedG];
                 bool   diff = g.y2.has_value() || makingDiff;
                 ImGui::Checkbox("Difference", &diff);
-                if (ImGui::IsItemActive()) { // if difference selected
+                if (ImGui::IsItemActive() && diff == false) { // if difference selected
                     makingDiff = true;
-                } else if (ImGui::IsItemDeactivated()) { // if difference deselected
+                } else if (ImGui::IsItemActive() && diff == true) { // if difference deselected
+                    if (g.y2 && g.y2->type == ObjectType::Point)
+                        resetPointColor(g.y2->index);
+                    else if (g.y2 && g.y2->type == ObjectType::Spring)
+                        setSpringColor(g.y2->index, sf::Color::White);
                     g.y2.reset();
                 }
 
@@ -812,11 +817,20 @@ class GraphTool : public Tool {
                 ImGui::TextColored(coloredText, "%zu", g.y.index);
 
                 if (g.y2) {
-                    ImGui::Indent(20.0F);
-                    ImGui::Text("Diff Index");
-                    ImGui::SameLine();
-                    ImGui::TextColored(coloredText, "%zu", g.y2->index);
-                    g.y2.
+                    ImGui::BulletText("Difference");
+                    bool co = g.y2->type == ObjectType::Const;
+                    ImGui::Checkbox("Const", &co);
+                    if (co) {
+                        g.y2->type = ObjectType::Const;
+                        ImGui::DragFloat2("Value", &g.y2->value.x);
+                    } else {
+                        g.y2->type = g.y.type;
+                        ImGui::Text("Diff Index");
+                        ImGui::SameLine();
+                        ImGui::TextColored(coloredText, "%zu", g.y2->index);
+                    }
+
+                    g.y2->prop = g.y.prop;
                 }
             }
         }
