@@ -3,7 +3,11 @@
 #include "Graph.hpp"
 #include "GraphMananager.hpp"
 #include "ImguiHelpers.hpp"
+#include "Polygon.hpp"
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Window.hpp"
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
 #include "Sim.hpp"
 #include "Spring.hpp"
 #include "Vector2.hpp"
@@ -16,6 +20,8 @@ static inline const sf::Color selectedPColour = sf::Color::Magenta;
 static inline const sf::Color hoverPColour    = sf::Color::Blue;
 static inline const sf::Color selectedSColour = sf::Color::Magenta;
 static inline const sf::Color hoverSColour    = sf::Color::Blue;
+
+static inline const float width = 120;
 
 static inline const ImVec4 coloredText = {1, 1, 0, 1};
 
@@ -109,8 +115,7 @@ class PointTool : public Tool {
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
 
         // properties
-
-        ImGui::SetNextItemWidth(110);
+        ImGui::SetNextItemWidth(width);
         Vec2F posTemp = Vec2F(point.pos);
         ImGui::DragFloat2("Position", &posTemp.x, 0.01F);
         point.pos = Vec2(posTemp);
@@ -123,7 +128,7 @@ class PointTool : public Tool {
         pointInputs(point);
 
         // set as tools settings
-        if (ImGui::Button("Set As Default")) {
+        if (ImGui::Button("set as default")) {
             defPoint = entities.points[*selectedP];
         }
         ImGui::SameLine();
@@ -144,7 +149,7 @@ class PointTool : public Tool {
             ImGui::BeginDisabled();
             point.vel = Vec2();
         }
-        ImGui::SetNextItemWidth(110);
+        ImGui::SetNextItemWidth(width);
         Vec2F velTemp = Vec2F(point.vel);
         ImGui::DragFloat2("Velocity", &velTemp.x, 0.01F);
         point.vel = Vec2(velTemp);
@@ -152,12 +157,14 @@ class PointTool : public Tool {
         if (ImGui::Button("reset")) {
             point.vel = Vec2();
         }
+
+        ImGui::SetNextItemWidth(width);
+        ImGui_DragDouble("Mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+
         if (point.fixed) {
             ImGui::EndDisabled();
         }
-
-        ImGui_DragDouble("Mass", &(point.mass), 0.1F, 0.1, 100.0, "%.1f",
-                         ImGuiSliderFlags_AlwaysClamp);
 
         // akward colour translation stuff // remember point.color does not draw that color (needs a
         // Point::updateColor())
@@ -256,6 +263,7 @@ class PointTool : public Tool {
     }
 
     void ImTool() override {
+        ImGui::SetNextItemWidth(width);
         ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
         if (ImGui::CollapsingHeader(
@@ -290,10 +298,10 @@ class SpringTool : public Tool {
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
         springInputs(spring);
         ImGui::SetNextItemWidth(100.0F);
-        ImGui::InputDouble("natural length", &spring.stablePoint, 0, 0, "%.3f");
+        ImGui::InputDouble("natural length", &spring.naturalLength, 0, 0, "%.3f");
 
         // set as tools settings
-        if (ImGui::Button("set default")) {
+        if (ImGui::Button("set as default")) {
             defSpring = entities.springs[*selectedS];
         }
         ImGui::SameLine();
@@ -414,9 +422,11 @@ class SpringTool : public Tool {
                     if (validHover) { // if the hover is valid make new spring
                         entities.addSpring(defSpring);
                         Spring& s = entities.springs.back();
-                        s.p1 = *selectedP;
-                        s.p2 = *hoveredP;
-                        if(autoSizing) s.stablePoint = (entities.points[s.p1].pos - entities.points[s.p2].pos).mag();
+                        s.p1      = *selectedP;
+                        s.p2      = *hoveredP;
+                        if (autoSizing)
+                            s.naturalLength =
+                                (entities.points[s.p1].pos - entities.points[s.p2].pos).mag();
                         resetPointColor(*selectedP); // hovered will be reset anyway
                         selectedP.reset();
                     }
@@ -469,7 +479,8 @@ class SpringTool : public Tool {
                          ImGuiSliderFlags_AlwaysClamp);
         ImGui::Checkbox("Auto sizing", &autoSizing);
         ImGui::SameLine();
-        HelpMarker("Springs natural length will be auto set to the distance between the two points");
+        HelpMarker(
+            "Springs natural length will be auto set to the distance between the two points");
         if (ImGui::CollapsingHeader(
                 "new spring",
                 ImGuiTreeNodeFlags_DefaultOpen |
@@ -477,7 +488,7 @@ class SpringTool : public Tool {
             springInputs(defSpring);
             if (autoSizing) ImGui::BeginDisabled();
             ImGui::SetNextItemWidth(100.0F);
-            ImGui::InputDouble("natural length", &defSpring.stablePoint, 0, 0, "%.3f");
+            ImGui::InputDouble("natural length", &defSpring.naturalLength, 0, 0, "%.3f");
             if (autoSizing) ImGui::EndDisabled();
         }
     }
@@ -485,11 +496,12 @@ class SpringTool : public Tool {
 
 class CustomPolyTool : public Tool {
   private:
-    Polygon                   poly{};
-    std::array<sf::Vertex, 2> line{};
-    Vec2                      newPoint{};
-    bool                      convex = false;
-    bool                      inside = false;
+    Polygon                    poly{};
+    std::array<sf::Vertex, 2>  line{};
+    std::optional<std::size_t> hoveredP;
+    Vec2                       newPoint{};
+    bool                       convex = false;
+    bool                       inside = false;
 
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
 
@@ -500,6 +512,24 @@ class CustomPolyTool : public Tool {
     void frame([[maybe_unused]] Sim& sim, const sf::Vector2i& mousePixPos) override {
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
         newPoint              = unvisualize(mousePos);
+
+        if (hoveredP) {
+            entities.polys[*hoveredP].shape.setFillColor(sf::Color::White);
+            hoveredP.reset();
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+            for (std::size_t i = 0; i != entities.polys.size(); ++i) {
+                if (entities.polys[i].isBounded(unvisualize(mousePos)) &&
+                    entities.polys[i].isContained(unvisualize(mousePos))) {
+                    hoveredP = i;
+                }
+            }
+            if (hoveredP) {
+                entities.polys[*hoveredP].shape.setFillColor(sf::Color::Red);
+                ImGui::SetTooltip("Click to delete");
+            }
+        }
 
         if (!poly.edges.empty()) {
             if (poly.edges.size() > 2) {
@@ -527,7 +557,10 @@ class CustomPolyTool : public Tool {
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
             if (event.mouseButton.button == sf::Mouse::Left) { // new vert
-                if (inside && poly.edges.size() > 2) {         // if green
+                if (hoveredP) {                                // delete
+                    entities.graphs.erase(entities.graphs.begin() +
+                                          static_cast<std::ptrdiff_t>(*hoveredP));
+                } else if (inside && poly.edges.size() > 2) { // if green
                     poly.shape.setFillColor(sf::Color::White);
                     poly.boundsUp();
                     entities.polys.push_back(poly);
@@ -790,8 +823,8 @@ class GraphTool : public Tool {
         if (!selectedG) {
             ImGui::BeginDisabled();
         }
-        if (!selectedG) ImGui::SetNextItemOpen(false);
-        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::SetNextItemOpen(selectedG.has_value());
+        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
             if (selectedG) {
                 Graph& g = entities.graphs[*selectedG];
                 ImGui::Text("Object type -");

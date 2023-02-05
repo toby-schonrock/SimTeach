@@ -6,6 +6,7 @@
 #include "GraphMananager.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "imgui.h"
@@ -67,7 +68,7 @@ class GUI {
     }
 
     void frame(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs) {
-        interface(sim, graphs);
+        interface(mousePixPos, sim, graphs);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -84,7 +85,7 @@ class GUI {
         }
     }
 
-    void interface(Sim& sim, GraphManager& graphs) {
+    void interface(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs) {
         ImGui::Begin("GUI", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);
@@ -156,7 +157,9 @@ class GUI {
                    "many visual frames before old data is overwritten. This value cannot be "
                    "changed whilst playing.");
         ImGui::Text("View size: (%F, %F)", view.getSize().x, view.getSize().y);
-        ImGui::Text("Pos: (%F, %F)", view.getCenter().x, view.getCenter().y);
+        ImGui::Text("View center: (%F, %F)", view.getCenter().x, view.getCenter().y);
+        sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
+        ImGui::Text("Mouse pos: (%F, %F)", mousePos.x, mousePos.y);
         if (ImGui::Button("reset view")) reset();
         ImGui::End();
     }

@@ -58,7 +58,7 @@ class EntityManager {
         pointVerts[pos * 4 + 1] = std::move(pointVerts[pointVerts.size() - 3]);
         pointVerts[pos * 4 + 2] = std::move(pointVerts[pointVerts.size() - 2]);
         pointVerts[pos * 4 + 3] = std::move(pointVerts.back());
-        pointVerts.erase(pointVerts.end() - 4, pointVerts.end());
+        pointVerts.resize(pointVerts.size() - 4);
 
         // manual remove
         std::size_t end = springs.size();
@@ -97,7 +97,7 @@ class EntityManager {
         springs.pop_back();                       // delete
         springVerts[pos * 2]     = std::move(springVerts[springVerts.size() - 2]);
         springVerts[pos * 2 + 1] = std::move(springVerts.back());    // do the move
-        springVerts.erase(springVerts.end() - 2, springVerts.end()); // delete
+        springVerts.resize(springVerts.size() - 2); // delete
     }
 
     void updatePointVisPos(float radius) {

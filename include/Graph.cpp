@@ -32,7 +32,10 @@ float Graph::getValue(const EntityManager& entities) {
                 value2 = entities.points[s2.p1].pos - entities.points[s2.p2].pos;
                 break;
             case Property::Extension:
-                value = {0, 0};
+                value = entities.points[s.p1].pos - entities.points[s.p2].pos; // gap
+                value = value - value.norm() * s.naturalLength;
+                value2 = entities.points[s2.p1].pos - entities.points[s2.p2].pos;
+                value2 = *value2 - value2->norm() * s2.naturalLength;
                 break;
                 // TODO implement extension
             case Property::Force:
