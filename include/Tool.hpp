@@ -75,7 +75,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -809,16 +809,25 @@ class GraphTool : public Tool {
     }
 
     void ImTool() override {
+        if (graphs.hasDumped) ImGui::BeginDisabled();
+        if (ImGui::Button("save data")) {
+            graphs.dumpData();
+        }
+        if (graphs.hasDumped) {
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Data already dumped check the saved folder");
+            ImGui::EndDisabled();
+        }
+
         if (makingNew) ImGui::BeginDisabled();
-        if (ImGui::Button("Make New Graph")) {
+        if (ImGui::Button("make new")) {
             resetNewGraph();
             if (selectedG) {
                 resetGraphHighlight(*selectedG);
                 selectedG.reset();
             }
             makingNew = true;
-        } else if (makingNew) // else if to prevent additional EndDisabled() on creation
-            ImGui::EndDisabled();
+        } else if (makingNew)
+            ImGui::EndDisabled(); // else if to prevent additional EndDisabled() on creation
 
         if (!selectedG) {
             ImGui::BeginDisabled();

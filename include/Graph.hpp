@@ -11,7 +11,7 @@
 
 class EntityManager;
 
-enum class ObjectType { Point, Spring};
+enum class ObjectType { Point, Spring };
 enum class Property {
     Position,
     Velocity,
@@ -65,8 +65,10 @@ class Graph {
           std::size_t buffer)
         : data(buffer), y(y_), y2(y2_), type(type_), prop(prop_), comp(comp_) {}
 
-    Graph(std::size_t y_, Vec2F constDiff_, ObjectType type_, Property prop_, Component comp_, std::size_t buffer)
-        : data(buffer), y(y_), y2(std::nullopt), constDiff(constDiff_), type(type_), prop(prop_), comp(comp_) {}
+    Graph(std::size_t y_, Vec2F constDiff_, ObjectType type_, Property prop_, Component comp_,
+          std::size_t buffer)
+        : data(buffer), y(y_), y2(std::nullopt), constDiff(constDiff_), type(type_), prop(prop_),
+          comp(comp_) {}
 
     void updateIndex(ObjectType type_, std::size_t old, std::size_t updated) {
         if (type_ != type) return;
@@ -87,12 +89,18 @@ class Graph {
         if (ImPlot::BeginPlot(("Graph " + std::to_string(i)).c_str(), {-1, 0},
                               ImPlotFlags_NoLegend | ImPlotFlags_NoTitle)) {
             ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_AutoFit);
-            ImPlot::SetupAxis(ImAxis_Y1, (getPropLbl(prop) + " - " + getCompLbl(comp)).c_str(),
+            ImPlot::SetupAxis(ImAxis_Y1, getYLabel().c_str(),
                               ImPlotAxisFlags_AutoFit);
             ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
             ImPlot::PlotLine("Line", &data.v[0].x, &data.v[0].y, static_cast<int>(data.v.size()),
                              ImPlotLineFlags_None, static_cast<int>(data.pos), sizeof(Vec2F));
             ImPlot::EndPlot();
         }
+    }
+
+    std::string getYLabel() const {
+        return getTypeLbl(type) + "(" +
+               (y2 ? std::to_string(y) + "-" + std::to_string(*y2) : std::to_string(y)) + ")." +
+               getPropLbl(prop) + "." + getCompLbl(comp);
     }
 };
