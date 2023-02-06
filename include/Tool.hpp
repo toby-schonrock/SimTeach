@@ -652,7 +652,7 @@ class GraphTool : public Tool {
                     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.0F, 1.0F, 0.537F, 0.27F});
                 else if (hoveredG && i == *hoveredG)
                     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.133F, 0.114F, 0.282F, 0.2F});
-                entities.graphs[i].draw(i);
+                entities.graphs[i].draw(i, graphs.tvalues);
                 if (ImGui::IsItemHovered()) {
                     newHover = i;
                 }
@@ -809,15 +809,19 @@ class GraphTool : public Tool {
     }
 
     void ImTool() override {
-        if (graphs.hasDumped) ImGui::BeginDisabled();
+        // graph data dumping
+        if (graphs.hasDumped || entities.graphs.empty()) ImGui::BeginDisabled();
         if (ImGui::Button("save data")) {
             graphs.dumpData();
         }
-        if (graphs.hasDumped) {
-            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Data already dumped check the saved folder");
-            ImGui::EndDisabled();
+        if (ImGui::IsItemHovered()) {
+            if (entities.graphs.empty()) ImGui::SetTooltip("Graphs are empty");
+            if (graphs.hasDumped)
+                ImGui::SetTooltip("Data already dumped check the graphdata folder");
         }
+        if (graphs.hasDumped || entities.graphs.empty()) ImGui::EndDisabled();
 
+        // make new button
         if (makingNew) ImGui::BeginDisabled();
         if (ImGui::Button("make new")) {
             resetNewGraph();
@@ -829,6 +833,7 @@ class GraphTool : public Tool {
         } else if (makingNew)
             ImGui::EndDisabled(); // else if to prevent additional EndDisabled() on creation
 
+        // graoh properties
         if (!selectedG) {
             ImGui::BeginDisabled();
         }

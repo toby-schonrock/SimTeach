@@ -50,7 +50,7 @@ class Graph {
     }
 
   public:
-    RingBuffer<Vec2F>          data;
+    RingBuffer<float>          data;
     std::size_t                y; // TODO - move the property and type outside
     std::optional<std::size_t> y2;
     std::optional<Vec2F>       constDiff;
@@ -83,17 +83,16 @@ class Graph {
         return false;
     }
 
-    void add(float t, const EntityManager& entities) { data.add({t, getValue(entities)}); }
+    void add(const EntityManager& entities) { data.add(getValue(entities)); }
 
-    void draw(const std::size_t& i) {
+    void draw(const std::size_t& i, const RingBuffer<float>& yvalues) {
         if (ImPlot::BeginPlot(("Graph " + std::to_string(i)).c_str(), {-1, 0},
                               ImPlotFlags_NoLegend | ImPlotFlags_NoTitle)) {
             ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_AutoFit);
-            ImPlot::SetupAxis(ImAxis_Y1, getYLabel().c_str(),
-                              ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxis(ImAxis_Y1, getYLabel().c_str(), ImPlotAxisFlags_AutoFit);
             ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
-            ImPlot::PlotLine("Line", &data.v[0].x, &data.v[0].y, static_cast<int>(data.v.size()),
-                             ImPlotLineFlags_None, static_cast<int>(data.pos), sizeof(Vec2F));
+            ImPlot::PlotLine("Line", &yvalues.v[0], &data.v[0], static_cast<int>(data.v.size()),
+                             ImPlotLineFlags_None, static_cast<int>(data.pos));
             ImPlot::EndPlot();
         }
     }

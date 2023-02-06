@@ -13,15 +13,18 @@ class GraphManager {
     EntityManager& entities;
 
   public:
-    bool        hasDumped   = false;
-    std::size_t graphBuffer = 5000;
+    RingBuffer<float> tvalues{graphBuffer};
+    bool              hasDumped   = false;
+    std::size_t       graphBuffer = 5000;
+
     GraphManager(EntityManager& entities_) : entities(entities_) {}
 
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
+        tvalues.add(t);
         for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
-            entities.graphs[i].add(t, entities);
-            entities.graphs[i].draw(i);
+            entities.graphs[i].add(entities);
+            entities.graphs[i].draw(i, tvalues);
         }
         ImGui::End();
     }
@@ -31,13 +34,29 @@ class GraphManager {
     }
 
     void reset() {
+        tvalues = RingBuffer<float>(graphBuffer);
         for (Graph& g: entities.graphs) {
-            g.data = RingBuffer<Vec2F>(graphBuffer);
+            g.data = RingBuffer<float>(graphBuffer);
         }
         hasDumped = false;
     }
 
     void dumpData() {
+        hasDumped = true;
+        if (entities.graphs.empty()) throw std::logic_error("Graphs are empty cannot dump data");
+
+        // check for valid graphs
+        std::vector<size_t> goodens;
+        for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
+            if (!entities.graphs[i].data.v.empty()) {
+                goodens.push_back(i); // add valid graphs to "goodens" list
+            }
+        }
+        if (goodens.empty()) {
+            std::cout << "No data to plot nothing saved \n";
+            return;
+        }
+
         // get time and date
         const std::chrono::time_point     now{std::chrono::system_clock::now()};
         const std::chrono::year_month_day ymd{std::chrono::floor<std::chrono::days>(now)};
@@ -57,13 +76,28 @@ class GraphManager {
         if (!file.is_open()) {
             throw std::logic_error("Falied to open fstream \n");
         }
-        for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
-            const Graph& g = entities.graphs[i];
-            file << "Time," << g.getYLabel() << "\n";
-            for (const Vec2F& d: g.data.v) {
-                file << d.x << "," << d.y << "\n";
-            }
+        // headers
+
+        file << "Time";
+        for (const std::size_t gooden: goodens) {
+            file << "," << entities.graphs[gooden].getYLabel();
         }
-        hasDumped = true;
+        file << "\n";
+
+        // data
+
+        std::size_t i = tvalues.pos;
+        do {
+            file << tvalues.v[i];
+            std::cout << tvalues.v[i];
+            for (const std::size_t gooden: goodens) {
+                std::cout << "," << entities.graphs[gooden].data.v[i];
+                file << "," << entities.graphs[gooden].data.v[i];
+            }
+            file << "\n";
+            std::cout << "\n";
+            ++i;
+            if (i == tvalues.size) i = 0; // handle wrap around
+        } while (i != tvalues.pos);
     }
 };
