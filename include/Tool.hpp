@@ -75,7 +75,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 };
 
 class PointTool : public Tool {
@@ -558,8 +558,9 @@ class CustomPolyTool : public Tool {
         if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
             if (event.mouseButton.button == sf::Mouse::Left) { // new vert
                 if (hoveredP) {                                // delete
-                    entities.graphs.erase(entities.graphs.begin() +
-                                          static_cast<std::ptrdiff_t>(*hoveredP));
+                    entities.polys.erase(entities.polys.begin() +
+                                         static_cast<long long>(*hoveredP));
+                    hoveredP.reset();
                 } else if (inside && poly.edges.size() > 2) { // if green
                     poly.shape.setFillColor(sf::Color::White);
                     poly.boundsUp();
@@ -577,7 +578,13 @@ class CustomPolyTool : public Tool {
             }
         }
     }
-    void unequip() override { poly = Polygon{}; }
+    void unequip() override {
+        poly = Polygon{};
+        if (hoveredP) {
+            entities.polys[*hoveredP].shape.setFillColor(sf::Color::White);
+            hoveredP.reset();
+        }
+    }
     void ImTool() override {}
 };
 class GraphTool : public Tool {
@@ -591,10 +598,10 @@ class GraphTool : public Tool {
     std::optional<std::size_t> graphS2;
     std::optional<std::size_t> hoveredP;
     std::optional<std::size_t> graphP2;
-    bool                       makingIndexDiff;
+    bool                       makingIndexDiff{};
 
     // new graph properties
-    bool                       makingNew;
+    bool                       makingNew{};
     std::optional<ObjectType>  type;
     std::optional<std::size_t> index;
     std::optional<Property>    prop;
@@ -813,13 +820,8 @@ class GraphTool : public Tool {
         if (graphs.hasDumped || entities.graphs.empty()) ImGui::BeginDisabled();
         if (ImGui::Button("save data")) {
             graphs.dumpData();
-        }
-        if (ImGui::IsItemHovered()) {
-            if (entities.graphs.empty()) ImGui::SetTooltip("Graphs are empty");
-            if (graphs.hasDumped)
-                ImGui::SetTooltip("Data already dumped check the graphdata folder");
-        }
-        if (graphs.hasDumped || entities.graphs.empty()) ImGui::EndDisabled();
+        } else if (graphs.hasDumped || entities.graphs.empty())
+            ImGui::EndDisabled(); // else if to prevent hasdumped change calling enddisabled
 
         // make new button
         if (makingNew) ImGui::BeginDisabled();

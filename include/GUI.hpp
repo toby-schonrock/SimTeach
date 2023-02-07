@@ -67,8 +67,8 @@ class GUI {
         }
     }
 
-    void frame(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs) {
-        interface(mousePixPos, sim, graphs);
+    void frame(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs, bool running) {
+        interface(mousePixPos, sim, graphs, running);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
                                                                // quick and easy took no time)
@@ -85,57 +85,65 @@ class GUI {
         }
     }
 
-    void interface(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs) {
-        ImGui::Begin("GUI", NULL,
+    void interface(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs, bool running) {
+        ImGui::Begin("Settings", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
                          ImGuiWindowFlags_NoResize);
-        ImGui::SetWindowSize({-1.0F, -1.0F});
-        ImGui::SetWindowPos({0.0F, 0.0F});
-        if (ImGui::CollapsingHeader("fps")) {
-            ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
-            ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
-            if (ImPlot::BeginPlot("fps", {vsScale * 5.0F, vsScale * 2.5F},
-                                  ImPlotFlags_NoInputs | ImPlotFlags_NoTitle)) {
-                ImPlot::SetupLegend(ImPlotLocation_SouthWest);
-                ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations); // setup axes
-                ImPlot::SetupAxis(ImAxis_Y1, "visual");
-                ImPlot::SetupAxesLimits(0, 160, 30, 100, ImGuiCond_Always);
-                ImPlot::SetupAxis(ImAxis_Y2, "simulation",
-                                  ImPlotAxisFlags_Opposite | ImPlotAxisFlags_NoSideSwitch);
-                ImPlot::SetupAxisScale(ImAxis_Y2, ImPlotScale_Log10);
-                ImPlot::SetupAxisLimits(ImAxis_Y2, 100, 100000);
 
-                ImPlot::PlotLine("visual", &fps.v[0].x, static_cast<int>(fps.v.size()), 1.0L, 0.0L,
-                                 ImPlotLineFlags_None, static_cast<int>(fps.pos),
-                                 sizeof(Vec2)); // plot graphs
-                ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
-                ImPlot::PlotLine("simulation", &fps.v[0].y, static_cast<int>(fps.v.size()), 1, 0.0L,
-                                 ImPlotLineFlags_None, static_cast<int>(fps.pos), sizeof(Vec2));
-                ImPlot::EndPlot();
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
+        ImGui::SetWindowPos({0.0F, 0.0F}, ImGuiCond_Once);
+
+        if (running) ImGui::BeginDisabled();
+        if (ImGui::CollapsingHeader("Save and load")) {
+            if (ImGui::Button("Save")) {
+                sim.save("test");
             }
-            ImPlot::PopStyleColor(2);
+            if (ImGui::Button("Load")) {
+                sim.load("test", true);
+            }
         }
+        if (ImGui::CollapsingHeader("General")) {
+            ImGui::SetNextItemWidth(100.0F);
+            ImGui_DragDouble("Gravity", &sim.gravity, 0.001F, -100, 100, "%.3f",
+                             ImGuiSliderFlags_AlwaysClamp);
+            ImGui::SetNextItemWidth(100.0F);
+            static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(
+                graphs.graphBuffer); // TODO maybe does this work with size_t ?
+            ImGui_DragUnsigned("Graph buffer", &graphBufferTemp, 1.0F, 100, 20000, "%zu",
+                               ImGuiSliderFlags_AlwaysClamp);
+            graphs.graphBuffer = graphBufferTemp;
+            ImGui::SameLine();
+            HelpMarker(
+                "Graph data is collected every visual frame. The buffer size determines how "
+                "many visual frames occur before old data is overwritten. This value is updated "
+                "on run.");
+        }
+        if (running) ImGui::EndDisabled();
 
         static bool points   = true;
         static bool springs  = true;
         static bool polygons = true;
-        ImGui::Checkbox("Points", &points);
-        ImGui::SameLine();
-        ImGui::TextDisabled("%zu", entities.points.size());
-        ImGui::Checkbox("Springs", &springs);
-        ImGui::SameLine();
-        ImGui::TextDisabled("%zu", entities.springs.size());
-        ImGui::Checkbox("Polgons", &polygons);
-        ImGui::SameLine();
-        ImGui::TextDisabled("%zu", entities.polys.size());
+        if (ImGui::CollapsingHeader("Graphics")) {
+            fpsGraph();
+            ImGui::Checkbox("Points", &points);
+            ImGui::SameLine();
+            ImGui::TextDisabled("%zu", entities.points.size());
+            ImGui::Checkbox("Springs", &springs);
+            ImGui::SameLine();
+            ImGui::TextDisabled("%zu", entities.springs.size());
+            ImGui::Checkbox("Polgons", &polygons);
+            ImGui::SameLine();
+            ImGui::TextDisabled("%zu", entities.polys.size());
+            ImGui::SetNextItemWidth(100.0F);
+            ImGui::DragFloat("Point Radius", &radius, 0.001F, 0.005F, 100000, "%.3f",
+                             ImGuiSliderFlags_AlwaysClamp);
+        }
+
         if (springs) {
             entities.updateSpringVisPos();
             window.draw(entities.springVerts.data(), entities.springVerts.size(), sf::Lines);
         }
         if (points) {
-            ImGui::SetNextItemWidth(100.0F);
-            ImGui::DragFloat("Point Radius", &radius, 0.001F, 0.005F, 100000, "%.3f",
-                             ImGuiSliderFlags_AlwaysClamp);
             entities.updatePointVisPos(radius);
             window.draw(entities.pointVerts.data(), entities.pointVerts.size(), sf::Quads,
                         &pointTexture);
@@ -143,24 +151,37 @@ class GUI {
         if (polygons) {
             for (Polygon& poly: entities.polys) poly.draw(window, false);
         }
-        ImGui::SetNextItemWidth(100.0F);
-        ImGui_DragDouble("Gravity", &sim.gravity, 0.001F, -100, 100, "%.3f",
-                         ImGuiSliderFlags_AlwaysClamp);
-        ImGui::SetNextItemWidth(100.0F);
-        static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(
-            graphs.graphBuffer); // TODO maybe does this work with size_t ?
-        ImGui_DragUnsigned("Graph buffer", &graphBufferTemp, 1.0F, 100, 20000, "%zu",
-                           ImGuiSliderFlags_AlwaysClamp);
-        graphs.graphBuffer = graphBufferTemp;
-        ImGui::SameLine();
-        HelpMarker("Graph data is collected every visual frame. The buffer size determines how "
-                   "many visual frames before old data is overwritten. This value cannot be "
-                   "changed whilst playing.");
+
         ImGui::Text("View size: (%F, %F)", view.getSize().x, view.getSize().y);
         ImGui::Text("View center: (%F, %F)", view.getCenter().x, view.getCenter().y);
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
         ImGui::Text("Mouse pos: (%F, %F)", mousePos.x, mousePos.y);
         if (ImGui::Button("reset view")) reset();
         ImGui::End();
+    }
+
+    void fpsGraph() {
+        ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
+        ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
+        if (ImPlot::BeginPlot("fps", {vsScale * 5.0F, vsScale * 2.5F},
+                              ImPlotFlags_NoInputs | ImPlotFlags_NoTitle | ImPlotFlags_NoLegend)) {
+            ImPlot::SetupLegend(ImPlotLocation_SouthWest);
+            ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoDecorations); // setup axes
+            ImPlot::SetupAxis(ImAxis_Y1, "visual");
+            ImPlot::SetupAxesLimits(0, 160, 30, 100, ImGuiCond_Always);
+            ImPlot::SetupAxis(ImAxis_Y2, "simulation",
+                              ImPlotAxisFlags_Opposite | ImPlotAxisFlags_NoSideSwitch);
+            ImPlot::SetupAxisScale(ImAxis_Y2, ImPlotScale_Log10);
+            ImPlot::SetupAxisLimits(ImAxis_Y2, 100, 100000);
+
+            ImPlot::PlotLine("visual", &fps.v[0].x, static_cast<int>(fps.v.size()), 1.0L, 0.0L,
+                             ImPlotLineFlags_None, static_cast<int>(fps.pos),
+                             sizeof(Vec2)); // plot graphs
+            ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+            ImPlot::PlotLine("simulation", &fps.v[0].y, static_cast<int>(fps.v.size()), 1, 0.0L,
+                             ImPlotLineFlags_None, static_cast<int>(fps.pos), sizeof(Vec2));
+            ImPlot::EndPlot();
+            ImPlot::PopStyleColor(2);
+        }
     }
 };

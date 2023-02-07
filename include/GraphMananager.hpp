@@ -13,11 +13,11 @@ class GraphManager {
     EntityManager& entities;
 
   public:
-    RingBuffer<float> tvalues{graphBuffer};
+    RingBuffer<float> tvalues;
     bool              hasDumped   = false;
-    std::size_t       graphBuffer = 5000;
+    std::size_t       graphBuffer;
 
-    GraphManager(EntityManager& entities_) : entities(entities_) {}
+    GraphManager(EntityManager& entities_, std::size_t graphBuffer_ = 5000) : entities(entities_), tvalues(graphBuffer_), graphBuffer(graphBuffer_) {}
 
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
@@ -43,7 +43,7 @@ class GraphManager {
 
     void dumpData() {
         hasDumped = true;
-        if (entities.graphs.empty()) throw std::logic_error("Graphs are empty cannot dump data");
+        if (entities.graphs.empty()) throw std::runtime_error("Graphs are empty cannot dump data");
 
         // check for valid graphs
         std::vector<size_t> goodens;
@@ -76,8 +76,9 @@ class GraphManager {
         if (!file.is_open()) {
             throw std::logic_error("Falied to open fstream \n");
         }
-        // headers
 
+        file << std::fixed << std::setprecision(10);
+        // headers
         file << "Time";
         for (const std::size_t gooden: goodens) {
             file << "," << entities.graphs[gooden].getYLabel();
@@ -85,17 +86,13 @@ class GraphManager {
         file << "\n";
 
         // data
-
         std::size_t i = tvalues.pos;
         do {
             file << tvalues.v[i];
-            std::cout << tvalues.v[i];
             for (const std::size_t gooden: goodens) {
-                std::cout << "," << entities.graphs[gooden].data.v[i];
                 file << "," << entities.graphs[gooden].data.v[i];
             }
             file << "\n";
-            std::cout << "\n";
             ++i;
             if (i == tvalues.size) i = 0; // handle wrap around
         } while (i != tvalues.pos);

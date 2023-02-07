@@ -150,7 +150,7 @@ int main() {
                 1e9F);
         }
 
-        gui.frame(mousePos, sim1, graphs);
+        gui.frame(mousePos, sim1, graphs, running);
 
         ImGui::SFML::Render(window);
         window.display();
