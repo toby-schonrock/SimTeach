@@ -1,17 +1,12 @@
 #pragma once
 
-#include <X11/Xmd.h>
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <execution>
 #include <filesystem>
 #include <fstream>
-#include <ios>
 #include <iostream>
-#include <stdexcept>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include "Edge.hpp"
@@ -20,12 +15,13 @@
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
+#include "Util.hpp"
 #include "Vector2.hpp"
 
-static const std::string pointHeaders = "point-id,fixed,posx,posy,velx,vely,mass,color(rgba)";
+static const std::string pointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};
 static const std::string springHeaders =
-    "spring-id,spring-const,natural-length,damping-factor,point1,point2";
-static const std::string polyHeaders = "polygon:verts...";
+    "spring-id spring-const natural-length damping-factor point1 point2";
+static const std::string polyHeaders = "polygon-verts:x,y...";
 
 class Sim {
   public:
@@ -139,9 +135,9 @@ class Sim {
             entities.springVerts.clear();
             entities.polys.clear();
         }
-        std::size_t offsetPoint  = entities.points.size();
-        std::size_t offsetSpring = entities.springs.size();
-        std::size_t offsetPoly   = entities.polys.size();
+        // std::size_t offsetPoint  = entities.points.size();
+        // std::size_t offsetSpring = entities.springs.size();
+        // std::size_t offsetPoly   = entities.polys.size();
 
         std::ifstream file{p.make_preferred(), std::ios_base::in};
         if (!file.is_open()) {
@@ -154,43 +150,45 @@ class Sim {
         if (line != pointHeaders)
             throw std::runtime_error("Point headers invalid: \n is - " + line + "\n should be - " +
                                      pointHeaders);
+
+        std::stringstream ss;
+        std::size_t       index = 0;
         while (true) {
             std::getline(file, line);
             if (checkIfHeader(springHeaders, line)) break;
-            pointFromLine(line);
-            // std::cout << line << "\n";
+            Point point{};
+            ss = std::stringstream(line);
+            std::size_t temp;
+            safeStreamRead(ss, temp);
+            if (temp != index) throw std::runtime_error("Non continous point indicie - " + line);
+            ss >> point;
+            ++index;
+            entities.addPoint(point);
         }
-    }
 
-    static void pointFromLine(std::string_view line) {
-        std::array<std::string_view, 11> pointParts;
-        std::size_t                      partCount = 0;
-        std::size_t                      subLength = 0;
-        for (std::size_t i = 0; i != line.size(); ++i) {
-            if (line[i] == ',') {
-                if (partCount == pointParts.size() - 1)
-                    throw std::runtime_error("Too many columns in point row: " +
-                                             std::string(line));
-                pointParts[partCount] = line.substr(i - subLength, subLength);
-                subLength             = 0;
-                ++partCount;
-            } else {
-                ++subLength;
+        index = 0;
+        while (true) {
+            std::getline(file, line);
+            if (checkIfHeader(polyHeaders, line)) break;
+            ss = std::stringstream(line);
+            Spring      spring{};
+            std::size_t temp;
+            safeStreamRead(ss, temp);
+            if (temp != index) throw std::runtime_error("Non continous spring indicie - " + line);
+            ss >> spring;
+            ++index;
+            entities.addSpring(spring);
+        }
+
+        while (!file.eof()) {
+            std::getline(file, line);
+            ss = std::stringstream(line);
+            if (ss.good()) { // deal with emtpy new lines at end
+                Polygon poly{};
+                ss >> poly;
+                entities.polys.push_back(poly);
             }
         }
-        pointParts[partCount] = line.substr(line.size() - subLength, subLength);
-        if (partCount < pointParts.size() - 1)
-            throw std::runtime_error("Too few columns in point row: " +
-                                             std::string(line));
-        std::stof(pointParts[1])
-    }
-
-    bool checkIfHeader(const std::string& header, const std::string& line) {
-        if (header.size() != line.size()) return false;
-        for (std::size_t i = 0; i != line.size(); ++i) {
-            if (header[i] != line[i]) return false;
-        }
-        return true;
     }
 
     void save(const std::string& name) const {
@@ -200,31 +198,26 @@ class Sim {
             throw std::runtime_error("Falied to open fstream \n");
         }
 
-        file << std::fixed << std::setprecision(10);
+        file << std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10);
         file << pointHeaders << "\n";
         for (std::size_t i = 0; i != entities.points.size(); ++i) {
-            const Point& p = entities.points[i];
-            file << i << "," << p.fixed << "," << p.pos.x << "," << p.pos.y << "," << p.vel.x << ","
-                 << p.vel.y << "," << p.mass << "," << std::to_string(p.color.r) << ","
-                 << std::to_string(p.color.g) << "," << std::to_string(p.color.b) << ","
-                 << std::to_string(p.color.a) << "\n";
+            file << i << ' ' << entities.points[i] << "\n";
         }
         file << springHeaders << "\n";
         for (std::size_t i = 0; i != entities.springs.size(); ++i) {
-            const Spring& s = entities.springs[i];
-            file << i << "," << s.springConst << "," << s.naturalLength << "," << s.dampFact << ","
-                 << s.p1 << "," << s.p2 << "\n";
+            file << i << ' ' << entities.springs[i] << "\n";
         }
-        file << polyHeaders << "\n";
-        for (std::size_t i = 0; i != entities.polys.size(); ++i) {
-            const Polygon& p = entities.polys[i];
-            if (!p.edges.empty()) {
-                file << p.edges[0].p1().x << "," << p.edges[0].p1().y;
-                for (std::size_t e = 1; e != p.edges.size(); ++e) {
-                    file << "," << p.edges[e].p1().x << "," << p.edges[e].p1().y;
-                }
-                file << "\n";
-            }
+        file << polyHeaders;
+        for (const Polygon& p: entities.polys) {
+            if (!p.edges.empty()) file << "\n" << p;
         }
+    }
+
+    static bool checkIfHeader(const std::string& header, const std::string& line) {
+        if (header.size() != line.size()) return false;
+        for (std::size_t i = 0; i != line.size(); ++i) {
+            if (header[i] != line[i]) return false;
+        }
+        return true;
     }
 };

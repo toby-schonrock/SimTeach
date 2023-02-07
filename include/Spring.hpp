@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vector2.hpp"
 #include "Point.hpp"
+#include "Vector2.hpp"
 
 struct Spring {
     double      springConst;
@@ -33,5 +33,23 @@ struct Spring {
         double dampf = diffNorm.dot(point2.vel - point1.vel) * dampFact; // damping force
         Vec2   force = (springf + dampf) * diffNorm;
         return force;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Spring& s) {
+        return os << s.springConst << ' ' << s.naturalLength << ' ' << s.dampFact << ' ' << s.p1
+                  << ' ' << s.p2;
+    }
+
+    friend std::istream& operator>>(std::istream& is,
+                                    Spring&       s) {
+        safeStreamRead(is, s.springConst);
+        safeStreamRead(is, s.naturalLength);
+        safeStreamRead(is, s.dampFact);
+        safeStreamRead(is, s.p1);
+        safeStreamRead(is, s.p2);
+        if (is.good()) {
+            throw std::runtime_error("To many columns for a spring - file invalid");
+        }
+        return is;
     }
 };

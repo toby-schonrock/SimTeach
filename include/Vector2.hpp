@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util.hpp"
+
 #include <cmath>
 #include <iostream>
 #include <ostream>
@@ -47,7 +49,13 @@ class Vector2 {
     constexpr friend Vector2 operator/(Vector2 lhs, double scale) { return lhs /= scale; }
 
     friend std::ostream& operator<<(std::ostream& os, const Vector2& v) {
-        return os << '[' << v.x << ", " << v.y << ']';
+        return os << '(' << v.x << ", " << v.y << ')';
+    }
+
+    friend std::istream& operator>>(std::istream& is, Vector2& v) {
+        safeStreamRead(is, v.x);
+        safeStreamRead(is, v.y);
+        return is;
     }
 };
 

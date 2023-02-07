@@ -27,4 +27,26 @@ struct Point {
         }
         f = Vec2();
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Point& p) {
+        return os << p.fixed << ' ' << p.pos.x << ' ' << p.pos.y << ' ' << p.vel.x << ' ' << p.vel.y
+                  << ' ' << p.mass << ' ' << std::to_string(p.color.r) << ' '
+                  << std::to_string(p.color.g) << ' ' << std::to_string(p.color.b) << ' '
+                  << std::to_string(p.color.a);
+    }
+
+    friend std::istream& operator>>(std::istream& is, Point& p) {
+        safeStreamRead(is, p.fixed);
+        safeStreamRead(is, p.pos);
+        safeStreamRead(is, p.vel);
+        safeStreamRead(is, p.mass);
+        safeStreamRead(is, p.color.r);
+        safeStreamRead(is, p.color.g);
+        safeStreamRead(is, p.color.b);
+        safeStreamRead(is, p.color.a);
+        if (is.good()) {
+            throw std::runtime_error("To many columns for a point - file invalid");
+        }
+        return is;
+    }
 };

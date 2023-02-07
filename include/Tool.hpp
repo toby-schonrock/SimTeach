@@ -75,7 +75,7 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other)                            = delete;
+    Tool& operator=(const Tool& other) = delete;
 };
 
 class PointTool : public Tool {
@@ -609,7 +609,7 @@ class GraphTool : public Tool {
 
     // static inline const ImPlot::color
 
-    void ImEdit(const sf::Vector2i& mousePixPos) override {}
+    void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
 
     void resetNewGraph() {
         if (index) {

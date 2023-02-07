@@ -135,6 +135,34 @@ class Polygon {
         }
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const Polygon& p) {
+        if (!p.edges.empty()) {
+            os << p.edges[0].p1().x << ' ' << p.edges[0].p1().y;
+            for (std::size_t e = 1; e != p.edges.size(); ++e) {
+                os << ' ' << p.edges[e].p1().x << ' ' << p.edges[e].p1().y;
+            }
+        }
+        return os;
+    }
+
+    friend std::istream& operator>>(std::istream& is, Polygon& p) {
+        std::cout << "begin: " << is.good() << std::endl;
+        Vec2 v1, v2, v3;
+        safeStreamRead(is, v1);
+        safeStreamRead(is, v2);
+        safeStreamRead(is, v3);
+        p = Polygon({v1, v2, v3});
+        while (is.good()) {
+            safeStreamRead(is, v1);
+            std::cout << v1;
+            p.addEdge(v1);
+        }
+        std::cout << std::endl;
+        if (p.isConvex() == false)
+            throw std::runtime_error("Polygon vertices do not form a convex polygon");
+        return is;
+    }
+
     // static stuff
     static Polygon Square(const Vec2& pos, double tilt) {
         return Polygon({Vec2(5, 0.5) + pos, Vec2(-5, 0.5) + pos, Vec2(-5, -0.5 + tilt) + pos,
