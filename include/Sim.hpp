@@ -18,10 +18,10 @@
 #include "Util.hpp"
 #include "Vector2.hpp"
 
-static const std::string pointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};
-static const std::string springHeaders =
+static const std::string PointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};
+static const std::string SpringHeaders =
     "spring-id spring-const natural-length damping-factor point1 point2";
-static const std::string polyHeaders = "polygon-verts:x,y...";
+static const std::string PolyHeaders = "polygon-verts:x y...";
 
 class Sim {
   public:
@@ -125,8 +125,8 @@ class Sim {
         return sim;
     }
 
-    void load(const std::string& name, bool replace) {
-        std::filesystem::path p = name + ".csv";
+    void load(std::filesystem::path path, bool replace) {
+        path.make_preferred();
         if (replace) {
             entities.graphs.clear();
             entities.points.clear();
@@ -135,27 +135,25 @@ class Sim {
             entities.springVerts.clear();
             entities.polys.clear();
         }
-        // std::size_t offsetPoint  = entities.points.size();
-        // std::size_t offsetSpring = entities.springs.size();
-        // std::size_t offsetPoly   = entities.polys.size();
+        std::size_t pointOffset = entities.points.size();
 
-        std::ifstream file{p.make_preferred(), std::ios_base::in};
+        std::ifstream file{path, std::ios_base::in};
         if (!file.is_open()) {
-            throw std::runtime_error("failed to open file \"" + p.make_preferred().string() + '"');
+            throw std::runtime_error("failed to open file \"" + path.string() + '"');
         }
 
         std::string line;
         // points
         std::getline(file, line);
-        if (line != pointHeaders)
+        if (line != PointHeaders)
             throw std::runtime_error("Point headers invalid: \n is - " + line + "\n should be - " +
-                                     pointHeaders);
+                                     PointHeaders);
 
         std::stringstream ss;
         std::size_t       index = 0;
         while (true) {
             std::getline(file, line);
-            if (checkIfHeader(springHeaders, line)) break;
+            if (checkIfHeader(SpringHeaders, line)) break;
             Point point{};
             ss = std::stringstream(line);
             std::size_t temp;
@@ -169,13 +167,15 @@ class Sim {
         index = 0;
         while (true) {
             std::getline(file, line);
-            if (checkIfHeader(polyHeaders, line)) break;
+            if (checkIfHeader(PolyHeaders, line)) break;
             ss = std::stringstream(line);
             Spring      spring{};
             std::size_t temp;
             safeStreamRead(ss, temp);
             if (temp != index) throw std::runtime_error("Non continous spring indicie - " + line);
             ss >> spring;
+            spring.p1 += pointOffset;
+            spring.p2 += pointOffset;
             ++index;
             entities.addSpring(spring);
         }
@@ -191,23 +191,24 @@ class Sim {
         }
     }
 
-    void save(std::filesystem::path& path) const {
+    void save(std::filesystem::path path) const {
+        std::cout << "save" << std::endl;
         path.make_preferred();
-        std::ofstream         file{path, std::ios_base::out};
+        std::ofstream file{path, std::ios_base::out};
         if (!file.is_open()) {
             throw std::runtime_error("Falied to open fstream \n");
         }
 
         file << std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10);
-        file << pointHeaders << "\n";
+        file << PointHeaders << "\n";
         for (std::size_t i = 0; i != entities.points.size(); ++i) {
             file << i << ' ' << entities.points[i] << "\n";
         }
-        file << springHeaders << "\n";
+        file << SpringHeaders << "\n";
         for (std::size_t i = 0; i != entities.springs.size(); ++i) {
             file << i << ' ' << entities.springs[i] << "\n";
         }
-        file << polyHeaders;
+        file << PolyHeaders;
         for (const Polygon& p: entities.polys) {
             if (!p.edges.empty()) file << "\n" << p;
         }

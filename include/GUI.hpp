@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <optional>
 
 #include "Debug.hpp"
@@ -11,6 +12,8 @@
 #include "Sim.hpp"
 #include "imgui.h"
 #include "implot.h"
+
+extern const std::filesystem::path Previous;
 
 sf::Vector2f visualize(const Vec2& v);
 
@@ -32,8 +35,8 @@ class GUI {
     float                       radius;
 
   public:
-    sf::View         view;
-    RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
+    sf::View                                  view;
+    RingBuffer<Vec2>                          fps = RingBuffer<Vec2>(160);
 
     GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_,
         float radius_ = 0.05F)
@@ -96,10 +99,10 @@ class GUI {
         if (running) ImGui::BeginDisabled();
         if (ImGui::CollapsingHeader("Save and load")) {
             if (ImGui::Button("Save")) {
-                sim.save("test");
+                sim.save(Previous);
             }
             if (ImGui::Button("Load")) {
-                sim.load("test", true);
+                sim.load(Previous, false);
             }
         }
         if (ImGui::CollapsingHeader("General")) {

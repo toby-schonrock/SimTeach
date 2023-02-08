@@ -14,6 +14,8 @@
 #include "imgui-SFML.h"
 #include "imgui.h"
 
+const std::filesystem::path Previous{"previous.csv"};
+
 sf::Vector2f visualize(const Vec2& v) {
     return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y));
 }
@@ -44,14 +46,6 @@ int main() {
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
 
-    // example graphs
-    // entities.graphs.emplace_back(0, ObjectType::Point, Property::Position,
-    //                              Component::x, graphs.graphBuffer);
-    // entities.graphs.emplace_back(0, 2, ObjectType::Point, Property::Velocity,
-    //                              Component::x, graphs.graphBuffer);
-    // entities.graphs.emplace_back(0, ObjectType::Spring, Property::Extension,
-    //                              Component::x, graphs.graphBuffer);
-
     // Sim sim1(entities, 0.2F);                                                        // empty
     Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
     // Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
@@ -76,7 +70,7 @@ int main() {
         int                      simFrames   = 0;
         std::chrono::nanoseconds sinceVFrame = std::chrono::high_resolution_clock::now() - start;
         if (running) {
-            while ((sinceVFrame.count() < 10'000'000)) { // TODO: min max avg frames test
+            while (sinceVFrame.count() < 10'000'000) {
                 ++simFrames;
                 std::chrono::system_clock::time_point frameTime =
                     std::chrono::high_resolution_clock::now();
@@ -87,11 +81,7 @@ int main() {
                 sim1.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
                 sinceVFrame = frameTime - start;
             }
-        } else {
-            while ((sinceVFrame.count() < 10'000'000)) {
-                sinceVFrame = std::chrono::high_resolution_clock::now() - start;
-            } // spin untill frame has passed
-        }
+        } // not running spin moved to end
 
         sf::Vector2i mousePos = sf::Mouse::getPosition(
             window); // mouse position is only accurate to end of simulation frames (it does change)
@@ -104,9 +94,10 @@ int main() {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed &&
                        event.key.code == sf::Keyboard::Space) {
-                if (running) { // when space bar to run
+                if (running) { // when space bar to stop
                     running = false;
-                } else {
+                } else { // when space bar to run
+                    sim1.save(Previous);
                     tools[selectedTool]->unequip();
                     graphs.reset();
                     runtime = std::chrono::high_resolution_clock::now();
@@ -155,6 +146,9 @@ int main() {
         ImGui::SFML::Render(window);
         window.display();
 
+        while ((std::chrono::high_resolution_clock::now() - start).count() <
+               10'001'000) { // spin to make 100 VFps
+        }
         sinceVFrame       = std::chrono::high_resolution_clock::now() - start;
         const double Vfps = 1e9 / static_cast<double>(sinceVFrame.count());
         const double Sfps = Vfps * simFrames;

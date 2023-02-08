@@ -825,7 +825,7 @@ class GraphTool : public Tool {
 
         // make new button
         if (makingNew) ImGui::BeginDisabled();
-        if (ImGui::Button("Make new")) {
+        if (ImGui::Button("New")) {
             resetNewGraph();
             if (selectedG) {
                 resetGraphHighlight(*selectedG);
