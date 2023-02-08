@@ -71,7 +71,8 @@ class GraphManager {
         std::replace(name.begin(), name.end(), ' ', '-');
         std::filesystem::create_directory("graphdata");
         std::filesystem::path p = "graphdata/" + name + ".csv";
-        std::cout << "Storing graph data at: " << p.make_preferred() << "\n";
+        p.make_preferred();
+        std::cout << "Storing graph data at: " << p << "\n";
         std::ofstream file{p, std::ios_base::out};
         if (!file.is_open()) {
             throw std::logic_error("Falied to open fstream \n");

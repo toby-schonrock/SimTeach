@@ -156,7 +156,7 @@ class GUI {
         ImGui::Text("View center: (%F, %F)", view.getCenter().x, view.getCenter().y);
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
         ImGui::Text("Mouse pos: (%F, %F)", mousePos.x, mousePos.y);
-        if (ImGui::Button("reset view")) reset();
+        if (ImGui::Button("Reset view")) reset();
         ImGui::End();
     }
 

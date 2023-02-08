@@ -191,9 +191,9 @@ class Sim {
         }
     }
 
-    void save(const std::string& name) const {
-        std::filesystem::path path = name + ".csv";
-        std::ofstream         file{path.make_preferred(), std::ios_base::out};
+    void save(std::filesystem::path& path) const {
+        path.make_preferred();
+        std::ofstream         file{path, std::ios_base::out};
         if (!file.is_open()) {
             throw std::runtime_error("Falied to open fstream \n");
         }

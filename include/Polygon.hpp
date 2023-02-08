@@ -146,7 +146,6 @@ class Polygon {
     }
 
     friend std::istream& operator>>(std::istream& is, Polygon& p) {
-        std::cout << "begin: " << is.good() << std::endl;
         Vec2 v1, v2, v3;
         safeStreamRead(is, v1);
         safeStreamRead(is, v2);
@@ -154,10 +153,8 @@ class Polygon {
         p = Polygon({v1, v2, v3});
         while (is.good()) {
             safeStreamRead(is, v1);
-            std::cout << v1;
             p.addEdge(v1);
         }
-        std::cout << std::endl;
         if (p.isConvex() == false)
             throw std::runtime_error("Polygon vertices do not form a convex polygon");
         return is;

@@ -109,7 +109,7 @@ class PointTool : public Tool {
         ImGui::SetNextWindowPos(
             {static_cast<float>(pointPixPos.x) + 10.0F, static_cast<float>(pointPixPos.y) + 10.0F},
             ImGuiCond_Always);
-        ImGui::Begin("edit point", NULL,
+        ImGui::Begin("Edit Point", NULL,
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                          ImGuiWindowFlags_NoCollapse);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
@@ -120,7 +120,7 @@ class PointTool : public Tool {
         ImGui::DragFloat2("Position", &posTemp.x, 0.01F);
         point.pos = Vec2(posTemp);
         ImGui::SameLine();
-        if (ImGui::Button("drag")) {
+        if (ImGui::Button("Drag")) {
             dragging = true;
             sf::Mouse::setPosition(pointPixPos, window);
         }
@@ -128,14 +128,14 @@ class PointTool : public Tool {
         pointInputs(point);
 
         // set as tools settings
-        if (ImGui::Button("set as default")) {
+        if (ImGui::Button("Set as default")) {
             defPoint = entities.points[*selectedP];
         }
         ImGui::SameLine();
         HelpMarker("Copy settings to the spring tool");
 
         // delete
-        if (ImGui::Button("delete")) {
+        if (ImGui::Button("Delete")) {
             removePoint(*selectedP);
         }
         ImGui::SameLine();
@@ -154,7 +154,7 @@ class PointTool : public Tool {
         ImGui::DragFloat2("Velocity", &velTemp.x, 0.01F);
         point.vel = Vec2(velTemp);
         ImGui::SameLine();
-        if (ImGui::Button("reset")) {
+        if (ImGui::Button("Reset")) {
             point.vel = Vec2();
         }
 
@@ -264,10 +264,10 @@ class PointTool : public Tool {
 
     void ImTool() override {
         ImGui::SetNextItemWidth(width);
-        ImGui_DragDouble("range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+        ImGui_DragDouble("Range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
         if (ImGui::CollapsingHeader(
-                "new point",
+                "New point",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
             pointInputs(defPoint);
@@ -294,21 +294,21 @@ class SpringTool : public Tool {
         ImGui::SetNextWindowPos({static_cast<float>(springPixPos.x) + 10.0F,
                                  static_cast<float>(springPixPos.y) + 10.0F},
                                 ImGuiCond_Always);
-        ImGui::Begin("edit spring", NULL, editFlags);
+        ImGui::Begin("Edit Spring", NULL, editFlags);
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
         springInputs(spring);
         ImGui::SetNextItemWidth(100.0F);
-        ImGui::InputDouble("natural length", &spring.naturalLength, 0, 0, "%.3f");
+        ImGui::InputDouble("Natural length", &spring.naturalLength, 0, 0, "%.3f");
 
         // set as tools settings
-        if (ImGui::Button("set as default")) {
+        if (ImGui::Button("Set as default")) {
             defSpring = entities.springs[*selectedS];
         }
         ImGui::SameLine();
         HelpMarker("Copys settings to the tool");
 
         // delete
-        if (ImGui::Button("delete")) {
+        if (ImGui::Button("Delete")) {
             removeSpring(*selectedS);
         }
         ImGui::SameLine();
@@ -323,9 +323,9 @@ class SpringTool : public Tool {
 
     void springInputs(Spring& spring) const {
         ImGui::SetNextItemWidth(100.0F);
-        ImGui::InputDouble("spring constant", &spring.springConst, 0, 0, "%.3f");
+        ImGui::InputDouble("Spring constant", &spring.springConst, 0, 0, "%.3f");
         ImGui::SetNextItemWidth(100.0F);
-        ImGui::InputDouble("damping factor", &spring.dampFact, 0, 0, "%.3f");
+        ImGui::InputDouble("Damping factor", &spring.dampFact, 0, 0, "%.3f");
     }
 
     void removeSpring(const std::size_t& pos) {
@@ -482,13 +482,13 @@ class SpringTool : public Tool {
         HelpMarker(
             "Springs natural length will be auto set to the distance between the two points");
         if (ImGui::CollapsingHeader(
-                "new spring",
+                "New spring",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
             springInputs(defSpring);
             if (autoSizing) ImGui::BeginDisabled();
             ImGui::SetNextItemWidth(100.0F);
-            ImGui::InputDouble("natural length", &defSpring.naturalLength, 0, 0, "%.3f");
+            ImGui::InputDouble("Natural length", &defSpring.naturalLength, 0, 0, "%.3f");
             if (autoSizing) ImGui::EndDisabled();
         }
     }
@@ -706,9 +706,9 @@ class GraphTool : public Tool {
                     bool add = true;
                     if (ImGui::Selectable("Magnitude")) {
                         comp = Component::vec;
-                    } else if (ImGui::Selectable("x-component")) {
+                    } else if (ImGui::Selectable("X-component")) {
                         comp = Component::x;
-                    } else if (ImGui::Selectable("y-component")) {
+                    } else if (ImGui::Selectable("Y-component")) {
                         comp = Component::y;
                     } else
                         add = false; // if none clicked
@@ -818,14 +818,14 @@ class GraphTool : public Tool {
     void ImTool() override {
         // graph data dumping
         if (graphs.hasDumped || entities.graphs.empty()) ImGui::BeginDisabled();
-        if (ImGui::Button("save data")) {
+        if (ImGui::Button("Save data")) {
             graphs.dumpData();
         } else if (graphs.hasDumped || entities.graphs.empty())
             ImGui::EndDisabled(); // else if to prevent hasdumped change calling enddisabled
 
         // make new button
         if (makingNew) ImGui::BeginDisabled();
-        if (ImGui::Button("make new")) {
+        if (ImGui::Button("Make new")) {
             resetNewGraph();
             if (selectedG) {
                 resetGraphHighlight(*selectedG);
