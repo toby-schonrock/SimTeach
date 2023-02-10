@@ -18,6 +18,7 @@
 #include "Util.hpp"
 #include "Vector2.hpp"
 
+extern const std::filesystem::path Previous;
 static const std::string PointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};
 static const std::string SpringHeaders =
     "spring-id spring-const natural-length damping-factor point1 point2";
@@ -125,6 +126,8 @@ class Sim {
         return sim;
     }
 
+    void reset() { load(Previous, true); }
+
     void load(std::filesystem::path path, bool replace) {
         path.make_preferred();
         if (replace) {
@@ -192,7 +195,6 @@ class Sim {
     }
 
     void save(std::filesystem::path path) const {
-        std::cout << "save" << std::endl;
         path.make_preferred();
         std::ofstream file{path, std::ios_base::out};
         if (!file.is_open()) {

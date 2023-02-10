@@ -1,7 +1,10 @@
 #pragma once
 
+#include <bits/types/wint_t.h>
+#include <cwctype>
 #include <filesystem>
 #include <optional>
+#include <string>
 
 #include "Debug.hpp"
 #include "GraphMananager.hpp"
@@ -35,8 +38,8 @@ class GUI {
     float                       radius;
 
   public:
-    sf::View                                  view;
-    RingBuffer<Vec2>                          fps = RingBuffer<Vec2>(160);
+    sf::View         view;
+    RingBuffer<Vec2> fps = RingBuffer<Vec2>(160);
 
     GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_,
         float radius_ = 0.05F)
@@ -101,6 +104,14 @@ class GUI {
             if (ImGui::Button("Save")) {
                 sim.save(Previous);
             }
+            ImGui::BulletText("Save settings");
+            ImGui::Indent(10.0F);
+            static std::string name = "";
+            std::erase_if(name, [](wint_t c) { return true; }); // !std::iswalnum(c); });
+            ImGui::InputText("Filename", name.data(), 20);
+            ImGui::SameLine();
+            HelpMarker("No need to add .csv on the end. Its automatically added.");
+            ImGui::Unindent(10.0F);
             if (ImGui::Button("Load")) {
                 sim.load(Previous, false);
             }
@@ -116,10 +127,10 @@ class GUI {
                                ImGuiSliderFlags_AlwaysClamp);
             graphs.graphBuffer = graphBufferTemp;
             ImGui::SameLine();
-            HelpMarker(
-                "Graph data is collected every visual frame. The buffer size determines how "
-                "many visual frames occur before old data is overwritten. This value is updated "
-                "on run.");
+            HelpMarker("Graph data is collected every visual frame. The buffer size determines how "
+                       "many visual frames occur before old data is overwritten. This value is "
+                       "updated "
+                       "on run.");
         }
         if (running) ImGui::EndDisabled();
 
@@ -160,6 +171,13 @@ class GUI {
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
         ImGui::Text("Mouse pos: (%F, %F)", mousePos.x, mousePos.y);
         if (ImGui::Button("Reset view")) reset();
+        ImGui::SameLine();
+        HelpMarker("Resets the view to default");
+        if (running) ImGui::BeginDisabled();
+        if (ImGui::Button("Reset sim")) sim.reset();
+        if (running) ImGui::EndDisabled();
+        ImGui::SameLine();
+        HelpMarker("Resets the sim to last starting point - r");
         ImGui::End();
     }
 

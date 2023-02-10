@@ -47,7 +47,7 @@ int main() {
     GraphManager graphs{entities};
 
     // Sim sim1(entities, 0.2F);                                                        // empty
-    Sim sim1 = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
+    Sim sim = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
     // Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
 
     std::size_t                        selectedTool = 0;
@@ -78,7 +78,7 @@ int main() {
                 std::chrono::nanoseconds           deltaTime = std::min(frameTime - last, maxFrame);
                 last                                         = frameTime;
 
-                sim1.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
+                sim.simFrame(static_cast<double>(deltaTime.count()) / 1e9);
                 sinceVFrame = frameTime - start;
             }
         } // not running spin moved to end
@@ -93,16 +93,19 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed &&
-                       event.key.code == sf::Keyboard::Space) {
+                       event.key.code == sf::Keyboard::Space && !imguIO.WantCaptureKeyboard) {
                 if (running) { // when space bar to stop
                     running = false;
                 } else { // when space bar to run
-                    sim1.save(Previous);
+                    sim.save(Previous);
                     tools[selectedTool]->unequip();
                     graphs.reset();
                     runtime = std::chrono::high_resolution_clock::now();
                     running = true;
                 }
+            } else if (event.type == sf::Event::KeyPressed &&
+                       event.key.code == sf::Keyboard::R && !imguIO.WantCaptureKeyboard && !running) {
+                    sim.reset();
             } else {
                 gui.event(event, mousePos);
                 if (!running) tools[selectedTool]->event(event);
@@ -134,14 +137,14 @@ int main() {
             }
             tools[selectedTool]->ImTool();
             ImGui::End();
-            tools[selectedTool]->frame(sim1, mousePos);
+            tools[selectedTool]->frame(sim, mousePos);
         } else {
             graphs.updateDraw(
                 static_cast<float>((std::chrono::high_resolution_clock::now() - runtime).count()) /
                 1e9F);
         }
 
-        gui.frame(mousePos, sim1, graphs, running);
+        gui.frame(mousePos, sim, graphs, running);
 
         ImGui::SFML::Render(window);
         window.display();
