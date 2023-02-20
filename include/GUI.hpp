@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bits/types/wint_t.h>
-#include <cwctype>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -101,17 +99,36 @@ class GUI {
 
         if (running) ImGui::BeginDisabled();
         if (ImGui::CollapsingHeader("Save and load")) {
+            static char arr[20]{};
+            const auto  invalid =
+                std::find_if(&arr[0], &arr[20], [](unsigned char c) { return !std::isalnum(c); });
+            const auto end   = std::find(&arr[0], &arr[20], '\0');
+            const bool valid = (invalid == &arr[20] || invalid >= end) && end - &arr[0] != 0;
+            std::filesystem::path savePath{arr};
+            savePath = "sims/" + savePath.string() + ".csv";
+
+            ImGui::BulletText("Saving");
+            if (!valid) ImGui::BeginDisabled();
             if (ImGui::Button("Save")) {
-                sim.save(Previous);
+                sim.save(savePath);
             }
-            ImGui::BulletText("Save settings");
+            if (!valid) ImGui::EndDisabled();
             ImGui::Indent(10.0F);
-            static std::string name = "";
-            std::erase_if(name, [](wint_t c) { return true; }); // !std::iswalnum(c); });
-            ImGui::InputText("Filename", name.data(), 20);
+            ImGui::InputText("Filename", &arr[0], 20);
             ImGui::SameLine();
-            HelpMarker("No need to add .csv on the end. Its automatically added.");
+            HelpMarker("Filenames which are already in use will be overidden.");
+            if (!valid) {
+                if (invalid != &arr[20] && invalid < end)
+                    ImGui::TextColored(ImVec4{1, 0, 0, 1},
+                                       "All characters must be alpha numeric - '%c'", *invalid);
+                else if (end - &arr[0] == 0) {
+                    ImGui::TextColored(ImVec4{1, 0, 0, 1}, "File name has no characters! :(");
+                }
+            } else {
+                ImGui::Text("Path: %ls", savePath.c_str());
+            }
             ImGui::Unindent(10.0F);
+
             if (ImGui::Button("Load")) {
                 sim.load(Previous, false);
             }
