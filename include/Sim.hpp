@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Edge.hpp"
@@ -29,7 +30,9 @@ class Sim {
     EntityManager& entities;
     double         gravity;
 
-    Sim(EntityManager& entities_, double gravity_ = 0) : entities(entities_), gravity(gravity_) {}
+    Sim(EntityManager& entities_, double gravity_ = 0) : entities(entities_), gravity(gravity_) {
+        std::filesystem::create_directory("sims");
+    }
 
     void simFrame(double deltaTime) {
         // calculate spring force worth doing in parralel
@@ -126,9 +129,9 @@ class Sim {
         return sim;
     }
 
-    void reset() { load(Previous, true); }
+    void reset() { load(Previous, true, {true, true, true}); }
 
-    void load(std::filesystem::path path, bool replace) {
+    void load(std::filesystem::path path, bool replace, ObjectEnabled enabled) {
         path.make_preferred();
         if (replace) {
             entities.graphs.clear();
@@ -157,39 +160,47 @@ class Sim {
         while (true) {
             std::getline(file, line);
             if (checkIfHeader(SpringHeaders, line)) break;
-            Point point{};
-            ss = std::stringstream(line);
-            std::size_t temp;
-            safeStreamRead(ss, temp);
-            if (temp != index) throw std::runtime_error("Non continous point indicie - " + line);
-            ss >> point;
-            ++index;
-            entities.addPoint(point);
+            if (enabled.points) {
+                Point point{};
+                ss = std::stringstream(line);
+                std::size_t temp;
+                safeStreamRead(ss, temp);
+                if (temp != index)
+                    throw std::runtime_error("Non continous point indicie - " + line);
+                ss >> point;
+                ++index;
+                entities.addPoint(point);
+            }
         }
 
         index = 0;
         while (true) {
             std::getline(file, line);
             if (checkIfHeader(PolyHeaders, line)) break;
-            ss = std::stringstream(line);
-            Spring      spring{};
-            std::size_t temp;
-            safeStreamRead(ss, temp);
-            if (temp != index) throw std::runtime_error("Non continous spring indicie - " + line);
-            ss >> spring;
-            spring.p1 += pointOffset;
-            spring.p2 += pointOffset;
-            ++index;
-            entities.addSpring(spring);
+            if (enabled.springs) {
+                ss = std::stringstream(line);
+                Spring      spring{};
+                std::size_t temp;
+                safeStreamRead(ss, temp);
+                if (temp != index)
+                    throw std::runtime_error("Non continous spring indicie - " + line);
+                ss >> spring;
+                spring.p1 += pointOffset;
+                spring.p2 += pointOffset;
+                ++index;
+                entities.addSpring(spring);
+            }
         }
 
         while (!file.eof()) {
             std::getline(file, line);
-            ss = std::stringstream(line);
-            if (ss.good()) { // deal with emtpy new lines at end
-                Polygon poly{};
-                ss >> poly;
-                entities.polys.push_back(poly);
+            if (enabled.polygons) {
+                ss = std::stringstream(line);
+                if (ss.good()) { // deal with emtpy new lines at end
+                    Polygon poly{};
+                    ss >> poly;
+                    entities.polys.push_back(poly);
+                }
             }
         }
     }

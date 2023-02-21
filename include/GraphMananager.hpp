@@ -14,10 +14,13 @@ class GraphManager {
 
   public:
     RingBuffer<float> tvalues;
-    bool              hasDumped   = false;
+    bool              hasDumped = false;
     std::size_t       graphBuffer;
 
-    GraphManager(EntityManager& entities_, std::size_t graphBuffer_ = 5000) : entities(entities_), tvalues(graphBuffer_), graphBuffer(graphBuffer_) {}
+    GraphManager(EntityManager& entities_, std::size_t graphBuffer_ = 5000)
+        : entities(entities_), tvalues(graphBuffer_), graphBuffer(graphBuffer_) {
+        std::filesystem::create_directory("graphdata");
+    }
 
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
@@ -69,7 +72,6 @@ class GraphManager {
                            std::to_string(static_cast<unsigned>(hms.seconds().count()));
         name.pop_back();
         std::replace(name.begin(), name.end(), ' ', '-');
-        std::filesystem::create_directory("graphdata");
         std::filesystem::path p = "graphdata/" + name + ".csv";
         p.make_preferred();
         std::cout << "Storing graph data at: " << p << "\n";

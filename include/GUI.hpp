@@ -1,10 +1,15 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "Debug.hpp"
+#include "EntityManager.hpp"
+#include "Graph.hpp"
 #include "GraphMananager.hpp"
 #include "RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
@@ -12,9 +17,12 @@
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "implot.h"
 
-extern const std::filesystem::path Previous;
+namespace fs = std::filesystem;
+
+extern const fs::path Previous;
 
 sf::Vector2f visualize(const Vec2& v);
 
@@ -23,6 +31,42 @@ bool ImGui_DragDouble(const char* label, double* v, float v_speed, double v_min,
 bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_speed, std::uint32_t v_min,
                         std::uint32_t v_max, const char* format, ImGuiSliderFlags flags);
 void HelpMarker(const char* desc);
+
+inline void enabledTicks(ObjectEnabled& enabled, EntityManager& entities, bool forceLegit = false) {
+    if (enabled.springs && forceLegit) ImGui::BeginDisabled();
+    ImGui::Checkbox("Points", &enabled.points);
+    ImGui::SameLine();
+    ImGui::TextDisabled("%zu", entities.points.size());
+    if (enabled.springs && forceLegit) ImGui::EndDisabled();
+    ImGui::SameLine();
+    ImGui::Checkbox("Springs", &enabled.springs);
+    ImGui::SameLine();
+    ImGui::TextDisabled("%zu", entities.springs.size());
+    ImGui::SameLine();
+    ImGui::Checkbox("Polgons", &enabled.polygons);
+    ImGui::SameLine();
+    ImGui::TextDisabled("%zu", entities.polys.size());
+    if (enabled.springs && forceLegit) enabled.points = true;
+}
+
+// stolen from - https://en.cppreference.com/w/cpp/filesystem/directory_entry/last_write_time
+inline std::string to_string(fs::file_time_type const& ftime) {
+    std::time_t cftime =
+        std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(ftime));
+    std::string str = std::asctime(std::localtime(&cftime));
+    str.pop_back(); // rm the trailing '\n' put by `asctime`
+    return str;
+}
+
+inline void display_size(fs::directory_entry file) {
+    int    i{};
+    double mantissa = static_cast<double>(file.file_size());
+    for (; mantissa >= 1024.; ++i) {
+        mantissa /= 1024.;
+    }
+    mantissa = std::ceil(mantissa * 10.) / 10.;
+    ImGui::Text("%.4g %cB", mantissa, "BKMGTPE"[i]);
+}
 
 class GUI {
   private:
@@ -104,15 +148,10 @@ class GUI {
                 std::find_if(&arr[0], &arr[20], [](unsigned char c) { return !std::isalnum(c); });
             const auto end   = std::find(&arr[0], &arr[20], '\0');
             const bool valid = (invalid == &arr[20] || invalid >= end) && end - &arr[0] != 0;
-            std::filesystem::path savePath{arr};
+            fs::path   savePath{arr};
             savePath = "sims/" + savePath.string() + ".csv";
 
             ImGui::BulletText("Saving");
-            if (!valid) ImGui::BeginDisabled();
-            if (ImGui::Button("Save")) {
-                sim.save(savePath);
-            }
-            if (!valid) ImGui::EndDisabled();
             ImGui::Indent(10.0F);
             ImGui::InputText("Filename", &arr[0], 20);
             ImGui::SameLine();
@@ -125,13 +164,56 @@ class GUI {
                     ImGui::TextColored(ImVec4{1, 0, 0, 1}, "File name has no characters! :(");
                 }
             } else {
-                ImGui::Text("Path: %ls", savePath.c_str());
+                ImGui::Text("Path: %s", savePath.c_str());
             }
+            if (!valid) ImGui::BeginDisabled();
+            if (ImGui::Button("Save")) {
+                sim.save(savePath);
+            }
+            if (!valid) ImGui::EndDisabled();
             ImGui::Unindent(10.0F);
 
-            if (ImGui::Button("Load")) {
-                sim.load(Previous, false);
+            ImGui::BulletText("Loading");
+            ImGui::Indent(10.0F);
+            static ObjectEnabled loading{true, true, true};
+            enabledTicks(loading, entities, true);
+            ImGui::SameLine();
+            HelpMarker("Enable and disable which items are loaded");
+
+            static bool overwrite = true;
+            ImGui::Checkbox("overwrite", &overwrite);
+            ImGui::SameLine();
+            HelpMarker("Overrite enabled will delete the current sim before loading the new one");
+
+            std::vector<fs::directory_entry> files;
+            for (const auto& entry: fs::directory_iterator(fs::path{"sims"}))
+                if (entry.path().extension() == ".csv") files.push_back(entry);
+            std::sort(files.begin(), files.end(), [](const auto& lhs, const auto& rhs) {
+                return lhs.last_write_time() > rhs.last_write_time();
+            });
+
+            static std::size_t current = 0;
+            float              height  = ImGui::GetTextLineHeightWithSpacing() *
+                               std::min(10.0F, static_cast<float>(files.size())) +
+                           ImGui::GetCurrentContext()->Style.FramePadding.y * 2.0f;
+            if (ImGui::BeginListBox("File", {440.0f, height})) {
+                for (std::size_t i = 0; i < files.size(); ++i) {
+                    const bool is_selected = current == i;
+                    if (ImGui::Selectable(files[i].path().stem().c_str(), is_selected))
+                        current = i;
+                    ImGui::SameLine(160.0F);
+                    display_size(files[i]);
+                    ImGui::SameLine(240.0F);
+                    ImGui::Text("%s", to_string(files[i].last_write_time()).c_str());
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndListBox();
             }
+            if (ImGui::Button("Load") &&
+                current < files.size()) { // prevents old selection breaking the load
+                sim.load(files[current].path(), overwrite, loading);
+            }
+            ImGui::Unindent(10.0F);
         }
         if (ImGui::CollapsingHeader("General")) {
             ImGui::SetNextItemWidth(100.0F);
@@ -151,35 +233,25 @@ class GUI {
         }
         if (running) ImGui::EndDisabled();
 
-        static bool points   = true;
-        static bool springs  = true;
-        static bool polygons = true;
+        static ObjectEnabled display{true, true, true};
         if (ImGui::CollapsingHeader("Graphics")) {
             fpsGraph();
-            ImGui::Checkbox("Points", &points);
-            ImGui::SameLine();
-            ImGui::TextDisabled("%zu", entities.points.size());
-            ImGui::Checkbox("Springs", &springs);
-            ImGui::SameLine();
-            ImGui::TextDisabled("%zu", entities.springs.size());
-            ImGui::Checkbox("Polgons", &polygons);
-            ImGui::SameLine();
-            ImGui::TextDisabled("%zu", entities.polys.size());
+            enabledTicks(display, entities);
             ImGui::SetNextItemWidth(100.0F);
             ImGui::DragFloat("Point Radius", &radius, 0.001F, 0.005F, 100000, "%.3f",
                              ImGuiSliderFlags_AlwaysClamp);
         }
 
-        if (springs) {
+        if (display.springs) {
             entities.updateSpringVisPos();
             window.draw(entities.springVerts.data(), entities.springVerts.size(), sf::Lines);
         }
-        if (points) {
+        if (display.points) {
             entities.updatePointVisPos(radius);
             window.draw(entities.pointVerts.data(), entities.pointVerts.size(), sf::Quads,
                         &pointTexture);
         }
-        if (polygons) {
+        if (display.polygons) {
             for (Polygon& poly: entities.polys) poly.draw(window, false);
         }
 

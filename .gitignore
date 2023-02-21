@@ -1,8 +1,10 @@
 .cache
 .vscode
 imgui.ini
-compile_commands.js
+compile_commands.json
 CMakeCache.txt
 CMakeFiles
 build
 graphdata
+sims
+previous.csv

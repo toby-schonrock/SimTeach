@@ -6,6 +6,13 @@
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
 #include "Vector2.hpp"
+#include <filesystem>
+
+struct ObjectEnabled {
+    bool points;
+    bool springs;
+    bool polygons;
+};
 
 class EntityManager {
   public:
