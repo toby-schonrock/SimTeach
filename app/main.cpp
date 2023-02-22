@@ -97,7 +97,7 @@ int main() {
                 if (running) { // when space bar to stop
                     running = false;
                 } else { // when space bar to run
-                    sim.save(Previous);
+                    sim.save(Previous, {true, true, true});
                     tools[selectedTool]->unequip();
                     graphs.reset();
                     runtime = std::chrono::high_resolution_clock::now();

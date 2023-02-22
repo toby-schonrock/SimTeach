@@ -32,18 +32,19 @@ bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_speed, std:
                         std::uint32_t v_max, const char* format, ImGuiSliderFlags flags);
 void HelpMarker(const char* desc);
 
-inline void enabledTicks(ObjectEnabled& enabled, EntityManager& entities, bool forceLegit = false) {
+inline void enabledCheckBoxes(ObjectEnabled& enabled, const EntityManager& entities,
+                         const std::string& uuid, bool forceLegit = false) {
     if (enabled.springs && forceLegit) ImGui::BeginDisabled();
-    ImGui::Checkbox("Points", &enabled.points);
+    ImGui::Checkbox((std::string{"Points##"} + uuid).c_str(), &enabled.points);
     ImGui::SameLine();
     ImGui::TextDisabled("%zu", entities.points.size());
     if (enabled.springs && forceLegit) ImGui::EndDisabled();
     ImGui::SameLine();
-    ImGui::Checkbox("Springs", &enabled.springs);
+    ImGui::Checkbox((std::string{"Springs##"} + uuid).c_str(), &enabled.springs);
     ImGui::SameLine();
     ImGui::TextDisabled("%zu", entities.springs.size());
     ImGui::SameLine();
-    ImGui::Checkbox("Polgons", &enabled.polygons);
+    ImGui::Checkbox((std::string{"Polygons##"} + uuid).c_str(), &enabled.polygons);
     ImGui::SameLine();
     ImGui::TextDisabled("%zu", entities.polys.size());
     if (enabled.springs && forceLegit) enabled.points = true;
@@ -78,6 +79,9 @@ class GUI {
     const Vector2<unsigned int> screen;
     const float                 vsScale; // window scaling
     float                       radius;
+    ObjectEnabled               loading{true, true, true};
+    ObjectEnabled               saving{true, true, true};
+    ObjectEnabled               display{true, true, true};
 
   public:
     sf::View         view;
@@ -141,8 +145,8 @@ class GUI {
         ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
         ImGui::SetWindowPos({0.0F, 0.0F}, ImGuiCond_Once);
 
-        if (running) ImGui::BeginDisabled();
         if (ImGui::CollapsingHeader("Save and load")) {
+            if (running) ImGui::BeginDisabled();
             static char arr[20]{};
             const auto  invalid =
                 std::find_if(&arr[0], &arr[20], [](unsigned char c) { return !std::isalnum(c); });
@@ -153,6 +157,7 @@ class GUI {
 
             ImGui::BulletText("Saving");
             ImGui::Indent(10.0F);
+            enabledCheckBoxes(saving, entities, "saving", true);
             ImGui::InputText("Filename", &arr[0], 20);
             ImGui::SameLine();
             HelpMarker("Filenames which are already in use will be overidden.");
@@ -168,15 +173,14 @@ class GUI {
             }
             if (!valid) ImGui::BeginDisabled();
             if (ImGui::Button("Save")) {
-                sim.save(savePath);
+                sim.save(savePath, saving);
             }
             if (!valid) ImGui::EndDisabled();
             ImGui::Unindent(10.0F);
 
             ImGui::BulletText("Loading");
             ImGui::Indent(10.0F);
-            static ObjectEnabled loading{true, true, true};
-            enabledTicks(loading, entities, true);
+            enabledCheckBoxes(loading, entities, "loading", true);
             ImGui::SameLine();
             HelpMarker("Enable and disable which items are loaded");
 
@@ -194,8 +198,7 @@ class GUI {
 
             static std::size_t current = 0;
             float              height  = ImGui::GetTextLineHeightWithSpacing() *
-                               std::min(10.0F, static_cast<float>(files.size())) +
-                           ImGui::GetCurrentContext()->Style.FramePadding.y * 2.0f;
+                               std::min(10.0F, static_cast<float>(files.size())) + 2.0F;
             if (ImGui::BeginListBox("File", {440.0f, height})) {
                 for (std::size_t i = 0; i < files.size(); ++i) {
                     const bool is_selected = current == i;
@@ -214,8 +217,10 @@ class GUI {
                 sim.load(files[current].path(), overwrite, loading);
             }
             ImGui::Unindent(10.0F);
+            if (running) ImGui::EndDisabled();
         }
         if (ImGui::CollapsingHeader("General")) {
+            if (running) ImGui::BeginDisabled();
             ImGui::SetNextItemWidth(100.0F);
             ImGui_DragDouble("Gravity", &sim.gravity, 0.001F, -100, 100, "%.3f",
                              ImGuiSliderFlags_AlwaysClamp);
@@ -230,13 +235,12 @@ class GUI {
                        "many visual frames occur before old data is overwritten. This value is "
                        "updated "
                        "on run.");
+            if (running) ImGui::EndDisabled();
         }
-        if (running) ImGui::EndDisabled();
 
-        static ObjectEnabled display{true, true, true};
         if (ImGui::CollapsingHeader("Graphics")) {
             fpsGraph();
-            enabledTicks(display, entities);
+            enabledCheckBoxes(display, entities, "display");
             ImGui::SetNextItemWidth(100.0F);
             ImGui::DragFloat("Point Radius", &radius, 0.001F, 0.005F, 100000, "%.3f",
                              ImGuiSliderFlags_AlwaysClamp);
@@ -291,7 +295,7 @@ class GUI {
             ImPlot::PlotLine("simulation", &fps.v[0].y, static_cast<int>(fps.v.size()), 1, 0.0L,
                              ImPlotLineFlags_None, static_cast<int>(fps.pos), sizeof(Vec2));
             ImPlot::EndPlot();
-            ImPlot::PopStyleColor(2);
         }
+        ImPlot::PopStyleColor(2);
     }
 };

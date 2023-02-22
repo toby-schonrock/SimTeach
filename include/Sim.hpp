@@ -205,7 +205,7 @@ class Sim {
         }
     }
 
-    void save(std::filesystem::path path) const {
+    void save(std::filesystem::path path, ObjectEnabled enabled) const {
         path.make_preferred();
         std::ofstream file{path, std::ios_base::out};
         if (!file.is_open()) {
@@ -214,16 +214,22 @@ class Sim {
 
         file << std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10);
         file << PointHeaders << "\n";
-        for (std::size_t i = 0; i != entities.points.size(); ++i) {
-            file << i << ' ' << entities.points[i] << "\n";
+        if (enabled.points) {
+            for (std::size_t i = 0; i != entities.points.size(); ++i) {
+                file << i << ' ' << entities.points[i] << "\n";
+            }
         }
         file << SpringHeaders << "\n";
-        for (std::size_t i = 0; i != entities.springs.size(); ++i) {
-            file << i << ' ' << entities.springs[i] << "\n";
+        if (enabled.springs) {
+            for (std::size_t i = 0; i != entities.springs.size(); ++i) {
+                file << i << ' ' << entities.springs[i] << "\n";
+            }
         }
         file << PolyHeaders;
-        for (const Polygon& p: entities.polys) {
-            if (!p.edges.empty()) file << "\n" << p;
+        if (enabled.polygons) {
+            for (const Polygon& p: entities.polys) {
+                if (!p.edges.empty()) file << "\n" << p;
+            }
         }
     }
 
