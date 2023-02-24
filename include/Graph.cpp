@@ -28,18 +28,13 @@ float Graph::getValue(const EntityManager& entities) {
             const Spring& s2 = entities.springs[*y2];
             switch (prop) {
             case Property::Length:
-                value  = entities.points[s.p1].pos - entities.points[s.p2].pos;
                 value2 = entities.points[s2.p1].pos - entities.points[s2.p2].pos;
                 break;
             case Property::Extension:
-                value = entities.points[s.p1].pos - entities.points[s.p2].pos; // gap
-                value = value - value.norm() * s.naturalLength;
                 value2 = entities.points[s2.p1].pos - entities.points[s2.p2].pos;
                 value2 = *value2 - value2->norm() * s2.naturalLength;
                 break;
-                // TODO implement extension
             case Property::Force:
-                value  = s.forceCalc(entities.points[s.p1], entities.points[s.p2]);
                 value2 = s2.forceCalc(entities.points[s2.p1], entities.points[s2.p2]);
                 break;
             default:
@@ -48,14 +43,14 @@ float Graph::getValue(const EntityManager& entities) {
         }
         switch (prop) {
         case Property::Length:
-            value  = entities.points[s.p1].pos - entities.points[s.p2].pos;
+            value = entities.points[s.p1].pos - entities.points[s.p2].pos;
             break;
         case Property::Extension:
-            value = {0, 0};
+            value = entities.points[s.p1].pos - entities.points[s.p2].pos; // gap
+            value = value - value.norm() * s.naturalLength;
             break;
-            // TODO implement extension
         case Property::Force:
-            value  = s.forceCalc(entities.points[s.p1], entities.points[s.p2]);
+            value = s.forceCalc(entities.points[s.p1], entities.points[s.p2]);
             break;
         default:
             throw std::logic_error("Incorrect graph spring enums"); // bad setup of graph

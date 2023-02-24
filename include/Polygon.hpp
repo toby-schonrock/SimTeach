@@ -106,7 +106,6 @@ class Polygon {
             if (dist < closestDist) { // if new closest edge
                 closestDist = dist;
                 // note if clockwise (!dir) - normals are correct
-                // (TODO somehow fix this maybe (-1) ^ direction)
                 normal     = ((direction) ? 1 : -1) * e.normal();
                 closestPos = p.pos + normal * dist;
             }

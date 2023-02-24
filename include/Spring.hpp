@@ -13,6 +13,7 @@ struct Spring {
     void springHandler(Point& point1, Point& point2) const {
         Vec2 diff = point1.pos - point2.pos; // broken out alot "yes this is faster! really like 3x"
         double diffMag  = diff.mag();
+        if (diffMag < 1E-30) return; // prevent 0 length spring exploding sim
         Vec2   diffNorm = diff / diffMag;
         double ext      = diffMag - naturalLength;
         double springf  = -springConst * ext; // -ke spring force and also if a diagonal increase

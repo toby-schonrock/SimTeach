@@ -17,7 +17,6 @@
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "imgui.h"
-#include "imgui_internal.h"
 #include "implot.h"
 
 namespace fs = std::filesystem;
@@ -158,6 +157,8 @@ class GUI {
             ImGui::BulletText("Saving");
             ImGui::Indent(10.0F);
             enabledCheckBoxes(saving, entities, "saving", true);
+            ImGui::SameLine();
+            HelpMarker("Enable and disable which items are saved");
             ImGui::InputText("Filename", &arr[0], 20);
             ImGui::SameLine();
             HelpMarker("Filenames which are already in use will be overidden.");
@@ -169,7 +170,7 @@ class GUI {
                     ImGui::TextColored(ImVec4{1, 0, 0, 1}, "File name has no characters! :(");
                 }
             } else {
-                ImGui::Text("Path: %s", savePath.c_str());
+                ImGui::Text("Path: %s", savePath.string().c_str());
             }
             if (!valid) ImGui::BeginDisabled();
             if (ImGui::Button("Save")) {
@@ -202,7 +203,7 @@ class GUI {
             if (ImGui::BeginListBox("File", {440.0f, height})) {
                 for (std::size_t i = 0; i < files.size(); ++i) {
                     const bool is_selected = current == i;
-                    if (ImGui::Selectable(files[i].path().stem().c_str(), is_selected))
+                    if (ImGui::Selectable(files[i].path().stem().string().c_str(), is_selected))
                         current = i;
                     ImGui::SameLine(160.0F);
                     display_size(files[i]);
@@ -241,6 +242,8 @@ class GUI {
         if (ImGui::CollapsingHeader("Graphics")) {
             fpsGraph();
             enabledCheckBoxes(display, entities, "display");
+            ImGui::SameLine();
+            HelpMarker("Enable and disable which items are displayed (usefull for laggy scenes)");
             ImGui::SetNextItemWidth(100.0F);
             ImGui::DragFloat("Point Radius", &radius, 0.001F, 0.005F, 100000, "%.3f",
                              ImGuiSliderFlags_AlwaysClamp);
