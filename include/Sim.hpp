@@ -86,49 +86,6 @@ class Sim {
         return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
     }
 
-    static Sim softbody(EntityManager& entities, const Vector2<std::size_t>& size,
-                        const Vec2& simPos, float gravity, float gap, float springConst,
-                        float dampFact, sf::Color color = sf::Color::Yellow) {
-        Sim sim     = Sim(entities);
-        sim.gravity = gravity;
-
-        entities.polys.reserve(2);
-        entities.polys.push_back(Polygon::Square(Vec2(6, 10), -0.75));
-        entities.polys.push_back(Polygon::Square(Vec2(14, 10), 0.75));
-
-        sim.entities.points.reserve(size.x * size.y);
-        for (unsigned x = 0; x != size.x; ++x) {
-            for (unsigned y = 0; y != size.y; ++y) {
-                entities.addPoint({Vec2(x, y) * gap + simPos, 1.0, color, false});
-            }
-        }
-
-        for (std::size_t x = 0; x != size.x; ++x) {
-            for (std::size_t y = 0; y != size.y; ++y) {
-                std::size_t p = x + y * size.x;
-                if (x < size.x - 1) {
-                    if (y < size.y - 1) {
-                        entities.addSpring({springConst, dampFact,
-                                            std::numbers::sqrt2 * static_cast<double>(gap), p,
-                                            x + 1 + (y + 1) * size.x}); // down right
-                    }
-                    entities.addSpring(
-                        {springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
-                }
-                if (y < size.y - 1) {
-                    if (x > 0) {
-                        entities.addSpring({springConst, dampFact,
-                                            std::numbers::sqrt2 * static_cast<double>(gap), p,
-                                            x - 1 + (y + 1) * size.x}); // down left
-                    }
-                    entities.addSpring(
-                        {springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
-                }
-            }
-        }
-        return sim;
-    }
-
     void reset() { load(Previous, true, {true, true, true}); }
 
     void load(std::filesystem::path path, bool replace, ObjectEnabled enabled) {
@@ -239,5 +196,48 @@ class Sim {
             if (header[i] != line[i]) return false;
         }
         return true;
+    }
+
+    static Sim softbody(EntityManager& entities, const Vector2<std::size_t>& size,
+                        const Vec2& simPos, float gravity, float gap, float springConst,
+                        float dampFact, sf::Color color = sf::Color::Yellow) {
+        Sim sim     = Sim(entities);
+        sim.gravity = gravity;
+
+        entities.polys.reserve(2);
+        entities.polys.push_back(Polygon::Square(Vec2(1, 0), -0.75));
+        entities.polys.push_back(Polygon::Square(Vec2(9, 0), 0.75));
+
+        sim.entities.points.reserve(size.x * size.y);
+        for (unsigned x = 0; x != size.x; ++x) {
+            for (unsigned y = 0; y != size.y; ++y) {
+                entities.addPoint({Vec2(x, y) * gap + simPos, 1.0, color, false});
+            }
+        }
+
+        for (std::size_t x = 0; x != size.x; ++x) {
+            for (std::size_t y = 0; y != size.y; ++y) {
+                std::size_t p = x + y * size.x;
+                if (x < size.x - 1) {
+                    if (y < size.y - 1) {
+                        entities.addSpring({springConst, dampFact,
+                                            std::numbers::sqrt2 * static_cast<double>(gap), p,
+                                            x + 1 + (y + 1) * size.x}); // down right
+                    }
+                    entities.addSpring(
+                        {springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
+                }
+                if (y < size.y - 1) {
+                    if (x > 0) {
+                        entities.addSpring({springConst, dampFact,
+                                            std::numbers::sqrt2 * static_cast<double>(gap), p,
+                                            x - 1 + (y + 1) * size.x}); // down left
+                    }
+                    entities.addSpring(
+                        {springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
+                }
+            }
+        }
+        return sim;
     }
 };

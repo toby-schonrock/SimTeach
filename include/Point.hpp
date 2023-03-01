@@ -21,8 +21,8 @@ struct Point {
 
     void update(double deltaTime, double gravity) {
         if (!fixed) {
-            vel += (f / mass + Vec2(0, 1) * gravity) *
-                   deltaTime; // TODO euler integration could be improved
+            vel += (f / mass + Vec2(0, -gravity)) *
+                   deltaTime; // TODO euler integration could be improved (e.g. runge kutta)
             pos += vel * deltaTime;
         }
         f = Vec2();

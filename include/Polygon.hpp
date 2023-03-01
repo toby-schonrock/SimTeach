@@ -4,6 +4,7 @@
 #include "Point.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vector2.hpp"
+#include "imgui.h"
 
 sf::Vector2f visualize(const Vec2& v);
 
@@ -43,7 +44,7 @@ class Polygon {
     void boundsUp() {
         // TODO doesn't take advantage of mins/maxs already calulated in edges
         for (const Edge& edge: edges) { // loop over all points
-            Vec2 p      = edge.p1();
+            const Vec2& p      = edge.p1();
             maxBounds.x = std::max(maxBounds.x, p.x);
             maxBounds.y = std::max(maxBounds.y, p.y);
             minBounds.x = std::min(minBounds.x, p.x);
@@ -58,6 +59,7 @@ class Polygon {
         edges.emplace_back(pos, edges.front().p1());
         shape.setPointCount(edges.size());
         shape.setPoint(edges.size() - 1, visualize(pos));
+        boundsUp(); // keep bounds up to date
     }
 
     void rmvEdge() {
@@ -69,17 +71,28 @@ class Polygon {
             edges.back().p2(edges.front().p1());
             shape.setPointCount(edges.size());
         }
+        boundsUp(); // keep bounds up to date
     }
 
     bool isBounded(const Vec2& pos) const {
-        return pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
+        bool bounded = pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
                pos.y <= maxBounds.y;
+        ImGui::Text("Bounded - %i", bounded);
+        return bounded;
     }
 
     bool isContained(const Vec2& pos) const {
+        int  i{};
         bool contained = false;
         for (const Edge& e: edges) {
-            if (e.rayCast(pos)) contained = !contained;
+            if (e.rayCast(pos)) {
+                contained = !contained;
+                ++i;
+            }
+        }
+        if (ImGui::Begin("debug")) {
+            ImGui::Text("count - %i", i);
+            ImGui::End();
         }
         return contained;
     }
@@ -161,8 +174,7 @@ class Polygon {
 
     // static stuff
     static Polygon Square(const Vec2& pos, double tilt) {
-        return Polygon({Vec2(5, 0.5) + pos, Vec2(-5, 0.5) + pos, Vec2(-5, -0.5 + tilt) + pos,
-                        Vec2(5, -0.5 - tilt) + pos});
+        return Polygon({pos, Vec2(10, 0) + pos, Vec2(10, 1 + tilt) + pos, Vec2(0, 1 - tilt) + pos});
     }
 
     static Polygon Triangle(Vec2 pos) {

@@ -17,12 +17,12 @@
 const std::filesystem::path Previous{"previous.csv"};
 
 sf::Vector2f visualize(const Vec2& v) {
-    return sf::Vector2f(static_cast<float>(v.x), static_cast<float>(v.y));
+    return sf::Vector2f(static_cast<float>(v.x), -static_cast<float>(v.y));
 }
 
-Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, v.y); }
+Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, -v.y); }
 
-Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, v.y); }
+Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, -v.y); }
 
 int main() {
     // SFML
@@ -47,7 +47,7 @@ int main() {
     GraphManager graphs{entities};
 
     // Sim sim1(entities, 0.2F);                                                        // empty
-    Sim sim = Sim::softbody(entities, {25, 25}, {14, 1}, 2.0F, 0.2F, 10000, 100); // default
+    Sim sim = Sim::softbody(entities, {25, 25}, {14, 5}, 2.0F, 0.2F, 10000, 100); // default
     // Sim sim1 = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
 
     std::size_t                        selectedTool = 0;

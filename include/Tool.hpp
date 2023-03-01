@@ -528,6 +528,13 @@ class PolyTool : public Tool {
             if (hoveredP) {
                 entities.polys[*hoveredP].shape.setFillColor(sf::Color::Red);
                 ImGui::SetTooltip("Click to delete");
+                Polygon& p = entities.polys[*hoveredP];
+                if (ImGui::Begin("debug")) {
+                    for (Edge& e: p.edges) {
+                        ImGui::Text("Vert - (%f, %f)", e.p1().x, e.p1().y);
+                    }
+                    ImGui::End();
+                }
             }
         }
 

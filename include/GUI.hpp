@@ -96,13 +96,13 @@ class GUI {
         if (!pointTexture.loadFromFile("point.png"))
             throw std::logic_error("failed to load point texture");
         pointTexture.setSmooth(true);
-        reset();
+        resetView();
     }
 
-    void reset() {
+    void resetView() {
         view = window.getDefaultView();
         view.zoom(1 / vsScale);
-        view.setCenter(view.getSize() / 2.0F);
+        view.setCenter({view.getSize().x / 2.0F, -view.getSize().y / 2.0F});
         window.setView(view);
     }
 
@@ -151,9 +151,10 @@ class GUI {
             static char arr[20]{};
             const auto  firstInvalid =
                 std::find_if(&arr[0], &arr[20], [](unsigned char c) { return !std::isalnum(c); });
-            const auto end   = std::find(&arr[0], &arr[20], '\0');
-            const bool isValid = (firstInvalid == &arr[20] || firstInvalid >= end) && end - &arr[0] != 0;
-            fs::path   savePath{arr};
+            const auto end = std::find(&arr[0], &arr[20], '\0');
+            const bool isValid =
+                (firstInvalid == &arr[20] || firstInvalid >= end) && end - &arr[0] != 0;
+            fs::path savePath{arr};
             savePath = "sims/" + savePath.string() + ".csv";
 
             ImGui::BulletText("Saving");
@@ -167,7 +168,8 @@ class GUI {
             if (!isValid) {
                 if (firstInvalid != &arr[20] && firstInvalid < end)
                     ImGui::TextColored(ImVec4{1, 0, 0, 1},
-                                       "All characters must be alpha numeric - '%c'", *firstInvalid);
+                                       "All characters must be alpha numeric - '%c'",
+                                       *firstInvalid);
                 else if (end - &arr[0] == 0) {
                     ImGui::TextColored(ImVec4{1, 0, 0, 1}, "File name has no characters! :(");
                 }
@@ -266,10 +268,10 @@ class GUI {
         }
 
         ImGui::Text("View size: (%F, %F)", view.getSize().x, view.getSize().y);
-        ImGui::Text("View center: (%F, %F)", view.getCenter().x, view.getCenter().y);
+        ImGui::Text("View center: (%F, %F)", view.getCenter().x, -view.getCenter().y);
         sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
-        ImGui::Text("Mouse pos: (%F, %F)", mousePos.x, mousePos.y);
-        if (ImGui::Button("Reset view")) reset();
+        ImGui::Text("Mouse pos: (%F, %F)", mousePos.x, -mousePos.y);
+        if (ImGui::Button("Reset view")) resetView();
         ImGui::SameLine();
         HelpMarker("Resets the view to default");
         if (running) ImGui::BeginDisabled();
