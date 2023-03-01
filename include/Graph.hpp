@@ -51,35 +51,35 @@ class Graph {
 
   public:
     RingBuffer<float>          data;
-    std::size_t                y; // TODO - move the property and type outside
-    std::optional<std::size_t> y2;
+    std::size_t                ref; // TODO - move the property and type outside
+    std::optional<std::size_t> ref2;
     std::optional<Vec2F>       constDiff;
     ObjectType                 type;
     Property                   prop;
     Component                  comp = Component::vec;
 
-    Graph(std::size_t y_, ObjectType type_, Property prop_, Component comp_, std::size_t buffer)
-        : data(buffer), y(y_), y2(std::nullopt), type(type_), prop(prop_), comp(comp_) {}
+    Graph(std::size_t ref_, ObjectType type_, Property prop_, Component comp_, std::size_t buffer)
+        : data(buffer), ref(ref_), ref2(std::nullopt), type(type_), prop(prop_), comp(comp_) {}
 
-    Graph(std::size_t y_, std::size_t y2_, ObjectType type_, Property prop_, Component comp_,
+    Graph(std::size_t ref_, std::size_t ref2_, ObjectType type_, Property prop_, Component comp_,
           std::size_t buffer)
-        : data(buffer), y(y_), y2(y2_), type(type_), prop(prop_), comp(comp_) {}
+        : data(buffer), ref(ref_), ref2(ref2_), type(type_), prop(prop_), comp(comp_) {}
 
-    Graph(std::size_t y_, Vec2F constDiff_, ObjectType type_, Property prop_, Component comp_,
+    Graph(std::size_t ref_, Vec2F constDiff_, ObjectType type_, Property prop_, Component comp_,
           std::size_t buffer)
-        : data(buffer), y(y_), y2(std::nullopt), constDiff(constDiff_), type(type_), prop(prop_),
+        : data(buffer), ref(ref_), ref2(std::nullopt), constDiff(constDiff_), type(type_), prop(prop_),
           comp(comp_) {}
 
     void updateIndex(ObjectType type_, std::size_t old, std::size_t updated) {
         if (type_ != type) return;
-        if (y == old) y = updated;
-        if (y2 && *y2 == old) y2 = updated;
+        if (ref == old) ref = updated;
+        if (ref2 && *ref2 == old) ref2 = updated;
     }
 
     bool checkDeleteIndex(ObjectType type_, std::size_t i) {
         if (type_ != type) return false;
-        if (y == i) return true;
-        if (y2 && *y2 == i) y2.reset();
+        if (ref == i) return true;
+        if (ref2 && *ref2 == i) ref2.reset();
         return false;
     }
 
@@ -99,7 +99,7 @@ class Graph {
 
     std::string getYLabel() const {
         return getTypeLbl(type) + "(" +
-               (y2 ? std::to_string(y) + "-" + std::to_string(*y2) : std::to_string(y)) + ")." +
+               (ref2 ? std::to_string(ref) + "-" + std::to_string(*ref2) : std::to_string(ref)) + ")." +
                getPropLbl(prop) + "." + getCompLbl(comp);
     }
 };

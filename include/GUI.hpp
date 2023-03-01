@@ -32,7 +32,7 @@ bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_speed, std:
 void HelpMarker(const char* desc);
 
 inline void enabledCheckBoxes(ObjectEnabled& enabled, const EntityManager& entities,
-                         const std::string& uuid, bool forceLegit = false) {
+                              const std::string& uuid, bool forceLegit = false) {
     if (enabled.springs && forceLegit) ImGui::BeginDisabled();
     ImGui::Checkbox((std::string{"Points##"} + uuid).c_str(), &enabled.points);
     ImGui::SameLine();
@@ -70,17 +70,19 @@ inline void display_size(fs::directory_entry file) {
 
 class GUI {
   private:
-    EntityManager&              entities;
-    static constexpr float      zoomFact = 1.05F;
-    sf::Texture                 pointTexture;
-    sf::RenderWindow&           window;
-    std::optional<sf::Vector2i> mousePosLast;
     const Vector2<unsigned int> screen;
     const float                 vsScale; // window scaling
+    static constexpr float      zoomFact = 1.05F;
+
+    EntityManager&              entities;
+    sf::RenderWindow&           window;
+    sf::Texture                 pointTexture;
+    std::optional<sf::Vector2i> mousePosLast;
     float                       radius;
-    ObjectEnabled               loading{true, true, true};
-    ObjectEnabled               saving{true, true, true};
-    ObjectEnabled               display{true, true, true};
+
+    ObjectEnabled loading{true, true, true};
+    ObjectEnabled saving{true, true, true};
+    ObjectEnabled display{true, true, true};
 
   public:
     sf::View         view;
@@ -88,8 +90,8 @@ class GUI {
 
     GUI(EntityManager& entities_, const sf::VideoMode& desktop, sf::RenderWindow& window_,
         float radius_ = 0.05F)
-        : entities(entities_), window(window_), screen(desktop.width, desktop.height),
-          vsScale(static_cast<float>(screen.x) / 20.0F), radius(radius_) {
+        : screen(desktop.width, desktop.height), vsScale(static_cast<float>(screen.x) / 20.0F),
+          entities(entities_), window(window_), radius(radius_) {
         std::cout << "Scale: " << vsScale << "\n";
         if (!pointTexture.loadFromFile("point.png"))
             throw std::logic_error("failed to load point texture");
@@ -147,10 +149,10 @@ class GUI {
         if (ImGui::CollapsingHeader("Save and load")) {
             if (running) ImGui::BeginDisabled();
             static char arr[20]{};
-            const auto  invalid =
+            const auto  firstInvalid =
                 std::find_if(&arr[0], &arr[20], [](unsigned char c) { return !std::isalnum(c); });
             const auto end   = std::find(&arr[0], &arr[20], '\0');
-            const bool valid = (invalid == &arr[20] || invalid >= end) && end - &arr[0] != 0;
+            const bool isValid = (firstInvalid == &arr[20] || firstInvalid >= end) && end - &arr[0] != 0;
             fs::path   savePath{arr};
             savePath = "sims/" + savePath.string() + ".csv";
 
@@ -162,21 +164,21 @@ class GUI {
             ImGui::InputText("Filename", &arr[0], 20);
             ImGui::SameLine();
             HelpMarker("Filenames which are already in use will be overidden.");
-            if (!valid) {
-                if (invalid != &arr[20] && invalid < end)
+            if (!isValid) {
+                if (firstInvalid != &arr[20] && firstInvalid < end)
                     ImGui::TextColored(ImVec4{1, 0, 0, 1},
-                                       "All characters must be alpha numeric - '%c'", *invalid);
+                                       "All characters must be alpha numeric - '%c'", *firstInvalid);
                 else if (end - &arr[0] == 0) {
                     ImGui::TextColored(ImVec4{1, 0, 0, 1}, "File name has no characters! :(");
                 }
             } else {
                 ImGui::Text("Path: %s", savePath.string().c_str());
             }
-            if (!valid) ImGui::BeginDisabled();
+            if (!isValid) ImGui::BeginDisabled();
             if (ImGui::Button("Save")) {
                 sim.save(savePath, saving);
             }
-            if (!valid) ImGui::EndDisabled();
+            if (!isValid) ImGui::EndDisabled();
             ImGui::Unindent(10.0F);
 
             ImGui::BulletText("Loading");
@@ -199,7 +201,8 @@ class GUI {
 
             static std::size_t current = 0;
             float              height  = ImGui::GetTextLineHeightWithSpacing() *
-                               std::min(10.0F, static_cast<float>(files.size())) + 2.0F;
+                               std::min(10.0F, static_cast<float>(files.size())) +
+                           2.0F;
             if (ImGui::BeginListBox("File", {440.0f, height})) {
                 for (std::size_t i = 0; i < files.size(); ++i) {
                     const bool is_selected = current == i;

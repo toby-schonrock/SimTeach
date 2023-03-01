@@ -11,21 +11,21 @@ float Graph::getValue(const EntityManager& entities) {
     case ObjectType::Point:
         switch (prop) {
         case Property::Position:
-            value = entities.points[y].pos;
-            if (y2) value2 = entities.points[*y2].pos;
+            value = entities.points[ref].pos;
+            if (ref2) value2 = entities.points[*ref2].pos;
             break;
         case Property::Velocity:
-            value = entities.points[y].vel;
-            if (y2) value2 = entities.points[*y2].vel;
+            value = entities.points[ref].vel;
+            if (ref2) value2 = entities.points[*ref2].vel;
             break;
         default:
             throw std::logic_error("Incorrect graph point enums"); // bad setup of graph
         }
         break;
     case ObjectType::Spring: {
-        const Spring& s = entities.springs[y];
-        if (y2) {
-            const Spring& s2 = entities.springs[*y2];
+        const Spring& s = entities.springs[ref];
+        if (ref2) {
+            const Spring& s2 = entities.springs[*ref2];
             switch (prop) {
             case Property::Length:
                 value2 = entities.points[s2.p1].pos - entities.points[s2.p2].pos;

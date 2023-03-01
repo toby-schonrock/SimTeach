@@ -494,7 +494,7 @@ class SpringTool : public Tool {
     }
 };
 
-class CustomPolyTool : public Tool {
+class PolyTool : public Tool {
   private:
     Polygon                    poly{};
     std::array<sf::Vertex, 2>  line{};
@@ -506,7 +506,7 @@ class CustomPolyTool : public Tool {
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
 
   public:
-    CustomPolyTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
+    PolyTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
         : Tool(window_, entities_, name_) {}
 
     void frame([[maybe_unused]] Sim& sim, const sf::Vector2i& mousePixPos) override {
@@ -630,22 +630,22 @@ class GraphTool : public Tool {
     void highlightGraph(std::size_t i) {
         Graph& g = entities.graphs[i];
         if (g.type == ObjectType::Point) {
-            setPointColor(g.y, selectedPColour);
-            if (g.y2) setPointColor(*g.y2, selectedPColour);
+            setPointColor(g.ref, selectedPColour);
+            if (g.ref2) setPointColor(*g.ref2, selectedPColour);
         } else {
-            setSpringColor(g.y, selectedSColour);
-            if (g.y2) setSpringColor(*g.y2, selectedSColour);
+            setSpringColor(g.ref, selectedSColour);
+            if (g.ref2) setSpringColor(*g.ref2, selectedSColour);
         }
     }
 
     void resetGraphHighlight(std::size_t i) {
         Graph& g = entities.graphs[i];
         if (g.type == ObjectType::Point) {
-            resetPointColor(g.y);
-            if (g.y2) resetPointColor(*g.y2);
+            resetPointColor(g.ref);
+            if (g.ref2) resetPointColor(*g.ref2);
         } else {
-            setSpringColor(g.y, sf::Color::White);
-            if (g.y2) setSpringColor(*g.y2, sf::Color::White);
+            setSpringColor(g.ref, sf::Color::White);
+            if (g.ref2) setSpringColor(*g.ref2, sf::Color::White);
         }
     }
 
@@ -780,7 +780,7 @@ class GraphTool : public Tool {
                 } else if (makingIndexDiff &&
                            !ImGui::GetIO().WantCaptureMouse) { // selecting object for diff graph
                     makingIndexDiff = false;
-                    entities.graphs[*selectedG].y2 =
+                    entities.graphs[*selectedG].ref2 =
                         entities.graphs[*selectedG].type == ObjectType::Point ? *hoveredP
                                                                               : *hoveredS;
                     highlightGraph(*selectedG);
@@ -865,13 +865,13 @@ class GraphTool : public Tool {
 
                 ImGui::Text("Index");
                 ImGui::SameLine();
-                ImGui::TextColored(coloredText, "%zu", g.y);
+                ImGui::TextColored(coloredText, "%zu", g.ref);
 
                 enum class DiffState { None, Index, Const };
                 constexpr static std::array DiffStatusLbl{"None", "Index", "Const"};
 
                 DiffState oldState =
-                    g.y2 ? DiffState::Index : (g.constDiff ? DiffState::Const : DiffState::None);
+                    g.ref2 ? DiffState::Index : (g.constDiff ? DiffState::Const : DiffState::None);
                 if (makingIndexDiff) oldState = DiffState::Index;
                 int temp = static_cast<int>(oldState);
                 ImGui::Combo("Difference", &temp, DiffStatusLbl.data(), DiffStatusLbl.size());
@@ -885,17 +885,17 @@ class GraphTool : public Tool {
                     }
                     if (oldState == DiffState::Index) {
                         if (g.type == ObjectType::Point)
-                            resetPointColor(*g.y2);
+                            resetPointColor(*g.ref2);
                         else
-                            setSpringColor(*g.y2, sf::Color::White);
-                        g.y2.reset();
+                            setSpringColor(*g.ref2, sf::Color::White);
+                        g.ref2.reset();
                     }
                 }
                 if (oldState == DiffState::Index) { // old state to allow changing index
                     ImGui::Text("Diff Index");
                     ImGui::SameLine();
-                    if (g.y2) {
-                        ImGui::TextColored(coloredText, "%zu", *g.y2);
+                    if (g.ref2) {
+                        ImGui::TextColored(coloredText, "%zu", *g.ref2);
                     } else {
                         ImGui::TextColored((selectedPColour), "%zu",
                                            g.type == ObjectType::Point

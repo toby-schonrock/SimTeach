@@ -54,7 +54,7 @@ int main() {
     std::vector<std::unique_ptr<Tool>> tools;
     tools.push_back(std::make_unique<PointTool>(window, entities, "Points"));
     tools.push_back(std::make_unique<SpringTool>(window, entities, "Springs"));
-    tools.push_back(std::make_unique<CustomPolyTool>(window, entities, "Custom Poly"));
+    tools.push_back(std::make_unique<PolyTool>(window, entities, "Polys"));
     tools.push_back(std::make_unique<GraphTool>(window, entities, graphs, "Graphs"));
 
     bool                                  running = false;

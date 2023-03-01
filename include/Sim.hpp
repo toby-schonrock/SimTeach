@@ -167,7 +167,7 @@ class Sim {
                 safeStreamRead(ss, temp);
                 if (temp != index)
                     throw std::runtime_error("Non continous point indicie - " + line);
-                ss >> point;
+                safeStreamRead(ss, point);
                 ++index;
                 entities.addPoint(point);
             }
@@ -184,7 +184,7 @@ class Sim {
                 safeStreamRead(ss, temp);
                 if (temp != index)
                     throw std::runtime_error("Non continous spring indicie - " + line);
-                ss >> spring;
+                safeStreamRead(ss, spring);
                 spring.p1 += pointOffset;
                 spring.p2 += pointOffset;
                 ++index;
@@ -198,7 +198,7 @@ class Sim {
                 ss = std::stringstream(line);
                 if (ss.good()) { // deal with emtpy new lines at end
                     Polygon poly{};
-                    ss >> poly;
+                    safeStreamRead(ss, poly);
                     entities.polys.push_back(poly);
                 }
             }
