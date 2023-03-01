@@ -77,22 +77,13 @@ class Polygon {
     bool isBounded(const Vec2& pos) const {
         bool bounded = pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
                pos.y <= maxBounds.y;
-        ImGui::Text("Bounded - %i", bounded);
         return bounded;
     }
 
     bool isContained(const Vec2& pos) const {
-        int  i{};
         bool contained = false;
         for (const Edge& e: edges) {
-            if (e.rayCast(pos)) {
-                contained = !contained;
-                ++i;
-            }
-        }
-        if (ImGui::Begin("debug")) {
-            ImGui::Text("count - %i", i);
-            ImGui::End();
+            if (e.rayCast(pos)) contained = !contained;
         }
         return contained;
     }
