@@ -186,11 +186,7 @@ class PointTool : public Tool {
         auto poly     = std::find_if(entities.polys.begin(), entities.polys.end(),
                                      [mousePos](const Polygon& p) { return p.isContained(mousePos); });
 
-        if (poly == entities.polys.end()) {
-            inside = false;
-        } else {
-            inside = true;
-        }
+        inside = poly != entities.polys.end();
 
         if (entities.points.size() == 0) return;
 
@@ -496,12 +492,11 @@ class SpringTool : public Tool {
 
 class PolyTool : public Tool {
   private:
-    Polygon                    poly{};
-    std::array<sf::Vertex, 2>  line{};
-    std::optional<std::size_t> hoveredP;
-    Vec2                       newPoint{};
-    bool                       convex = false;
-    bool                       inside = false;
+    std::vector<Vec2>          verts{{}};
+    Polygon                    validPoly{};
+    std::optional<std::size_t> deletingP;
+    bool                       isDone      = false;
+    bool                       isNewConvex = false;
 
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
 
@@ -510,79 +505,78 @@ class PolyTool : public Tool {
         : Tool(window_, entities_, name_) {}
 
     void frame([[maybe_unused]] Sim& sim, const sf::Vector2i& mousePixPos) override {
-        sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
-        newPoint              = unvisualize(mousePos);
-
-        if (hoveredP) {
-            entities.polys[*hoveredP].shape.setFillColor(sf::Color::White);
-            hoveredP.reset();
+        if (deletingP) {
+            entities.polys[*deletingP].shape.setFillColor(sf::Color::White);
+            deletingP.reset();
         }
+
+        sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
+        Vec2         newPos   = unvisualize(mousePos);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
             for (std::size_t i = 0; i != entities.polys.size(); ++i) {
                 if (entities.polys[i].isBounded(unvisualize(mousePos)) &&
                     entities.polys[i].isContained(unvisualize(mousePos))) {
-                    hoveredP = i;
+                    deletingP = i;
                 }
             }
-            if (hoveredP) {
-                entities.polys[*hoveredP].shape.setFillColor(sf::Color::Red);
+            if (deletingP) {
+                entities.polys[*deletingP].shape.setFillColor(sf::Color::Red);
                 ImGui::SetTooltip("Click to delete");
+                return;
             }
         }
 
-        if (!poly.edges.empty()) {
-            if (poly.edges.size() > 2) {
-                convex = poly.isConvex();
-                if (convex) {
-                    poly.shape.setFillColor(sf::Color::White);
-                } else {
-                    poly.shape.setFillColor(sf::Color::Red);
-                }
-                if (!inside) poly.rmvEdge();         // no need to repeat if already hovering inside
-                inside = poly.isContained(newPoint); // update
-                if (inside) {
-                    poly.shape.setFillColor(sf::Color::Green);
-                } else {
-                    poly.addEdge(newPoint);
-                }
-            } else {
-                poly.edges.back().p1(newPoint);
-                poly.edges[poly.edges.size() - 2].p2(newPoint);
+        verts.back() = newPos;
+        isDone       = false;
+        isNewConvex  = false;
+        if (verts.size() >= 2) {
+            Polygon newPoly = Polygon{verts};
+            isNewConvex     = newPoly.isConvex();
+            if (verts.size() >= 3) {
+                verts.pop_back();
+                validPoly = Polygon{verts};
+                verts.push_back(newPos);
+                isDone = validPoly.edges.size() >= 3 && validPoly.isContained(newPos);
             }
-            poly.draw(window, true);
+            if (isDone) { // valid drawn
+                validPoly.shape.setFillColor(sf::Color::Green);
+                validPoly.draw(window, true);
+            } else { // new drawn
+                newPoly.shape.setFillColor(isNewConvex ? sf::Color::White : sf::Color::Red);
+                newPoly.draw(window, true);
+            }
         }
     }
 
     void event(const sf::Event& event) override {
         if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
-            if (event.mouseButton.button == sf::Mouse::Left) { // new vert
-                if (hoveredP) {                                // delete
+            if (event.mouseButton.button == sf::Mouse::Left) { // left click
+                if (deletingP) {                               // delete
                     entities.polys.erase(entities.polys.begin() +
-                                         static_cast<long long>(*hoveredP));
-                    hoveredP.reset();
-                } else if (inside && poly.edges.size() > 2) { // if green
-                    poly.shape.setFillColor(sf::Color::White);
-                    poly.boundsUp();
-                    entities.polys.push_back(poly);
-                    poly = Polygon{};
-                } else if (convex || poly.edges.size() < 3) { // if not red
-                    if (poly.edges.empty()) {
-                        poly = Polygon({newPoint, {}});
-                    } else {
-                        poly.addEdge(newPoint);
-                    }
+                                         static_cast<long long>(*deletingP));
+                    deletingP.reset();
+                } else if (isDone) { // if green
+                    validPoly.shape.setFillColor(sf::Color::White);
+                    validPoly.boundsUp();
+                    validPoly.isConvex(); // not sure if nessecary
+                    entities.polys.push_back(validPoly);
+                    verts     = {{}};
+                    validPoly = Polygon{};
+                } else if (verts.size() <= 3 || isNewConvex) {
+                    verts.push_back({});
                 }
             } else if (event.mouseButton.button == sf::Mouse::Right) {
-                if (!poly.edges.empty()) poly.rmvEdge();
+                if (verts.size() != 1) verts.pop_back();
             }
         }
     }
     void unequip() override {
-        poly = Polygon{};
-        if (hoveredP) {
-            entities.polys[*hoveredP].shape.setFillColor(sf::Color::White);
-            hoveredP.reset();
+        validPoly = Polygon{};
+        verts     = {{}};
+        if (deletingP) {
+            entities.polys[*deletingP].shape.setFillColor(sf::Color::White);
+            deletingP.reset();
         }
     }
     void ImTool() override {}
@@ -595,9 +589,7 @@ class GraphTool : public Tool {
     std::optional<std::size_t> selectedG;
     std::optional<std::size_t> hoveredG;
     std::optional<std::size_t> hoveredS;
-    std::optional<std::size_t> graphS2;
     std::optional<std::size_t> hoveredP;
-    std::optional<std::size_t> graphP2;
     bool                       makingIndexDiff{};
 
     // new graph properties
@@ -659,7 +651,7 @@ class GraphTool : public Tool {
                     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.0F, 1.0F, 0.537F, 0.27F});
                 else if (hoveredG && i == *hoveredG)
                     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.133F, 0.114F, 0.282F, 0.2F});
-                entities.graphs[i].draw(i, graphs.tvalues);
+                entities.graphs[i].draw(i, graphs.tValues);
                 if (ImGui::IsItemHovered()) {
                     newHover = i;
                 }

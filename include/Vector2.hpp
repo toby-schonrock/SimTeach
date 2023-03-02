@@ -47,6 +47,9 @@ class Vector2 {
     constexpr friend Vector2 operator*(Vector2 lhs, double scale) { return lhs *= scale; }
     constexpr friend Vector2 operator*(double scale, Vector2 rhs) { return rhs *= scale; }
     constexpr friend Vector2 operator/(Vector2 lhs, double scale) { return lhs /= scale; }
+    constexpr friend bool operator==(const Vector2&  lhs, const Vector2& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+    constexpr friend bool operator!=(const Vector2&  lhs, const Vector2& rhs) { return lhs.x != rhs.x || lhs.y != rhs.y; }
+
 
     friend std::ostream& operator<<(std::ostream& os, const Vector2& v) {
         return os << '(' << v.x << ", " << v.y << ')';

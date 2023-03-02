@@ -36,55 +36,30 @@ class Polygon {
         edges.push_back({points[points.size() - 1], points[0]}); // for last one
         shape.setPoint(points.size() - 1, visualize(points[points.size() - 1]));
         boundsUp();
-        if (!isConvex())
-            throw std::logic_error(
-                "Polygon points given are not convex"); // also updates the direction variable ;)
+        isConvex(); // updates the direction variable ;)
     }
 
     void boundsUp() {
         // TODO doesn't take advantage of mins/maxs already calulated in edges
         for (const Edge& edge: edges) { // loop over all points
-            const Vec2& p      = edge.p1();
-            maxBounds.x = std::max(maxBounds.x, p.x);
-            maxBounds.y = std::max(maxBounds.y, p.y);
-            minBounds.x = std::min(minBounds.x, p.x);
-            minBounds.y = std::min(minBounds.y, p.y);
+            const Vec2& p = edge.p1();
+            maxBounds.x   = std::max(maxBounds.x, p.x);
+            maxBounds.y   = std::max(maxBounds.y, p.y);
+            minBounds.x   = std::min(minBounds.x, p.x);
+            minBounds.y   = std::min(minBounds.y, p.y);
         }
-    }
-
-    void addEdge(const Vec2& pos) {
-        if (edges.empty())
-            throw std::logic_error("cant addEdge if empty poly : poly must have two edges");
-        edges.back().p2(pos);
-        edges.emplace_back(pos, edges.front().p1());
-        shape.setPointCount(edges.size());
-        shape.setPoint(edges.size() - 1, visualize(pos));
-        boundsUp(); // keep bounds up to date
-    }
-
-    void rmvEdge() {
-        if (edges.empty()) throw std::logic_error("cant rmvEdge if polygon empty");
-        if (edges.size() == 2) {
-            edges.clear();
-        } else {
-            edges.pop_back();
-            edges.back().p2(edges.front().p1());
-            shape.setPointCount(edges.size());
-        }
-        boundsUp(); // keep bounds up to date
     }
 
     bool isBounded(const Vec2& pos) const {
         bool bounded = pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
-               pos.y <= maxBounds.y;
+                       pos.y <= maxBounds.y;
         return bounded;
     }
 
     bool isContained(const Vec2& pos) const {
         bool contained = false;
-        for (const Edge& e: edges) {
-            if (e.rayCast(pos)) contained = !contained;
-        }
+            for (const Edge& e: edges) 
+                if (e.rayCast(pos)) contained = !contained;
         return contained;
     }
 
@@ -149,15 +124,15 @@ class Polygon {
     }
 
     friend std::istream& operator>>(std::istream& is, Polygon& p) {
-        Vec2 v1, v2, v3;
-        safeStreamRead(is, v1);
-        safeStreamRead(is, v2);
-        safeStreamRead(is, v3);
-        p = Polygon({v1, v2, v3});
+        std::vector<Vec2> verts{{}, {}, {}};
+        safeStreamRead(is, verts[0]);
+        safeStreamRead(is, verts[1]);
+        safeStreamRead(is, verts[2]);
         while (is.good()) {
-            safeStreamRead(is, v1);
-            p.addEdge(v1);
+            verts.push_back(Vec2{});
+            safeStreamRead(is, verts.back());
         }
+        p = Polygon(verts);
         if (p.isConvex() == false)
             throw std::runtime_error("Polygon vertices do not form a convex polygon");
         return is;

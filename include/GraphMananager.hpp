@@ -13,21 +13,21 @@ class GraphManager {
     EntityManager& entities;
 
   public:
-    RingBuffer<float> tvalues;
+    RingBuffer<float> tValues;
     bool              hasDumped = false;
     std::size_t       graphBuffer;
 
     GraphManager(EntityManager& entities_, std::size_t graphBuffer_ = 5000)
-        : entities(entities_), tvalues(graphBuffer_), graphBuffer(graphBuffer_) {
+        : entities(entities_), tValues(graphBuffer_), graphBuffer(graphBuffer_) {
         std::filesystem::create_directory("graphdata");
     }
 
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
-        tvalues.add(t);
+        tValues.add(t);
         for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
             entities.graphs[i].add(entities);
-            entities.graphs[i].draw(i, tvalues);
+            entities.graphs[i].draw(i, tValues);
         }
         ImGui::End();
     }
@@ -37,7 +37,7 @@ class GraphManager {
     }
 
     void reset() {
-        tvalues = RingBuffer<float>(graphBuffer);
+        tValues = RingBuffer<float>(graphBuffer);
         for (Graph& g: entities.graphs) {
             g.data = RingBuffer<float>(graphBuffer);
         }
@@ -89,15 +89,15 @@ class GraphManager {
         file << "\n";
 
         // data
-        std::size_t i = tvalues.pos;
+        std::size_t i = tValues.pos;
         do {
-            file << tvalues.v[i];
+            file << tValues.v[i];
             for (const std::size_t gooden: goodens) {
                 file << "," << entities.graphs[gooden].data.v[i];
             }
             file << "\n";
             ++i;
-            if (i == tvalues.size) i = 0; // handle wrap around
-        } while (i != tvalues.pos);
+            if (i == tValues.size) i = 0; // handle wrap around
+        } while (i != tValues.pos);
     }
 };

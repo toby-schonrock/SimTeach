@@ -53,10 +53,13 @@ class Edge {
     }
 
     bool rayCast(const Vec2& pos) const {
-        if (pos.x < min_.x || pos.x > max_.x) return false; // outside x range
-        if (pos.x == p1_.x) return false; // perfect vertical allignment with one end
         if (diff_.x == 0)
             return false; // if vertices form a verticle line a verticle line cannot intersect
+        if (pos.x == p1_.x && pos.y < p1_.y)
+            return !std::signbit(diff_.x); // perfect vertical allignment with one end
+        if (pos.x == p2_.x && pos.y < p2_.y)
+            return std::signbit(diff_.x); // perfect vertical allignment with one end
+        if (pos.x < min_.x || pos.x > max_.x) return false; // outside x range
         return (pos.x - p1_.x) / diff_.x * diff_.y + p1_.y > pos.y;
     }
 };
