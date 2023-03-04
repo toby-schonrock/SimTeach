@@ -49,13 +49,13 @@ class GraphManager {
         if (entities.graphs.empty()) throw std::runtime_error("Graphs are empty cannot dump data");
 
         // check for valid graphs
-        std::vector<size_t> goodens;
+        std::vector<std::size_t> validGraphs;
         for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
             if (!entities.graphs[i].data.v.empty()) {
-                goodens.push_back(i); // add valid graphs to "goodens" list
+                validGraphs.push_back(i); // add valid graphs to "goodens" list
             }
         }
-        if (goodens.empty()) {
+        if (validGraphs.empty()) {
             std::cout << "No data to plot nothing saved \n";
             return;
         }
@@ -72,10 +72,10 @@ class GraphManager {
                            std::to_string(static_cast<unsigned>(hms.seconds().count()));
         name.pop_back();
         std::replace(name.begin(), name.end(), ' ', '-');
-        std::filesystem::path p = "graphdata/" + name + ".csv";
-        p.make_preferred();
-        std::cout << "Storing graph data at: " << p << "\n";
-        std::ofstream file{p, std::ios_base::out};
+        std::filesystem::path path = "graphdata/" + name + ".csv";
+        path.make_preferred();
+        std::cout << "Storing graph data at: " << path << "\n";
+        std::ofstream file{path, std::ios_base::out};
         if (!file.is_open()) {
             throw std::logic_error("Falied to open fstream \n");
         }
@@ -83,21 +83,21 @@ class GraphManager {
         file << std::fixed << std::setprecision(10);
         // headers
         file << "Time";
-        for (const std::size_t gooden: goodens) {
-            file << "," << entities.graphs[gooden].getYLabel();
+        for (const std::size_t valid: validGraphs) {
+            file << "," << entities.graphs[valid].getYLabel();
         }
         file << "\n";
 
         // data
-        std::size_t i = tValues.pos;
+        std::size_t current = tValues.pos;
         do {
-            file << tValues.v[i];
-            for (const std::size_t gooden: goodens) {
-                file << "," << entities.graphs[gooden].data.v[i];
+            file << tValues.v[current];
+            for (const std::size_t valid: validGraphs) {
+                file << "," << entities.graphs[valid].data.v[current];
             }
             file << "\n";
-            ++i;
-            if (i == tValues.size) i = 0; // handle wrap around
-        } while (i != tValues.pos);
+            ++current;
+            if (current == tValues.size) current = 0; // handle wrap around
+        } while (current != tValues.pos);
     }
 };

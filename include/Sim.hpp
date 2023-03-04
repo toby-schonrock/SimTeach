@@ -86,12 +86,12 @@ class Sim {
         return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
     }
 
-    void reset() { load(Previous, true, {true, true, true}); }
+    void reset() { load(Previous, true, {true, true, true}, false); }
 
-    void load(std::filesystem::path path, bool replace, ObjectEnabled enabled) {
+    void load(std::filesystem::path path, bool replace, ObjectEnabled enabled, bool deleteGraphs = true) {
         path.make_preferred();
         if (replace) {
-            entities.graphs.clear();
+            if (deleteGraphs) entities.graphs.clear();
             entities.points.clear();
             entities.pointVerts.clear();
             entities.springs.clear();

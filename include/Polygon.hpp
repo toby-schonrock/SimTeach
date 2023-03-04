@@ -42,24 +42,23 @@ class Polygon {
     void boundsUp() {
         // TODO doesn't take advantage of mins/maxs already calulated in edges
         for (const Edge& edge: edges) { // loop over all points
-            const Vec2& p = edge.p1();
-            maxBounds.x   = std::max(maxBounds.x, p.x);
-            maxBounds.y   = std::max(maxBounds.y, p.y);
-            minBounds.x   = std::min(minBounds.x, p.x);
-            minBounds.y   = std::min(minBounds.y, p.y);
+            const Vec2& vert = edge.p1();
+            maxBounds.x   = std::max(maxBounds.x, vert.x);
+            maxBounds.y   = std::max(maxBounds.y, vert.y);
+            minBounds.x   = std::min(minBounds.x, vert.x);
+            minBounds.y   = std::min(minBounds.y, vert.y);
         }
     }
 
     bool isBounded(const Vec2& pos) const {
-        bool bounded = pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
+        return pos.x >= minBounds.x && pos.y >= minBounds.y && pos.x <= maxBounds.x &&
                        pos.y <= maxBounds.y;
-        return bounded;
     }
 
     bool isContained(const Vec2& pos) const {
         bool contained = false;
-            for (const Edge& e: edges) 
-                if (e.rayCast(pos)) contained = !contained;
+            for (const Edge& edge: edges) 
+                if (edge.rayCast(pos)) contained = !contained;
         return contained;
     }
 
@@ -77,15 +76,14 @@ class Polygon {
     void colHandler(Point& p) const {
         double closestDist = std::numeric_limits<double>::infinity();
         Vec2   closestPos;
-        Vec2   normal; // p.pos is just a place holder (TODO bad) - saves making a copy of
-                       // normal for every edge
+        Vec2   normal;
 
-        for (const Edge& e: edges) {
-            double dist = e.distToPoint(p.pos);
+        for (const Edge& edge: edges) {
+            double dist = edge.distToPoint(p.pos);
             if (dist < closestDist) { // if new closest edge
                 closestDist = dist;
                 // note if clockwise (!dir) - normals are correct
-                normal     = ((direction) ? 1 : -1) * e.normal();
+                normal     = ((direction) ? 1 : -1) * edge.normal();
                 closestPos = p.pos + normal * dist;
             }
         }
@@ -116,8 +114,8 @@ class Polygon {
     friend std::ostream& operator<<(std::ostream& os, const Polygon& p) {
         if (!p.edges.empty()) {
             os << p.edges[0].p1().x << ' ' << p.edges[0].p1().y;
-            for (std::size_t e = 1; e != p.edges.size(); ++e) {
-                os << ' ' << p.edges[e].p1().x << ' ' << p.edges[e].p1().y;
+            for (std::size_t i = 1; i != p.edges.size(); ++i) {
+                os << ' ' << p.edges[i].p1().x << ' ' << p.edges[i].p1().y;
             }
         }
         return os;

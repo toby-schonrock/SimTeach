@@ -11,29 +11,21 @@ struct Spring {
     std::size_t p2;
 
     void springHandler(Point& point1, Point& point2) const {
-        Vec2 diff = point1.pos - point2.pos; // broken out alot "yes this is faster! really like 3x"
-        double diffMag  = diff.mag();
-        if (diffMag < 1E-30) return; // prevent 0 length spring exploding sim
-        Vec2   diffNorm = diff / diffMag;
-        double ext      = diffMag - naturalLength;
-        double springf  = -springConst * ext; // -ke spring force and also if a diagonal increase
-                                              // spring constant for stability // test
-        double dampf = diffNorm.dot(point2.vel - point1.vel) * dampFact; // damping force
-        Vec2   force = (springf + dampf) * diffNorm;
+        Vec2 force = forceCalc(point1, point2);
         point1.f += force; // equal and opposite reaction
         point2.f -= force;
     }
 
     Vec2 forceCalc(const Point& point1, const Point& point2) const {
         Vec2 diff = point1.pos - point2.pos; // broken out alot "yes this is faster! really like 3x"
-        double diffMag  = diff.mag();
+        double diffMag = diff.mag();
+        if (diffMag < 1E-30) return {}; // prevent 0 length spring exploding sim
         Vec2   diffNorm = diff / diffMag;
         double ext      = diffMag - naturalLength;
         double springf  = -springConst * ext; // -ke spring force and also if a diagonal increase
                                               // spring constant for stability // test
         double dampf = diffNorm.dot(point2.vel - point1.vel) * dampFact; // damping force
-        Vec2   force = (springf + dampf) * diffNorm;
-        return force;
+        return (springf + dampf) * diffNorm;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Spring& s) {
@@ -41,8 +33,7 @@ struct Spring {
                   << ' ' << s.p2;
     }
 
-    friend std::istream& operator>>(std::istream& is,
-                                    Spring&       s) {
+    friend std::istream& operator>>(std::istream& is, Spring& s) {
         safeStreamRead(is, s.springConst);
         safeStreamRead(is, s.naturalLength);
         safeStreamRead(is, s.dampFact);

@@ -184,7 +184,9 @@ class PointTool : public Tool {
     void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
         Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
         auto poly     = std::find_if(entities.polys.begin(), entities.polys.end(),
-                                     [mousePos](const Polygon& p) { return p.isContained(mousePos); });
+                                     [mousePos](const Polygon& p) {
+                                     return p.isBounded(mousePos) && p.isContained(mousePos);
+                                     });
 
         inside = poly != entities.polys.end();
 
@@ -225,9 +227,8 @@ class PointTool : public Tool {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
                     if (hoveredP) removePoint(*hoveredP); // only do it if there is a highlighted
                 } else if (!inside) {                     // make new point
-                    Vec2 pos = unvisualize(
+                    defPoint.pos = unvisualize(
                         window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y}));
-                    defPoint.pos = pos;
                     entities.addPoint(defPoint);
                 }
             } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
@@ -356,20 +357,20 @@ class SpringTool : public Tool {
         } else { // if in normal mode
             sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
             // determine new closest point (needs to happend wether adding or not)
-            auto [closestP, closestPDist] = sim.findClosestPoint(unvisualize(mousePos));
+            auto [closestPoint, closestPDist] = sim.findClosestPoint(unvisualize(mousePos));
             // color close point for selection
             if (closestPDist < toolRange &&
                 (!selectedP ||
                  *selectedP !=
-                     closestP)) { // if (in range) and (not selected or the selected != closest)
-                hoveredP = closestP;
+                     closestPoint)) { // if (in range) and (not selected or the selected != closest)
+                hoveredP = closestPoint;
                 setPointColor(*hoveredP, hoverPColour);
             }
 
             if (selectedP) { // if selected point (in making spring mode)
                 line[0].position = visualize(entities.points[*selectedP].pos);
                 if (hoveredP) {
-                    auto pos = std::find_if(
+                    auto existingS = std::find_if(
                         entities.springs.begin(),
                         entities.springs.end(), // check if spring already exists
                         [hp = *hoveredP, sp = *selectedP](const Spring& s) {
@@ -377,12 +378,16 @@ class SpringTool : public Tool {
                         });
 
                     line[1].position = visualize(entities.points[*hoveredP].pos);
-                    if (pos == entities.springs.end()) {
+                    if (existingS == entities.springs.end()) {
                         setLineColor(line, sf::Color::Green);
                         validHover = true;
                     } else {
                         ImGui::SetTooltip("Spring already exists");
                         setLineColor(line, sf::Color::Red);
+                        std::size_t existingIndex =
+                            static_cast<std::size_t>(existingS - entities.springs.begin());
+                        setSpringColor(existingIndex, sf::Color::Red);
+                        hoveredS = existingIndex;
                         validHover = false;
                     }
                 } else {
@@ -394,9 +399,10 @@ class SpringTool : public Tool {
             } else { // if not making a spring (!selectedP)
                 // determine new closest spring
                 if (!entities.springs.empty()) {
-                    auto [closestS, closestSDist] = sim.findClosestSpring(unvisualize(mousePos));
+                    auto [closestSpring, closestSDist] =
+                        sim.findClosestSpring(unvisualize(mousePos));
                     if (closestSDist < toolRange) {
-                        hoveredS = closestS;
+                        hoveredS = closestSpring;
                         setSpringColor(*hoveredS, hoverSColour);
                     }
                 }
@@ -417,12 +423,12 @@ class SpringTool : public Tool {
                 if (selectedP) {
                     if (validHover) { // if the hover is valid make new spring
                         entities.addSpring(defSpring);
-                        Spring& s = entities.springs.back();
-                        s.p1      = *selectedP;
-                        s.p2      = *hoveredP;
+                        Spring& newS = entities.springs.back();
+                        newS.p1      = *selectedP;
+                        newS.p2      = *hoveredP;
                         if (autoSizing)
-                            s.naturalLength =
-                                (entities.points[s.p1].pos - entities.points[s.p2].pos).mag();
+                            newS.naturalLength =
+                                (entities.points[newS.p1].pos - entities.points[newS.p2].pos).mag();
                         resetPointColor(*selectedP); // hovered will be reset anyway
                         selectedP.reset();
                     }
@@ -730,12 +736,12 @@ class GraphTool : public Tool {
                 Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
                 ImGui::SetTooltip("Select a %s", getTypeLbl(*type).c_str());
                 if (type == ObjectType::Point) {
-                    auto [closestP, closestSDist] = sim.findClosestPoint(mousePos);
-                    hoveredP                      = closestP;
+                    auto [closestPoint, closestPDist] = sim.findClosestPoint(mousePos);
+                    hoveredP                          = closestPoint;
                     setPointColor(*hoveredP, hoverPColour);
                 } else { // other option should only be spring
-                    auto [closestS, closestSDist] = sim.findClosestSpring(mousePos);
-                    hoveredS                      = closestS;
+                    auto [closestSpring, closestSDist] = sim.findClosestSpring(mousePos);
+                    hoveredS                           = closestSpring;
                     setSpringColor(*hoveredS, hoverSColour);
                 }
             } else if (makingNew) { // first option
@@ -750,12 +756,12 @@ class GraphTool : public Tool {
                                   getTypeLbl(entities.graphs[*selectedG].type).c_str());
                 Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
                 if (entities.graphs[*selectedG].type == ObjectType::Point) {
-                    auto [closestP, closestSDist] = sim.findClosestPoint(mousePos);
-                    hoveredP                      = closestP;
+                    auto [closestPoint, closestSDist] = sim.findClosestPoint(mousePos);
+                    hoveredP                          = closestPoint;
                     setPointColor(*hoveredP, hoverPColour);
                 } else { // other option should only be spring
-                    auto [closestS, closestSDist] = sim.findClosestSpring(mousePos);
-                    hoveredS                      = closestS;
+                    auto [closestSpring, closestSDist] = sim.findClosestSpring(mousePos);
+                    hoveredS                           = closestSpring;
                     setSpringColor(*hoveredS, hoverSColour);
                 }
             }
@@ -865,9 +871,9 @@ class GraphTool : public Tool {
                 DiffState oldState =
                     g.ref2 ? DiffState::Index : (g.constDiff ? DiffState::Const : DiffState::None);
                 if (makingIndexDiff) oldState = DiffState::Index;
-                int temp = static_cast<int>(oldState);
-                ImGui::Combo("Difference", &temp, DiffStatusLbl.data(), DiffStatusLbl.size());
-                DiffState newState = static_cast<DiffState>(temp);
+                int tempState = static_cast<int>(oldState);
+                ImGui::Combo("Difference", &tempState, DiffStatusLbl.data(), DiffStatusLbl.size());
+                DiffState newState = static_cast<DiffState>(tempState);
                 if (newState != oldState) { // if state changed
                     if (newState == DiffState::Index) {
                         makingIndexDiff = true;
