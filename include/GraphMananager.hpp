@@ -80,7 +80,7 @@ class GraphManager {
             throw std::logic_error("Falied to open fstream \n");
         }
 
-        file << std::fixed << std::setprecision(10);
+        file << std::fixed << std::setprecision(std::numeric_limits<float>::max_digits10);
         // headers
         file << "Time";
         for (const std::size_t valid: validGraphs) {

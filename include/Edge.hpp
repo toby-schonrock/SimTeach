@@ -46,10 +46,7 @@ class Edge {
     void p2(const Vec2& p2) { set(p1_, p2); }
 
     double distToPoint(const Vec2& pos) const {
-        // finds the shortest distance from the point to the edge
-        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-        // draws a traingle between the three points and performs h = 2A/b
-        return std::abs(diff_.cross(p1_ - pos) / mag_);
+        return std::abs(unitDiff_.cross(p1_ - pos));
     }
 
     bool rayCast(const Vec2& pos) const {

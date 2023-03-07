@@ -39,24 +39,8 @@ class EntityManager {
 
     void rmvPoint(const std::size_t& pos) {
         if (points.empty() || pos >= points.size()) {
-            std::cout << "Attempted point - " << pos << "\n";
-            throw std::logic_error("Asking to remove non existant point.");
+            throw std::logic_error("Asking to remove non existant point - " + std::to_string(pos));
         }
-
-        std::size_t old    = points.size() - 1;
-        auto        GStart = graphs.begin();
-        auto        GEnd   = graphs.end();
-        while (GStart < GEnd) {
-            if ((*GStart).checkDeleteIndex(ObjectType::Point, pos)) { // remove invalid point graphs
-                std::cout << "Graph " << GStart - graphs.begin()
-                          << " removed due to removal of point " << pos << "\n";
-                *GStart = std::move(*(--GEnd));
-            } else {
-                (*GStart).updateIndex(ObjectType::Point, old, pos); // update indexs for move
-                ++GStart;
-            }
-        }
-        graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs
 
         // swap point to the end and delete
         points[pos] = std::move(points.back()); // do the move
@@ -67,29 +51,55 @@ class EntityManager {
         pointVerts[pos * 4 + 3] = std::move(pointVerts.back());
         pointVerts.resize(pointVerts.size() - 4);
 
-        // manual remove
-        std::size_t SSize = springs.size();
-        for (std::size_t curr = 0; curr < SSize; curr++) {
-            if (springs[curr].p1 == pos || springs[curr].p2 == pos) { // delete
-                rmvSpring(curr);
-                curr--; // to still check the moved one
-                SSize--;
+        std::size_t old   = points.size() - 1;
+        auto        GCurr = graphs.begin();
+        auto        GEnd  = graphs.end();
+        while (GCurr < GEnd) {
+            if ((*GCurr).checkDeleteIndex(ObjectType::Point, pos)) { // remove invalid point graphs
+                std::cout << "Graph of " << GCurr->getYLabel()
+                          << " removed due to removal of point " << pos << "\n";
+                *GCurr = std::move(*(--GEnd));
             } else {
-                if (springs[curr].p1 == old)
-                    springs[curr].p1 = pos; // spring was attatched to moved point
-                if (springs[curr].p2 == old) springs[curr].p2 = pos;
+                (*GCurr).updateIndex(ObjectType::Point, old, pos); // update indexs for move
+                ++GCurr;
+            }
+        }
+        graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs
+
+        // manual remove
+        std::size_t SEnd = springs.size();
+        for (std::size_t SCurr = 0; SCurr < SEnd; SCurr++) {
+            if (springs[SCurr].p1 == pos || springs[SCurr].p2 == pos) { // delete
+                rmvSpring(SCurr);
+                SCurr--; // to still check the moved one
+                SEnd--;
+            } else {
+                if (springs[SCurr].p1 == old)
+                    springs[SCurr].p1 = pos; // spring was attatched to moved point
+                if (springs[SCurr].p2 == old) springs[SCurr].p2 = pos;
             }
         }
     }
 
     void rmvSpring(const std::size_t& pos) {
-        std::size_t old   = springs.size() - 1;
+        if (springs.empty() || pos >= springs.size()) {
+            throw std::logic_error("Asking to remove non existant spring - " + std::to_string(pos));
+        }
+        
+        // swap spring to the end and delete
+        springs[pos] = std::move(springs.back()); // do the move
+        springs.pop_back();                       // delete
+        springVerts[pos * 2]     = std::move(springVerts[springVerts.size() - 2]);
+        springVerts[pos * 2 + 1] = std::move(springVerts.back()); // do the move
+        springVerts.resize(springVerts.size() - 2);               // delete
+
+        std::size_t old    = springs.size() - 1;
         auto        GStart = graphs.begin();
         auto        GEnd   = graphs.end();
         while (GStart < GEnd) {
             if ((*GStart).checkDeleteIndex(ObjectType::Spring,
-                                          pos)) { // remove invalid spring graphs
-                std::cout << "Graph " << GStart - graphs.begin()
+                                           pos)) { // remove invalid spring graphs
+                std::cout << "Graph of " << GStart->getYLabel()
                           << " removed due to removal of spring " << pos << "\n";
                 *GStart = std::move(*(--GEnd));
             } else {
@@ -97,14 +107,7 @@ class EntityManager {
                 GStart++;
             }
         }
-        graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs
-
-        // swap spring to the end and delete
-        springs[pos] = std::move(springs.back()); // do the move
-        springs.pop_back();                       // delete
-        springVerts[pos * 2]     = std::move(springVerts[springVerts.size() - 2]);
-        springVerts[pos * 2 + 1] = std::move(springVerts.back());    // do the move
-        springVerts.resize(springVerts.size() - 2); // delete
+        graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs 
     }
 
     void updatePointVisPos(float radius) {

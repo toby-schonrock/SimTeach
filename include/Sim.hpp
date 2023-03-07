@@ -23,7 +23,7 @@ extern const std::filesystem::path Previous;
 static const std::string PointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};
 static const std::string SpringHeaders =
     "spring-id spring-const natural-length damping-factor point1 point2";
-static const std::string PolyHeaders = "polygon-verts:x y...";
+static const std::string PolyHeaders = "polygon-verts: x y ...";
 
 class Sim {
   public:
