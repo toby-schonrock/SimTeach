@@ -41,6 +41,7 @@ class EntityManager {
         if (points.empty() || pos >= points.size()) {
             throw std::logic_error("Asking to remove non existant point - " + std::to_string(pos));
         }
+        std::size_t old = points.size() - 1;
 
         // swap point to the end and delete
         points[pos] = std::move(points.back()); // do the move
@@ -51,9 +52,8 @@ class EntityManager {
         pointVerts[pos * 4 + 3] = std::move(pointVerts.back());
         pointVerts.resize(pointVerts.size() - 4);
 
-        std::size_t old   = points.size() - 1;
-        auto        GCurr = graphs.begin();
-        auto        GEnd  = graphs.end();
+        auto GCurr = graphs.begin();
+        auto GEnd  = graphs.end();
         while (GCurr < GEnd) {
             if ((*GCurr).checkDeleteIndex(ObjectType::Point, pos)) { // remove invalid point graphs
                 std::cout << "Graph of " << GCurr->getYLabel()
@@ -85,7 +85,8 @@ class EntityManager {
         if (springs.empty() || pos >= springs.size()) {
             throw std::logic_error("Asking to remove non existant spring - " + std::to_string(pos));
         }
-        
+        std::size_t old = springs.size() - 1;
+
         // swap spring to the end and delete
         springs[pos] = std::move(springs.back()); // do the move
         springs.pop_back();                       // delete
@@ -93,9 +94,8 @@ class EntityManager {
         springVerts[pos * 2 + 1] = std::move(springVerts.back()); // do the move
         springVerts.resize(springVerts.size() - 2);               // delete
 
-        std::size_t old    = springs.size() - 1;
-        auto        GStart = graphs.begin();
-        auto        GEnd   = graphs.end();
+        auto GStart = graphs.begin();
+        auto GEnd   = graphs.end();
         while (GStart < GEnd) {
             if ((*GStart).checkDeleteIndex(ObjectType::Spring,
                                            pos)) { // remove invalid spring graphs
@@ -107,7 +107,7 @@ class EntityManager {
                 GStart++;
             }
         }
-        graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs 
+        graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs
     }
 
     void updatePointVisPos(float radius) {
