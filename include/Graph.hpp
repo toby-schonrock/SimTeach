@@ -18,7 +18,7 @@ enum class Property {
     Length,
     Extension,
     Force
-}; // todo maybe convert to member function pointers
+};
 enum class Component { x, y, vec };
 
 constexpr static std::array ObjectTypeLbl{"Point", "Spring"};
@@ -51,13 +51,14 @@ class Graph {
 
   public:
     RingBuffer<float>          data;
-    std::size_t                ref; // TODO - move the property and type outside
-    std::optional<std::size_t> ref2;
+    std::size_t                ref;
+    std::optional<std::size_t> ref2; // second reference for differene
     std::optional<Vec2F>       constDiff;
     ObjectType                 type;
     Property                   prop;
     Component                  comp = Component::vec;
 
+    // three constructors for all diff types
     Graph(std::size_t ref_, ObjectType type_, Property prop_, Component comp_, std::size_t buffer)
         : data(buffer), ref(ref_), ref2(std::nullopt), type(type_), prop(prop_), comp(comp_) {}
 

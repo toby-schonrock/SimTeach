@@ -1,6 +1,7 @@
 #include "imgui.h"
 #include <cstdint>
 
+// custom drag interfaces
 inline bool ImGui_DragDouble(const char* label, double* v, float v_speed = 1.0f, double v_min = 0,
                              double v_max = 0, const char* format = 0, ImGuiSliderFlags flags = 0) {
     return ImGui::DragScalar(label, ImGuiDataType_Double, v, v_speed, &v_min, &v_max, format,
@@ -13,7 +14,7 @@ inline bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_spee
     return ImGui::DragScalar(label, ImGuiDataType_U32, v, v_speed, &v_min, &v_max, format, flags);
 }
 
-
+// makes hoverable help marker
 inline void HelpMarker(
     const char*
         desc) // taken from dear imgui demo

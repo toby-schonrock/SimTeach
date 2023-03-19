@@ -49,6 +49,7 @@ class Edge {
         return std::abs(unitDiff_.cross(p1_ - pos));
     }
 
+    // checks if ray cast from point upwards collides with edge
     bool rayCast(const Vec2& pos) const {
         if (diff_.x == 0)
             return false; // if vertices form a verticle line a verticle line cannot intersect

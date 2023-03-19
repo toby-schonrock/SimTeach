@@ -898,7 +898,7 @@ class GraphTool : public Tool {
                         ImGui::TextColored((selectedPColour), "%zu",
                                            g.type == ObjectType::Point
                                                ? *hoveredP
-                                               : *hoveredS); // TODO make a new color
+                                               : *hoveredS);
                     }
                 } else if (oldState == DiffState::Const) {
                     ImGui::DragFloat2("Value", &g.constDiff->x);

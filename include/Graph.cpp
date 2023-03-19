@@ -4,6 +4,7 @@
 #include <iostream>
 #include <optional>
 
+// retrieve value from entities
 float Graph::getValue(const EntityManager& entities) {
     Vec2                value;
     std::optional<Vec2> value2;

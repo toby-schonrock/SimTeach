@@ -31,6 +31,7 @@ bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_speed, std:
                         std::uint32_t v_max, const char* format, ImGuiSliderFlags flags);
 void HelpMarker(const char* desc);
 
+// checkbox ui for objects
 inline void enabledCheckBoxes(ObjectEnabled& enabled, const EntityManager& entities,
                               const std::string& uuid, bool forceLegit = false) {
     if (enabled.springs && forceLegit) ImGui::BeginDisabled();
@@ -99,6 +100,7 @@ class GUI {
         resetView();
     }
 
+    // reset to default view
     void resetView() {
         view = window.getDefaultView();
         view.zoom(1 / vsScale);
@@ -120,11 +122,11 @@ class GUI {
         }
     }
 
+    // called every visual frame
     void frame(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs, bool running) {
         interface(mousePixPos, sim, graphs, running);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); // make cursor move cursor (was very
-                                                               // quick and easy took no time)
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); 
             if (!mousePosLast)
                 mousePosLast = mousePixPos;
             else {
@@ -138,6 +140,7 @@ class GUI {
         }
     }
 
+    // generates the settings menu
     void interface(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs, bool running) {
         ImGui::Begin("Settings", NULL,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
@@ -232,7 +235,7 @@ class GUI {
                              ImGuiSliderFlags_AlwaysClamp);
             ImGui::SetNextItemWidth(100.0F);
             static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(
-                graphs.graphBuffer); // TODO maybe does this work with size_t ?
+                graphs.graphBuffer);
             ImGui_DragUnsigned("Graph buffer", &graphBufferTemp, 1.0F, 100, 20000, "%zu",
                                ImGuiSliderFlags_AlwaysClamp);
             graphs.graphBuffer = graphBufferTemp;
@@ -282,6 +285,7 @@ class GUI {
         ImGui::End();
     }
 
+    // draws fps graph using fps ring buffer
     void fpsGraph() {
         ImPlot::PushStyleColor(ImPlotCol_FrameBg, {0, 0, 0, 0});
         ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});

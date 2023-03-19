@@ -8,9 +8,6 @@
 
 sf::Vector2f visualize(const Vec2& v);
 
-// so this polygon is very different can do wierd stuff like draw when it only has two edges
-// also at all times this polygon must never have one edge (the edges must always loop)
-
 class Polygon {
   private:
     Vec2 maxBounds{};
@@ -20,7 +17,7 @@ class Polygon {
     std::vector<Edge>         edges{};
     sf::ConvexShape           shape;
     std::array<sf::Vertex, 2> line{};
-    bool direction; // the way round the points go - true is anticlockwise (i think)
+    bool direction; // the way round the points go - true is anticlockwise
 
     explicit Polygon() = default;
 
@@ -39,8 +36,8 @@ class Polygon {
         isConvex(); // updates the direction variable ;)
     }
 
+    // updates bounds of polygon
     void boundsUp() {
-        // TODO doesn't take advantage of mins/maxs already calulated in edges
         for (const Edge& edge: edges) { // loop over all points
             const Vec2& vert = edge.p1();
             maxBounds.x   = std::max(maxBounds.x, vert.x);
@@ -62,6 +59,7 @@ class Polygon {
         return contained;
     }
 
+    // checks if polygon is convex
     bool isConvex() {
         direction =
             std::signbit((edges.back().diff()).cross(edges.front().diff())); // first and last
@@ -73,6 +71,7 @@ class Polygon {
         return true;
     }
 
+    // handle collision between point p and this
     void colHandler(Point& p) const {
         double closestDist = std::numeric_limits<double>::infinity();
         Vec2   closestPos;
@@ -111,6 +110,7 @@ class Polygon {
         }
     }
 
+    // used for saving polygon to file as string
     friend std::ostream& operator<<(std::ostream& os, const Polygon& p) {
         if (!p.edges.empty()) {
             os << p.edges[0].p1().x << ' ' << p.edges[0].p1().y;
@@ -121,6 +121,7 @@ class Polygon {
         return os;
     }
 
+    // used for creating polygon from string stream
     friend std::istream& operator>>(std::istream& is, Polygon& p) {
         std::vector<Vec2> verts{{}, {}, {}};
         safeStreamRead(is, verts[0]);

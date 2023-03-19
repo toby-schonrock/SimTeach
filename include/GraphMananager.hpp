@@ -22,6 +22,7 @@ class GraphManager {
         std::filesystem::create_directory("graphdata");
     }
 
+    // update values and draw
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
         tValues.add(t);
@@ -44,6 +45,7 @@ class GraphManager {
         hasDumped = false;
     }
 
+    // dump graph data to file
     void dumpData() {
         hasDumped = true;
         if (entities.graphs.empty()) throw std::runtime_error("Graphs are empty cannot dump data");

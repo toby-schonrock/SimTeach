@@ -31,14 +31,12 @@ int main() {
     settings.antialiasingLevel = 8;
 
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Simulation", sf::Style::Fullscreen,
-                            settings); //, sf::Style::Default);
+                            settings);
 
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
     ImGuiIO& imguIO = ImGui::GetIO();
-    imguIO.ConfigFlags &=
-        ~ImGuiConfigFlags_NoMouseCursorChange; // omg all it took was this one ****ing line (disable
-                                               // cursor overide)
+    imguIO.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange; // disable cursor overide
 
     // necessary sim stuff
     EntityManager entities;
@@ -46,10 +44,7 @@ int main() {
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
 
-    // Sim sim(entities, 0.2F);                                                        // empty
-    Sim sim = Sim::softbody(entities, {0, 0}, {14, 5}, 2.0F, 0.2F, 10000, 100); // empty with polys
-    // Sim sim = Sim::softbody(entities, {25, 25}, {14, 5}, 2.0F, 0.2F, 10000, 100); // default
-    // Sim sim = Sim::softbody(entities, {100, 100}, {1, -10}, 2.0F, 0.1F, 100000, 100); // stress
+    Sim sim(entities, 0.2F);
 
     std::size_t                        selectedTool = 0;
     std::vector<std::unique_ptr<Tool>> tools;
@@ -104,9 +99,9 @@ int main() {
                     runtime = std::chrono::high_resolution_clock::now();
                     running = true;
                 }
-            } else if (event.type == sf::Event::KeyPressed &&
-                       event.key.code == sf::Keyboard::R && !imguIO.WantCaptureKeyboard && !running) {
-                    sim.reset();
+            } else if (!running && event.type == sf::Event::KeyPressed &&
+                       event.key.code == sf::Keyboard::R && !imguIO.WantCaptureKeyboard) {
+                sim.reset();
             } else {
                 gui.event(event, mousePos);
                 if (!running) tools[selectedTool]->event(event);

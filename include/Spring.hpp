@@ -27,11 +27,13 @@ struct Spring {
         return (springf + dampf) * unitDiff;
     }
 
+    // represent spring as a string and push through stream
     friend std::ostream& operator<<(std::ostream& os, const Spring& s) {
         return os << s.springConst << ' ' << s.naturalLength << ' ' << s.dampFact << ' ' << s.p1
                   << ' ' << s.p2;
     }
 
+    // create spring from string stream
     friend std::istream& operator>>(std::istream& is, Spring& s) {
         safeStreamRead(is, s.springConst);
         safeStreamRead(is, s.naturalLength);

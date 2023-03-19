@@ -28,6 +28,7 @@ struct Point {
         f = Vec2();
     }
 
+    // used for saving point to file as text
     friend std::ostream& operator<<(std::ostream& os, const Point& p) {
         return os << p.fixed << ' ' << p.pos.x << ' ' << p.pos.y << ' ' << p.vel.x << ' ' << p.vel.y
                   << ' ' << p.mass << ' ' << std::to_string(p.color.r) << ' '
@@ -35,6 +36,7 @@ struct Point {
                   << std::to_string(p.color.a);
     }
 
+    // used for creating point from file
     friend std::istream& operator>>(std::istream& is, Point& p) {
         safeStreamRead(is, p.fixed);
         safeStreamRead(is, p.pos);
