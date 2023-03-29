@@ -44,7 +44,7 @@ int main() {
     GUI          gui(entities, desktop, window, 0.05F);
     GraphManager graphs{entities};
 
-    Sim sim(entities, 0.2F);
+    Sim sim(entities, 2.0F);
 
     std::size_t                        selectedTool = 0;
     std::vector<std::unique_ptr<Tool>> tools;

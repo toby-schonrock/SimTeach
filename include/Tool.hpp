@@ -264,7 +264,7 @@ class PointTool : public Tool {
         ImGui_DragDouble("Range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
                          ImGuiSliderFlags_AlwaysClamp);
         if (ImGui::CollapsingHeader(
-                "New point",
+                "New point properties",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
             pointInputs(defPoint);
@@ -484,7 +484,7 @@ class SpringTool : public Tool {
         HelpMarker(
             "Springs natural length will be auto set to the distance between the two points");
         if (ImGui::CollapsingHeader(
-                "New spring",
+                "New spring properties",
                 ImGuiTreeNodeFlags_DefaultOpen |
                     ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
             springInputs(defSpring);
