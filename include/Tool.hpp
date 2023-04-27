@@ -387,7 +387,7 @@ class SpringTool : public Tool {
                         std::size_t existingIndex =
                             static_cast<std::size_t>(existingS - entities.springs.begin());
                         setSpringColor(existingIndex, sf::Color::Red);
-                        hoveredS = existingIndex;
+                        hoveredS   = existingIndex;
                         validHover = false;
                     }
                 } else {
@@ -591,39 +591,15 @@ class GraphTool : public Tool {
   private:
     enum class State { normal, newG, editG };
 
-    GraphManager&              graphs;
+    GraphManager& graphs;
+    Graph defGraph{0, ObjectType::Point, Property::Position, Component::x, graphs.graphBuffer};
     std::optional<std::size_t> selectedG;
     std::optional<std::size_t> hoveredG;
     std::optional<std::size_t> hoveredS;
     std::optional<std::size_t> hoveredP;
     bool                       makingIndexDiff{};
 
-    // new graph properties
-    bool                       makingNew{};
-    std::optional<ObjectType>  type;
-    std::optional<std::size_t> index;
-    std::optional<Property>    prop;
-    std::optional<Component>   comp;
-
-    // static inline const ImPlot::color
-
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
-
-    void resetNewGraph() {
-        if (index) {
-            if (type == ObjectType::Point) {
-                resetPointColor(*index);
-            } else {
-                setSpringColor(*index, sf::Color::White);
-            }
-        }
-        makingIndexDiff = false;
-        makingNew       = false;
-        type            = std::nullopt;
-        index           = std::nullopt;
-        prop            = std::nullopt;
-        comp            = std::nullopt;
-    }
 
     void highlightGraph(std::size_t i) {
         Graph& g = entities.graphs[i];
@@ -649,7 +625,6 @@ class GraphTool : public Tool {
 
     void DrawGraphs() {
         std::optional<std::size_t> newHover = std::nullopt;
-        if (makingNew) ImGui::SetNextWindowCollapsed(false);
         ImGui::Begin("Graphs");
         if (!ImGui::IsWindowCollapsed()) {
             for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
@@ -664,10 +639,6 @@ class GraphTool : public Tool {
                 if ((hoveredG && i == *hoveredG) || (selectedG && i == *selectedG))
                     ImPlot::PopStyleColor();
             }
-        }
-        if (makingNew) {
-            makingNew = false;
-            ImGui::SetScrollHereY(1.0F);
         }
         hoveredG = newHover;
         ImGui::End();
@@ -687,85 +658,8 @@ class GraphTool : public Tool {
             setSpringColor(*hoveredS, sf::Color::White);
             hoveredS.reset();
         }
-        if (index) { // Point selected
-            if (type == ObjectType::Point) {
-                setPointColor(*index, selectedPColour);
-            } else { // other option should only be spring
-                setSpringColor(*index, selectedSColour);
-            }
-        }
 
-        if (!makingIndexDiff &&
-            (!makingNew || (makingNew && comp))) // if normal or just finished making a new graph
-            DrawGraphs();
-        else {          // if making new
-            if (prop) { // Component selection
-                if (ImGui::BeginPopupContextItem("Component")) {
-                    bool add = true;
-                    if (ImGui::Selectable("Magnitude")) {
-                        comp = Component::vec;
-                    } else if (ImGui::Selectable("X-component")) {
-                        comp = Component::x;
-                    } else if (ImGui::Selectable("Y-component")) {
-                        comp = Component::y;
-                    } else
-                        add = false; // if none clicked
-                    if (add) {
-                        graphs.addGraph(*index, *type, *prop, *comp);
-                        selectedG = entities.graphs.size() - 1;
-                        resetNewGraph();
-                        highlightGraph(*selectedG);
-                    }
-                    ImGui::EndPopup();
-                }
-                ImGui::OpenPopup("Component");
-            } else if (index) { // Property selection
-                if (ImGui::BeginPopupContextItem("Property")) {
-                    if (*type == ObjectType::Spring) {
-                        if (ImGui::Selectable("Length")) prop = Property::Length;
-                        if (ImGui::Selectable("Extension")) prop = Property::Extension;
-                        if (ImGui::Selectable("Force")) prop = Property::Force;
-                    } else if (*type == ObjectType::Point) {
-                        if (ImGui::Selectable("Position")) prop = Property::Position;
-                        if (ImGui::Selectable("Velocity")) prop = Property::Velocity;
-                    }
-                    ImGui::EndPopup();
-                }
-                ImGui::OpenPopup("Property");
-            } else if (type) { // selecting an object
-                Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
-                ImGui::SetTooltip("Select a %s", getTypeLbl(*type).c_str());
-                if (type == ObjectType::Point) {
-                    auto [closestPoint, closestPDist] = sim.findClosestPoint(mousePos);
-                    hoveredP                          = closestPoint;
-                    setPointColor(*hoveredP, hoverPColour);
-                } else { // other option should only be spring
-                    auto [closestSpring, closestSDist] = sim.findClosestSpring(mousePos);
-                    hoveredS                           = closestSpring;
-                    setSpringColor(*hoveredS, hoverSColour);
-                }
-            } else if (makingNew) { // first option
-                if (ImGui::BeginPopupContextItem("Type")) {
-                    if (ImGui::Selectable("Point")) type = ObjectType::Point;
-                    if (ImGui::Selectable("Spring")) type = ObjectType::Spring;
-                    ImGui::EndPopup();
-                }
-                ImGui::OpenPopup("Type");
-            } else if (makingIndexDiff) { // selecting the object to take the difference from
-                ImGui::SetTooltip("Select a %s",
-                                  getTypeLbl(entities.graphs[*selectedG].type).c_str());
-                Vec2 mousePos = unvisualize(window.mapPixelToCoords(mousePixPos));
-                if (entities.graphs[*selectedG].type == ObjectType::Point) {
-                    auto [closestPoint, closestSDist] = sim.findClosestPoint(mousePos);
-                    hoveredP                          = closestPoint;
-                    setPointColor(*hoveredP, hoverPColour);
-                } else { // other option should only be spring
-                    auto [closestSpring, closestSDist] = sim.findClosestSpring(mousePos);
-                    hoveredS                           = closestSpring;
-                    setSpringColor(*hoveredS, hoverSColour);
-                }
-            }
-        }
+        DrawGraphs();
     }
 
     void event(const sf::Event& event) override {
@@ -786,23 +680,12 @@ class GraphTool : public Tool {
                 } else if (selectedG && !ImGui::GetIO().WantCaptureMouse) { // deselect graph
                     resetGraphHighlight(*selectedG);
                     selectedG.reset();
-                } else if (type && !index &&
-                           !ImGui::GetIO().WantCaptureMouse) { // selecting object for new graph
-                    if (type == ObjectType::Point)
-                        index = hoveredP;
-                    else
-                        index = hoveredS;
-                }
-            }
-        } else if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Escape) {
-                resetNewGraph();
+                } 
             }
         }
     }
 
     void unequip() override {
-        resetNewGraph();
         if (hoveredG) {
             resetGraphHighlight(*hoveredG);
             hoveredG.reset();
@@ -810,6 +693,14 @@ class GraphTool : public Tool {
         if (selectedG) {
             resetGraphHighlight(*selectedG);
             selectedG.reset();
+        }
+        if (hoveredP) {
+            resetPointColor(*hoveredP);
+            hoveredP.reset();
+        }
+        if (hoveredS) {
+            setSpringColor(*hoveredS, sf::Color::White);
+            hoveredS.reset();
         }
     }
 
@@ -821,24 +712,10 @@ class GraphTool : public Tool {
         } else if (graphs.hasDumped || entities.graphs.empty())
             ImGui::EndDisabled(); // else if to prevent hasdumped change calling enddisabled
 
-        // make new button
-        if (makingNew) ImGui::BeginDisabled();
-        if (ImGui::Button("New")) {
-            resetNewGraph();
-            if (selectedG) {
-                resetGraphHighlight(*selectedG);
-                selectedG.reset();
-            }
-            makingNew = true;
-        } else if (makingNew)
-            ImGui::EndDisabled(); // else if to prevent additional EndDisabled() on creation
-
-        // graoh properties
-        if (!selectedG) {
-            ImGui::BeginDisabled();
-        }
+        // New graph properties
         ImGui::SetNextItemOpen(selectedG.has_value());
-        if (ImGui::CollapsingHeader("Graph properties", ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
+        if (ImGui::CollapsingHeader("New graph properties", ImGuiTreeNodeFlags_DefaultOpen |
+                                                                ImGuiTreeNodeFlags_OpenOnArrow)) {
             if (selectedG) {
                 Graph& g = entities.graphs[*selectedG];
                 ImGui::Text("Object type -");
@@ -896,9 +773,7 @@ class GraphTool : public Tool {
                         ImGui::TextColored(coloredText, "%zu", *g.ref2);
                     } else {
                         ImGui::TextColored((selectedPColour), "%zu",
-                                           g.type == ObjectType::Point
-                                               ? *hoveredP
-                                               : *hoveredS);
+                                           g.type == ObjectType::Point ? *hoveredP : *hoveredS);
                     }
                 } else if (oldState == DiffState::Const) {
                     ImGui::DragFloat2("Value", &g.constDiff->x);

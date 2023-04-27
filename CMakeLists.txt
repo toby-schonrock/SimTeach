@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(SoftBody)
+project(SimTeach)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -63,7 +63,7 @@ target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui implot)
 target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui)
 
 find_package(Threads REQUIRED)
-add_executable(softbody app/main.cpp include/Graph.cpp)
-target_include_directories(softbody PRIVATE include)
-target_link_libraries(softbody PRIVATE imgui-sfml ${PROJECT_STATIC_OPTIONS})
-target_compile_options(softbody PRIVATE ${PROJECT_COMPILE_OPTIONS})
+add_executable(SimTeach app/main.cpp include/Graph.cpp)
+target_include_directories(SimTeach PRIVATE include)
+target_link_libraries(SimTeach PRIVATE imgui-sfml ${PROJECT_STATIC_OPTIONS})
+target_compile_options(SimTeach PRIVATE ${PROJECT_COMPILE_OPTIONS})
