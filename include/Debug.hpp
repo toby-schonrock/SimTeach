@@ -3,7 +3,7 @@
 #include "Polygon.hpp"
 #include "Edge.hpp"
 #include "SFML/Graphics.hpp"
-#include "Vector2.hpp"
+#include "Fundamentals/Vector2.hpp"
 
 sf::Vector2f visualize(const Vec2& v);
 

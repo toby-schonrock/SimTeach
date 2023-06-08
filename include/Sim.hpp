@@ -17,7 +17,7 @@
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
 #include "Util.hpp"
-#include "Vector2.hpp"
+#include "Fundamentals/Vector2.hpp"
 
 extern const std::filesystem::path Previous;
 static const std::string PointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};

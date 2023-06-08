@@ -5,7 +5,7 @@
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
-#include "Vector2.hpp"
+#include "Fundamentals/Vector2.hpp"
 #include <filesystem>
 
 struct ObjectEnabled {

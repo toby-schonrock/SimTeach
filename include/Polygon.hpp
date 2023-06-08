@@ -3,7 +3,7 @@
 #include "Edge.hpp"
 #include "Point.hpp"
 #include "SFML/Graphics.hpp"
-#include "Vector2.hpp"
+#include "Fundamentals/Vector2.hpp"
 #include "imgui.h"
 
 sf::Vector2f visualize(const Vec2& v);

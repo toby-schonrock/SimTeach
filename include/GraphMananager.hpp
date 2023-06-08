@@ -33,10 +33,6 @@ class GraphManager {
         ImGui::End();
     }
 
-    void addGraph(const std::size_t& index, ObjectType type, Property prop, Component comp) {
-        entities.graphs.emplace_back(index, type, prop, comp, graphBuffer);
-    }
-
     void reset() {
         tValues = RingBuffer<float>(graphBuffer);
         for (Graph& g: entities.graphs) {

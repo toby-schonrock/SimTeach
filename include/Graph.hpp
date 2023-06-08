@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RingBuffer.hpp"
-#include "Vector2.hpp"
+#include "Fundamentals/RingBuffer.hpp"
+#include "Fundamentals/Vector2.hpp"
 #include "implot.h"
 #include <array>
 #include <cstddef>
@@ -12,21 +12,17 @@
 class EntityManager;
 
 enum class ObjectType { Point, Spring };
-enum class Property {
-    Position,
-    Velocity,
-    Length,
-    Extension,
-    Force
-};
+enum class Property { Position, Velocity, Length, Extension, Force };
 enum class Component { x, y, vec };
+enum class DiffState { None, Index, Const };
 
-constexpr static std::array ObjectTypeLbl{"Point", "Spring"};
+constexpr static std::array ObjTypeLbl{"Point", "Spring"};
 constexpr static std::array PropLbl{"Position", "Velocity", "Length", "Extension", "Force"};
 constexpr static std::array CompLbl{"X", "Y", "Mag"};
+constexpr static std::array DiffStatLbl{"None", "Obj", "Const"};
 
 inline std::string getTypeLbl(ObjectType type) {
-    return ObjectTypeLbl[static_cast<std::size_t>(type)];
+    return ObjTypeLbl[static_cast<std::size_t>(type)];
 }
 
 inline std::string getPropLbl(Property prop) { return PropLbl[static_cast<std::size_t>(prop)]; }
@@ -50,37 +46,48 @@ class Graph {
     }
 
   public:
-    RingBuffer<float>          data;
-    std::size_t                ref;
-    std::optional<std::size_t> ref2; // second reference for differene
-    std::optional<Vec2F>       constDiff;
-    ObjectType                 type;
-    Property                   prop;
-    Component                  comp = Component::vec;
+    RingBuffer<float> data;
+    std::size_t       ref;
+    std::size_t       ref2;
+    Vec2F             constDiff;
+    ObjectType        type;
+    Property          prop;
+    Component         comp = Component::vec;
+    DiffState         diff;
 
     // three constructors for all diff types
+    // no diff
     Graph(std::size_t ref_, ObjectType type_, Property prop_, Component comp_, std::size_t buffer)
-        : data(buffer), ref(ref_), ref2(std::nullopt), type(type_), prop(prop_), comp(comp_) {}
+        : data(buffer), ref(ref_), type(type_), prop(prop_), comp(comp_), diff(DiffState::None) {}
 
+    // index diff
     Graph(std::size_t ref_, std::size_t ref2_, ObjectType type_, Property prop_, Component comp_,
           std::size_t buffer)
-        : data(buffer), ref(ref_), ref2(ref2_), type(type_), prop(prop_), comp(comp_) {}
+        : data(buffer), ref(ref_), ref2(ref2_), type(type_), prop(prop_), comp(comp_),
+          diff(DiffState::Index) {}
 
+    // const diff
     Graph(std::size_t ref_, Vec2F constDiff_, ObjectType type_, Property prop_, Component comp_,
           std::size_t buffer)
-        : data(buffer), ref(ref_), ref2(std::nullopt), constDiff(constDiff_), type(type_), prop(prop_),
-          comp(comp_) {}
+        : data(buffer), ref(ref_), constDiff(constDiff_), type(type_), prop(prop_), comp(comp_),
+          diff(DiffState::Const) {}
+
+    // universal constructor will figure it out
+    Graph(DiffState diff_, std::size_t ref_, std::size_t ref2_, Vec2F constDiff_, ObjectType type_,
+          Property prop_, Component comp_, std::size_t buffer)
+        : data(buffer), ref(ref_), ref2(ref2_), constDiff(constDiff_), type(type_), prop(prop_),
+          comp(comp_), diff(diff_) {}
 
     void updateIndex(ObjectType type_, std::size_t old, std::size_t updated) {
         if (type_ != type) return;
         if (ref == old) ref = updated;
-        if (ref2 && *ref2 == old) ref2 = updated;
+        if (ref2 == old) ref2 = updated;
     }
 
     bool checkDeleteIndex(ObjectType type_, std::size_t i) {
         if (type_ != type) return false;
         if (ref == i) return true;
-        if (ref2 && *ref2 == i) ref2.reset();
+        if (ref2 == i) diff = DiffState::None;
         return false;
     }
 
@@ -100,7 +107,8 @@ class Graph {
 
     std::string getYLabel() const {
         return getTypeLbl(type) + "(" +
-               (ref2 ? std::to_string(ref) + "-" + std::to_string(*ref2) : std::to_string(ref)) + ")." +
-               getPropLbl(prop) + "." + getCompLbl(comp);
+               (diff == DiffState::Index ? std::to_string(ref) + "-" + std::to_string(ref2)
+                                         : std::to_string(ref)) +
+               ")." + getPropLbl(prop) + "." + getCompLbl(comp);
     }
 };

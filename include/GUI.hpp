@@ -11,7 +11,7 @@
 #include "EntityManager.hpp"
 #include "Graph.hpp"
 #include "GraphMananager.hpp"
-#include "RingBuffer.hpp"
+#include "Fundamentals/RingBuffer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"

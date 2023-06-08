@@ -1,0 +1,228 @@
+#pragma once
+
+#include "Tool.hpp"
+
+class SpringTool : public Tool {
+  private:
+    Spring                     defSpring{10, 1.0, 0.2, 0, 0};
+    std::array<sf::Vertex, 2>  line{sf::Vertex{}, sf::Vertex{}};
+    std::optional<std::size_t> selectedS = std::nullopt;
+    std::optional<std::size_t> hoveredS  = std::nullopt;
+    std::optional<std::size_t> selectedP = std::nullopt;
+    std::optional<std::size_t> hoveredP  = std::nullopt;
+    double                     toolRange = 1;
+    bool validHover = false; // wether the current hover is an acceptable second point
+    bool autoSizing = false;
+
+    void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {
+        Spring& spring    = entities.springs[*selectedS];
+        Vec2    springPos = (entities.points[spring.p1].pos + entities.points[spring.p2].pos) / 2;
+        sf::Vector2i springPixPos = window.mapCoordsToPixel(visualize(springPos));
+        ImGui::SetNextWindowPos({static_cast<float>(springPixPos.x) + 10.0F,
+                                 static_cast<float>(springPixPos.y) + 10.0F},
+                                ImGuiCond_Always);
+        ImGui::Begin("Edit Spring", NULL, editFlags);
+        ImGui::SetWindowSize({-1.0F, -1.0F}, ImGuiCond_Always);
+        springInputs(spring);
+        ImGui::SetNextItemWidth(100.0F);
+        ImGui::InputDouble("Natural length", &spring.naturalLength, 0, 0, "%.3f");
+
+        // set as tools settings
+        if (ImGui::Button("Set as default")) {
+            defSpring = entities.springs[*selectedS];
+        }
+        ImGui::SameLine();
+        HelpMarker("Copys settings to the tool");
+
+        // delete
+        if (ImGui::Button("Delete")) {
+            removeSpring(*selectedS);
+        }
+        ImGui::SameLine();
+        HelpMarker("LControl + LClick or Delete");
+        ImGui::End();
+    }
+
+    static void setLineColor(std::array<sf::Vertex, 2>& l, const sf::Color& c) {
+        l[0].color = c;
+        l[1].color = c;
+    }
+
+    void springInputs(Spring& spring) const {
+        ImGui::SetNextItemWidth(100.0F);
+        ImGui::InputDouble("Spring constant", &spring.springConst, 0, 0, "%.3f");
+        ImGui::SetNextItemWidth(100.0F);
+        ImGui::InputDouble("Damping factor", &spring.dampFact, 0, 0, "%.3f");
+    }
+
+    void removeSpring(const std::size_t& pos) {
+        entities.rmvSpring(pos);
+        if (*selectedS == pos) selectedS.reset();
+        if (*hoveredS == pos) hoveredS.reset();
+    }
+
+  public:
+    SpringTool(sf::RenderWindow& window_, EntityManager& entities_, const std::string& name_)
+        : Tool(window_, entities_, name_) {}
+
+    void frame(Sim& sim, const sf::Vector2i& mousePixPos) override {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+            ImGui::SetTooltip("Click to delete");
+        }
+        if (entities.points.size() == 0) return; // tool is useless if there are no points
+
+        // hover stuff
+        if (hoveredP) {
+            resetPointColor(*hoveredP); // reset last closest point color as it may
+            hoveredP.reset();           // not be closest anymore
+        }
+        if (hoveredS) {
+            setSpringColor(                   // reset last closest line color as it may  not be
+                *hoveredS, sf::Color::White); // closest anymore
+            hoveredS.reset();
+        }
+
+        if (selectedS) { // if in spring editing mode
+            ImEdit(mousePixPos);
+        } else { // if in normal mode
+            sf::Vector2f mousePos = window.mapPixelToCoords(mousePixPos);
+            // determine new closest point (needs to happend wether adding or not)
+            auto [closestPoint, closestPDist] = sim.findClosestPoint(unvisualize(mousePos));
+            // color close point for selection
+            if (closestPDist < toolRange &&
+                (!selectedP ||
+                 *selectedP !=
+                     closestPoint)) { // if (in range) and (not selected or the selected != closest)
+                hoveredP = closestPoint;
+                setPointColor(*hoveredP, hoverPColour);
+            }
+
+            if (selectedP) { // if selected point (in making spring mode)
+                line[0].position = visualize(entities.points[*selectedP].pos);
+                if (hoveredP) {
+                    auto existingS = std::find_if(
+                        entities.springs.begin(),
+                        entities.springs.end(), // check if spring already exists
+                        [hp = *hoveredP, sp = *selectedP](const Spring& s) {
+                            return (s.p1 == hp && s.p2 == sp) || (s.p1 == sp && s.p2 == hp);
+                        });
+
+                    line[1].position = visualize(entities.points[*hoveredP].pos);
+                    if (existingS == entities.springs.end()) {
+                        setLineColor(line, sf::Color::Green);
+                        validHover = true;
+                    } else {
+                        ImGui::SetTooltip("Spring already exists");
+                        setLineColor(line, sf::Color::Red);
+                        std::size_t existingIndex =
+                            static_cast<std::size_t>(existingS - entities.springs.begin());
+                        setSpringColor(existingIndex, sf::Color::Red);
+                        hoveredS   = existingIndex;
+                        validHover = false;
+                    }
+                } else {
+                    line[1].position = mousePos;
+                    setLineColor(line, sf::Color::Red);
+                    validHover = false;
+                }
+                window.draw(line.data(), 2, sf::Lines);
+            } else { // if not making a spring (!selectedP)
+                // determine new closest spring
+                if (!entities.springs.empty()) {
+                    auto [closestSpring, closestSDist] =
+                        sim.findClosestSpring(unvisualize(mousePos));
+                    if (closestSDist < toolRange) {
+                        hoveredS = closestSpring;
+                        setSpringColor(*hoveredS, hoverSColour);
+                    }
+                }
+            }
+        }
+    }
+
+    void event(const sf::Event& event) override {
+        if (event.type == sf::Event::MouseButtonPressed && !ImGui::GetIO().WantCaptureMouse) {
+            if (selectedS) {
+                setSpringColor(*selectedS, sf::Color::White);
+                selectedS.reset(); // unselect (close edit)
+            } else if (selectedP && event.mouseButton.button !=
+                                        sf::Mouse::Left) { // if not a left click unselect point
+                resetPointColor(*selectedP);
+                selectedP.reset();
+            } else if (event.mouseButton.button == sf::Mouse::Left) {
+                if (selectedP) {
+                    if (validHover) { // if the hover is valid make new spring
+                        entities.addSpring(defSpring);
+                        Spring& newS = entities.springs.back();
+                        newS.p1      = *selectedP;
+                        newS.p2      = *hoveredP;
+                        if (autoSizing)
+                            newS.naturalLength =
+                                (entities.points[newS.p1].pos - entities.points[newS.p2].pos).mag();
+                        resetPointColor(*selectedP); // hovered will be reset anyway
+                        selectedP.reset();
+                    }
+                } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
+                    if (hoveredS) removeSpring(*hoveredS); // only do it if there is a highlighted
+                } else if (hoveredP) {
+                    selectedP = *hoveredP;
+                    setPointColor(*selectedP, selectedPColour);
+                    hoveredP.reset();
+                }
+            } else if (event.mouseButton.button == sf::Mouse::Right) { // selecting a spring
+                if (hoveredS) {
+                    selectedS = hoveredS;
+                    hoveredS.reset();
+                    setSpringColor(*selectedS, selectedSColour);
+                }
+            }
+        } else if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
+                if (selectedP) {
+                    removeSpring(*selectedS);
+                } else if (hoveredP) {
+                    removeSpring(*hoveredS);
+                }
+            }
+        }
+    }
+
+    void unequip() override {
+        if (selectedP) {
+            resetPointColor(*selectedP);
+            selectedP.reset();
+        }
+        if (hoveredP) {
+            resetPointColor(*hoveredP);
+            hoveredP.reset();
+        }
+        if (selectedS) {
+            setSpringColor(*selectedS, sf::Color::White);
+            selectedS.reset();
+        }
+        if (hoveredS) {
+            setSpringColor(*hoveredS, sf::Color::White);
+            hoveredS.reset();
+        }
+    }
+
+    void ImTool() override {
+        ImGui::SetNextItemWidth(width);
+        ImGui_DragDouble("Range", &toolRange, 0.1F, 0.1, 100.0, "%.1f",
+                         ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Checkbox("Auto sizing", &autoSizing);
+        ImGui::SameLine();
+        HelpMarker(
+            "Springs natural length will be auto set to the distance between the two points");
+        if (ImGui::CollapsingHeader(
+                "New spring properties",
+                ImGuiTreeNodeFlags_DefaultOpen |
+                    ImGuiTreeNodeFlags_OpenOnArrow)) { // open on arrow to stop insta close bug
+            springInputs(defSpring);
+            if (autoSizing) ImGui::BeginDisabled();
+            ImGui::SetNextItemWidth(100.0F);
+            ImGui::InputDouble("Natural length", &defSpring.naturalLength, 0, 0, "%.3f");
+            if (autoSizing) ImGui::EndDisabled();
+        }
+    }
+};

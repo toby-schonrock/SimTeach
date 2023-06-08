@@ -34,6 +34,7 @@ class Vector2 {
         if (diff2.dot(line) > 0) return diff2.mag();
         return std::abs(line.cross(diff1)) / line.mag();
     }
+    std::string toString() const { return '(' + std::to_string(x) + ", " + std::to_string(y) + ')'; }
 
     // clang-format off
     constexpr Vector2& operator+=(const Vector2& obj) { x += obj.x; y += obj.y; return *this; }
@@ -47,9 +48,12 @@ class Vector2 {
     constexpr friend Vector2 operator*(Vector2 lhs, double scale) { return lhs *= scale; }
     constexpr friend Vector2 operator*(double scale, Vector2 rhs) { return rhs *= scale; }
     constexpr friend Vector2 operator/(Vector2 lhs, double scale) { return lhs /= scale; }
-    constexpr friend bool operator==(const Vector2&  lhs, const Vector2& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
-    constexpr friend bool operator!=(const Vector2&  lhs, const Vector2& rhs) { return lhs.x != rhs.x || lhs.y != rhs.y; }
-
+    constexpr friend bool    operator==(const Vector2& lhs, const Vector2& rhs) {
+        return lhs.x == rhs.x && lhs.y == rhs.y;
+    }
+    constexpr friend bool operator!=(const Vector2& lhs, const Vector2& rhs) {
+        return lhs.x != rhs.x || lhs.y != rhs.y;
+    }
 
     friend std::ostream& operator<<(std::ostream& os, const Vector2& v) {
         return os << '(' << v.x << ", " << v.y << ')';

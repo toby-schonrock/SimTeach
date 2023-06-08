@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector2.hpp"
+#include "Fundamentals/Vector2.hpp"
 
 class Edge {
   private:

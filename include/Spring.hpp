@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Point.hpp"
-#include "Vector2.hpp"
+#include "Fundamentals/Vector2.hpp"
 
 struct Spring {
     double      springConst;
