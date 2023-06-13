@@ -18,18 +18,13 @@
 #include "Sim.hpp"
 #include "imgui.h"
 #include "implot.h"
+#include "ImguiHelpers.hpp"
 
 namespace fs = std::filesystem;
 
 extern const fs::path Previous;
 
 sf::Vector2f visualize(const Vec2& v);
-
-bool ImGui_DragDouble(const char* label, double* v, float v_speed, double v_min, double v_max,
-                      const char* format, ImGuiSliderFlags flags);
-bool ImGui_DragUnsigned(const char* label, std::uint32_t* v, float v_speed, std::uint32_t v_min,
-                        std::uint32_t v_max, const char* format, ImGuiSliderFlags flags);
-void HelpMarker(const char* desc);
 
 // checkbox ui for objects
 inline void enabledCheckBoxes(ObjectEnabled& enabled, const EntityManager& entities,

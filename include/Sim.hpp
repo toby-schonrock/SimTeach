@@ -1,13 +1,12 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <filesystem>
+
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "Edge.hpp"
@@ -16,7 +15,6 @@
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
-#include "Util.hpp"
 #include "Fundamentals/Vector2.hpp"
 
 extern const std::filesystem::path Previous;

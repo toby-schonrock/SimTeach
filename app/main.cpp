@@ -10,7 +10,7 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
-#include "Tools/Tools.cpp"
+#include "Tools/Tools.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 
@@ -25,8 +25,6 @@ Vec2 unvisualize(const sf::Vector2f& v) { return Vec2(v.x, -v.y); }
 Vec2 unvisualize(const sf::Vector2i& v) { return Vec2(v.x, -v.y); }
 
 int main() {
-    ImVec4 col = ImGui::ColorConvertU32ToFloat4(ImGuiCol_PlotLinesHovered);
-    std::cout << col.w << ", " << col.x << ", " << col.y << ", " << col.z;
     // SFML
     sf::VideoMode       desktop = sf::VideoMode::getDesktopMode();
     sf::ContextSettings settings;
