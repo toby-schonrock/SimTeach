@@ -5,8 +5,11 @@
 #include "SFML/Graphics.hpp"
 #include "Fundamentals/Vector2.hpp"
 #include "imgui.h"
+#include <cstddef>
 
 sf::Vector2f visualize(const Vec2& v);
+
+enum class PolyId : std::size_t;
 
 class Polygon {
   private:

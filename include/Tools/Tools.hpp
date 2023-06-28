@@ -1,7 +1,11 @@
 #include "EntityManager.hpp"
 #include "Fundamentals/Vector2.hpp"
+#include "Graph.hpp"
 #include "GraphMananager.hpp"
+#include "Point.hpp"
+#include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
 #include "Spring.hpp"
@@ -35,29 +39,30 @@ class Tool {
     virtual void unequip()                                        = 0;
     virtual void ImTool()                                         = 0;
     Tool(const Tool& other)                                       = delete;
-    Tool& operator=(const Tool& other) = delete;
+    Tool& operator=(const Tool& other)                            = delete;
 
   protected:
     virtual void ImEdit(const sf::Vector2i& mousePixPos) = 0;
-    void         setPointColor(std::size_t i, sf::Color color) {
-        i *= 4;
-        entities.pointVerts[i].color     = color;
-        entities.pointVerts[i + 1].color = color;
-        entities.pointVerts[i + 2].color = color;
-        entities.pointVerts[i + 3].color = color;
+    void         setColor(PointId index, sf::Color color) {
+                std::size_t i                    = static_cast<std::size_t>(index) * 4;
+                entities.pointVerts[i].color     = color;
+                entities.pointVerts[i + 1].color = color;
+                entities.pointVerts[i + 2].color = color;
+                entities.pointVerts[i + 3].color = color;
     }
 
-    void resetPointColor(std::size_t i) {
-        entities.pointVerts[i * 4].color     = entities.points[i].color;
-        entities.pointVerts[i * 4 + 1].color = entities.points[i].color;
-        entities.pointVerts[i * 4 + 2].color = entities.points[i].color;
-        entities.pointVerts[i * 4 + 3].color = entities.points[i].color;
-    }
-
-    void setSpringColor(std::size_t i, sf::Color color) {
-        i *= 2;
+    void setColor(SpringId index, sf::Color color) {
+        std::size_t i                     = static_cast<std::size_t>(index) * 2;
         entities.springVerts[i].color     = color;
         entities.springVerts[i + 1].color = color;
+    }
+
+    void resetColor(PointId index) {
+        setColor(index, entities.points[static_cast<std::size_t>(index)].color);
+    }
+    
+    void resetColor(SpringId index) {
+        setColor(index, sf::Color::White);
     }
 
     sf::RenderWindow& window;
@@ -76,20 +81,20 @@ class GraphTool : public Tool {
 
   private:
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
-    void highlightGraph(std::size_t i);
-    void resetGraphHighlight(std::size_t i);
+    void highlightGraph(GraphId i);
+    void resetGraphHighlight(GraphId i);
     void DrawGraphs();
 
     enum class State { normal, newG, editG };
 
     GraphManager& graphs;
-    Graph defGraph{0, ObjectType::Point, Property::Position, Component::x, graphs.graphBuffer};
-    std::optional<std::size_t> selectedG;
-    std::optional<std::size_t> hoveredG;
-    std::optional<std::size_t> hoveredS;
-    std::optional<std::size_t> selectedS;
-    std::optional<std::size_t> hoveredP;
-    std::optional<std::size_t> selectedP;
+    Graph         defGraph{PointId{}, Property::Position, Component::x, graphs.graphBuffer};
+    std::optional<GraphId>  selectedG;
+    std::optional<GraphId>  hoveredG;
+    std::optional<SpringId> hoveredS;
+    std::optional<SpringId> selectedS;
+    std::optional<PointId>  hoveredP;
+    std::optional<PointId>  selectedP;
 };
 
 class PointTool : public Tool {
@@ -102,16 +107,16 @@ class PointTool : public Tool {
     void ImTool() override;
 
   private:
-    void        removePoint(const std::size_t& pos);
+    void        removePoint(PointId pos);
     void        ImEdit(const sf::Vector2i& mousePixPos) override;
     static void pointInputs(Point& point);
 
-    Point                      defPoint  = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red, false);
-    std::optional<std::size_t> hoveredP  = std::nullopt;
-    std::optional<std::size_t> selectedP = std::nullopt;
-    double                     toolRange = 1;
-    bool                       dragging  = false;
-    bool                       inside    = false;
+    Point                  defPoint = Point({0.0F, 0.0F}, 1.0F, sf::Color::Red, false);
+    std::optional<PointId> hoveredP;
+    std::optional<PointId> selectedP;
+    double                 toolRange = 1;
+    bool                   dragging  = false;
+    bool                   inside    = false;
 };
 
 class PolyTool : public Tool {
@@ -126,11 +131,11 @@ class PolyTool : public Tool {
   private:
     void ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) override {}
 
-    std::vector<Vec2>          verts{{}};
-    Polygon                    validPoly{};
-    std::optional<std::size_t> deletingP;
-    bool                       isDone      = false;
-    bool                       isNewConvex = false;
+    std::vector<Vec2>     verts{{}};
+    Polygon               validPoly{};
+    std::optional<PolyId> deletingP;
+    bool                  isDone      = false;
+    bool                  isNewConvex = false;
 };
 
 class SpringTool : public Tool {
@@ -146,15 +151,15 @@ class SpringTool : public Tool {
     void        ImEdit(const sf::Vector2i& mousePixPos) override;
     static void setLineColor(std::array<sf::Vertex, 2>& l, const sf::Color& c);
     void        springInputs(Spring& spring) const;
-    void        removeSpring(const std::size_t& pos);
+    void        removeSpring(SpringId pos);
 
-    Spring                     defSpring{10, 1.0, 0.2, 0, 0};
-    std::array<sf::Vertex, 2>  line{sf::Vertex{}, sf::Vertex{}};
-    std::optional<std::size_t> selectedS = std::nullopt;
-    std::optional<std::size_t> hoveredS  = std::nullopt;
-    std::optional<std::size_t> selectedP = std::nullopt;
-    std::optional<std::size_t> hoveredP  = std::nullopt;
-    double                     toolRange = 1;
+    Spring                    defSpring{10, 1.0, 0.2, PointId{}, PointId{}};
+    std::array<sf::Vertex, 2> line{sf::Vertex{}, sf::Vertex{}};
+    std::optional<SpringId>   selectedS = std::nullopt;
+    std::optional<SpringId>   hoveredS  = std::nullopt;
+    std::optional<PointId>    selectedP = std::nullopt;
+    std::optional<PointId>    hoveredP  = std::nullopt;
+    double                    toolRange = 1;
     bool validHover = false; // wether the current hover is an acceptable second point
     bool autoSizing = false;
 };

@@ -1,14 +1,16 @@
 #pragma once
 
-#include "Point.hpp"
 #include "Fundamentals/Vector2.hpp"
+#include "Point.hpp"
+
+enum class SpringId : std::size_t;
 
 struct Spring {
-    double      springConst;
-    double      dampFact;
-    double      naturalLength;
-    std::size_t p1;
-    std::size_t p2;
+    double  springConst;
+    double  dampFact;
+    double  naturalLength;
+    PointId p1;
+    PointId p2;
 
     void springHandler(Point& point1, Point& point2) const {
         Vec2 force = forceCalc(point1, point2);
@@ -22,15 +24,15 @@ struct Spring {
         if (diffMag < 1E-30) return {}; // prevent 0 length spring exploding sim
         Vec2   unitDiff = diff / diffMag;
         double ext      = diffMag - naturalLength;
-        double springf  = -springConst * ext; // f = -ke hookes law
-        double dampf = unitDiff.dot(point2.vel - point1.vel) * dampFact; // damping force
+        double springf  = -springConst * ext;                               // f = -ke hookes law
+        double dampf    = unitDiff.dot(point2.vel - point1.vel) * dampFact; // damping force
         return (springf + dampf) * unitDiff;
     }
 
     // represent spring as a string and push through stream
     friend std::ostream& operator<<(std::ostream& os, const Spring& s) {
-        return os << s.springConst << ' ' << s.naturalLength << ' ' << s.dampFact << ' ' << s.p1
-                  << ' ' << s.p2;
+        return os << s.springConst << ' ' << s.naturalLength << ' ' << s.dampFact << ' '
+                  << static_cast<std::size_t>(s.p1) << ' ' << static_cast<std::size_t>(s.p2);
     }
 
     // create spring from string stream

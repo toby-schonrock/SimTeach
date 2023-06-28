@@ -11,11 +11,11 @@
 
 #include "Edge.hpp"
 #include "EntityManager.hpp"
+#include "Fundamentals/Vector2.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
-#include "Fundamentals/Vector2.hpp"
 
 extern const std::filesystem::path Previous;
 static const std::string PointHeaders{"point-id fixed posx posy velx vely mass color(rgba)"};
@@ -35,7 +35,8 @@ class Sim {
     void simFrame(double deltaTime) {
         // calculate spring force worth doing in parralel
         std::for_each(entities.springs.begin(), entities.springs.end(), [&](Spring& spring) {
-            spring.springHandler(entities.points[spring.p1], entities.points[spring.p2]);
+            spring.springHandler(entities.points[static_cast<std::size_t>(spring.p1)],
+                                 entities.points[static_cast<std::size_t>(spring.p2)]);
         });
 
         // update point positions
@@ -52,41 +53,43 @@ class Sim {
         }
     }
 
-    std::pair<std::size_t, double> findClosestPoint(const Vec2 pos) const {
+    std::pair<PointId, double> findClosestPoint(const Vec2 pos) const {
         if (entities.points.empty())
             throw std::logic_error("Finding closest point with no points?!? ;)");
-        double      closestDist = std::numeric_limits<double>::infinity();
-        std::size_t closestPos  = 0;
+        double  closestDist = std::numeric_limits<double>::infinity();
+        PointId closestPos{};
         for (std::size_t i = 0; i != entities.points.size(); ++i) {
             Vec2   diff = pos - entities.points[i].pos;
             double dist = diff.x * diff.x + diff.y * diff.y;
             if (dist < closestDist) {
                 closestDist = dist;
-                closestPos  = i;
+                closestPos  = static_cast<PointId>(i);
             }
         }
-        return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
+        return std::pair<PointId, double>(closestPos, std::sqrt(closestDist));
     }
 
-    std::pair<std::size_t, double> findClosestSpring(const Vec2 pos) const {
+    std::pair<SpringId, double> findClosestSpring(const Vec2 pos) const {
         if (entities.springs.empty())
             throw std::logic_error("Finding closest spring with no springs?!? ;)");
-        double      closestDist = std::numeric_limits<double>::infinity();
-        std::size_t closestPos  = 0;
+        double   closestDist = std::numeric_limits<double>::infinity();
+        SpringId closestPos{};
         for (std::size_t i = 0; i != entities.springs.size(); ++i) {
-            double dist = pos.distToLine(entities.points[entities.springs[i].p1].pos,
-                                         entities.points[entities.springs[i].p2].pos);
+            double dist = pos.distToLine(
+                entities.points[static_cast<std::size_t>(entities.springs[i].p1)].pos,
+                entities.points[static_cast<std::size_t>(entities.springs[i].p2)].pos);
             if (dist < closestDist) {
                 closestDist = dist;
-                closestPos  = i;
+                closestPos  = static_cast<SpringId>(i);
             }
         }
-        return std::pair<std::size_t, double>(closestPos, std::sqrt(closestDist));
+        return std::pair<SpringId, double>(closestPos, std::sqrt(closestDist));
     }
 
     void reset() { load(Previous, true, {true, true, true}, false); }
 
-    void load(std::filesystem::path path, bool replace, ObjectEnabled enabled, bool deleteGraphs = true) {
+    void load(std::filesystem::path path, bool replace, ObjectEnabled enabled,
+              bool deleteGraphs = true) {
         path.make_preferred();
         if (replace) {
             if (deleteGraphs) entities.graphs.clear();
@@ -140,8 +143,8 @@ class Sim {
                 if (temp != index)
                     throw std::runtime_error("Non continous spring indicie - " + line);
                 safeStreamRead(ss, spring);
-                spring.p1 += pointOffset;
-                spring.p2 += pointOffset;
+                spring.p1 = static_cast<PointId>(static_cast<std::size_t>(spring.p1) + pointOffset);
+                spring.p2 = static_cast<PointId>(static_cast<std::size_t>(spring.p2) + pointOffset);
                 ++index;
                 entities.addSpring(spring);
             }

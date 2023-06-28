@@ -3,10 +3,13 @@
 #include "Util.hpp"
 
 #include <cmath>
-#include <iostream>
 #include <ostream>
+#include <type_traits>
 
 template <typename T>
+concept Vectorisable = std::is_arithmetic_v<T>;
+
+template <Vectorisable T>
 class Vector2 {
   public:
     T x{};
@@ -21,20 +24,25 @@ class Vector2 {
         return Vector2<U>(static_cast<U>(x), static_cast<U>(y));
     }
 
-    constexpr T       mag() const { return std::hypot(x, y); }
-    constexpr Vector2 norm() const { return *this / this->mag(); }
+    constexpr T       mag() const requires std::is_floating_point_v<T> { return std::hypot(x, y); }
+    constexpr Vector2 norm() const requires std::is_floating_point_v<T> {
+        return *this / this->mag();
+    }
     constexpr Vector2 abs() const { return {std::abs(x), std::abs(y)}; }
-    constexpr double  dot(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
-    constexpr double  cross(const Vector2& rhs) const { return x * rhs.y - y * rhs.x; }
-    constexpr T       distToLine(const Vector2& p1, const Vector2& p2) const {
-        Vector2 line  = p2 - p1;
-        Vector2 diff1 = *this - p1;
-        if (diff1.dot(line) < 0) return diff1.mag();
+    constexpr T       dot(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
+    constexpr T       cross(const Vector2& rhs) const { return x * rhs.y - y * rhs.x; }
+    constexpr T       distToLine(const Vector2& p1,
+                                 const Vector2& p2) const requires std::is_floating_point_v<T> {
+              Vector2 line  = p2 - p1;
+              Vector2 diff1 = *this - p1;
+              if (diff1.dot(line) < 0) return diff1.mag();
         Vector2 diff2 = *this - p2;
-        if (diff2.dot(line) > 0) return diff2.mag();
+              if (diff2.dot(line) > 0) return diff2.mag();
         return std::abs(line.cross(diff1)) / line.mag();
     }
-    std::string toString() const { return '(' + std::to_string(x) + ", " + std::to_string(y) + ')'; }
+    std::string toString() const {
+        return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
+    }
 
     // clang-format off
     constexpr Vector2& operator+=(const Vector2& obj) { x += obj.x; y += obj.y; return *this; }
@@ -48,12 +56,7 @@ class Vector2 {
     constexpr friend Vector2 operator*(Vector2 lhs, double scale) { return lhs *= scale; }
     constexpr friend Vector2 operator*(double scale, Vector2 rhs) { return rhs *= scale; }
     constexpr friend Vector2 operator/(Vector2 lhs, double scale) { return lhs /= scale; }
-    constexpr friend bool    operator==(const Vector2& lhs, const Vector2& rhs) {
-        return lhs.x == rhs.x && lhs.y == rhs.y;
-    }
-    constexpr friend bool operator!=(const Vector2& lhs, const Vector2& rhs) {
-        return lhs.x != rhs.x || lhs.y != rhs.y;
-    }
+    bool                     operator==(const Vector2&) const = default;
 
     friend std::ostream& operator<<(std::ostream& os, const Vector2& v) {
         return os << '(' << v.x << ", " << v.y << ')';

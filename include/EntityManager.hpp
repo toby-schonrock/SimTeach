@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Fundamentals/Vector2.hpp"
 #include "Graph.hpp"
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
 #include "Spring.hpp"
-#include "Fundamentals/Vector2.hpp"
+#include <cstddef>
 #include <filesystem>
+#include <iostream>
 
 struct ObjectEnabled {
     bool points;
@@ -37,30 +39,35 @@ class EntityManager {
         springVerts.emplace_back();
     }
 
-    void rmvPoint(const std::size_t& pos) {
-        if (points.empty() || pos >= points.size()) {
-            throw std::logic_error("Asking to remove non existant point - " + std::to_string(pos));
+    void rmvPoint(PointId pos) {
+        PointId old = static_cast<PointId>(points.size() - 1);
+        if (points.empty() || pos > old) {
+            throw std::logic_error("Asking to remove non existant point - " +
+                                   std::to_string(static_cast<std::size_t>(pos)));
         }
-        std::size_t old = points.size() - 1;
 
         // swap point to the end and delete
-        points[pos] = std::move(points.back()); // do the move
-        points.pop_back();                      // delete
-        pointVerts[pos * 4]     = std::move(pointVerts[pointVerts.size() - 4]);
-        pointVerts[pos * 4 + 1] = std::move(pointVerts[pointVerts.size() - 3]);
-        pointVerts[pos * 4 + 2] = std::move(pointVerts[pointVerts.size() - 2]);
-        pointVerts[pos * 4 + 3] = std::move(pointVerts.back());
+        points[static_cast<std::size_t>(pos)] = std::move(points.back()); // do the move
+        points.pop_back();                                                // delete
+        pointVerts[static_cast<std::size_t>(pos) * 4] =
+            std::move(pointVerts[pointVerts.size() - 4]);
+        pointVerts[static_cast<std::size_t>(pos) * 4 + 1] =
+            std::move(pointVerts[pointVerts.size() - 3]);
+        pointVerts[static_cast<std::size_t>(pos) * 4 + 2] =
+            std::move(pointVerts[pointVerts.size() - 2]);
+        pointVerts[static_cast<std::size_t>(pos) * 4 + 3] = std::move(pointVerts.back());
         pointVerts.resize(pointVerts.size() - 4);
 
         auto GCurr = graphs.begin();
         auto GEnd  = graphs.end();
         while (GCurr < GEnd) {
-            if ((*GCurr).checkDeleteIndex(ObjectType::Point, pos)) { // remove invalid point graphs
+            if ((*GCurr).checkDeleteIndex(pos)) { // remove invalid point graphs
                 std::cout << "Graph of " << GCurr->getYLabel()
-                          << " removed due to removal of point " << pos << "\n";
+                          << " removed due to removal of point " << static_cast<std::size_t>(pos)
+                          << "\n";
                 *GCurr = std::move(*(--GEnd));
             } else {
-                (*GCurr).updateIndex(ObjectType::Point, old, pos); // update indexs for move
+                (*GCurr).updateIndex(old, pos); // update indexs for move
                 ++GCurr;
             }
         }
@@ -70,7 +77,7 @@ class EntityManager {
         std::size_t SEnd = springs.size();
         for (std::size_t SCurr = 0; SCurr < SEnd; SCurr++) {
             if (springs[SCurr].p1 == pos || springs[SCurr].p2 == pos) { // delete
-                rmvSpring(SCurr);
+                rmvSpring(static_cast<SpringId>(SCurr));
                 SCurr--; // to still check the moved one
                 SEnd--;
             } else {
@@ -81,29 +88,32 @@ class EntityManager {
         }
     }
 
-    void rmvSpring(const std::size_t& pos) {
-        if (springs.empty() || pos >= springs.size()) {
-            throw std::logic_error("Asking to remove non existant spring - " + std::to_string(pos));
+    void rmvSpring(SpringId pos) {
+        SpringId old = static_cast<SpringId>(springs.size() - 1);
+        if (springs.empty() || pos > old) {
+            throw std::logic_error("Asking to remove non existant spring - " +
+                                   std::to_string(static_cast<std::size_t>(pos)));
         }
-        std::size_t old = springs.size() - 1;
 
         // swap spring to the end and delete
-        springs[pos] = std::move(springs.back()); // do the move
-        springs.pop_back();                       // delete
-        springVerts[pos * 2]     = std::move(springVerts[springVerts.size() - 2]);
-        springVerts[pos * 2 + 1] = std::move(springVerts.back()); // do the move
-        springVerts.resize(springVerts.size() - 2);               // delete
+        springs[static_cast<std::size_t>(pos)] = std::move(springs.back()); // do the move
+        springs.pop_back();                                                 // delete
+        springVerts[static_cast<std::size_t>(pos) * 2] =
+            std::move(springVerts[springVerts.size() - 2]);
+        springVerts[static_cast<std::size_t>(pos) * 2 + 1] =
+            std::move(springVerts.back());          // do the move
+        springVerts.resize(springVerts.size() - 2); // delete
 
         auto GStart = graphs.begin();
         auto GEnd   = graphs.end();
         while (GStart < GEnd) {
-            if ((*GStart).checkDeleteIndex(ObjectType::Spring,
-                                           pos)) { // remove invalid spring graphs
+            if ((*GStart).checkDeleteIndex(pos)) { // remove invalid spring graphs
                 std::cout << "Graph of " << GStart->getYLabel()
-                          << " removed due to removal of spring " << pos << "\n";
+                          << " removed due to removal of spring " << static_cast<std::size_t>(pos)
+                          << "\n";
                 *GStart = std::move(*(--GEnd));
             } else {
-                (*GStart).updateIndex(ObjectType::Spring, old, pos); // update indexs for move
+                (*GStart).updateIndex(old, pos); // update indexs for move
                 GStart++;
             }
         }
@@ -122,8 +132,8 @@ class EntityManager {
 
     void updateSpringVisPos() {
         for (std::size_t i = 0; i != springs.size(); ++i) {
-            springVerts[i * 2].position     = visualize(points[springs[i].p1].pos);
-            springVerts[i * 2 + 1].position = visualize(points[springs[i].p2].pos);
+            springVerts[i * 2].position     = visualize(points[static_cast<std::size_t>(springs[i].p1)].pos);
+            springVerts[i * 2 + 1].position = visualize(points[static_cast<std::size_t>(springs[i].p2)].pos);
         }
     }
 };

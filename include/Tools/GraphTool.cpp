@@ -2,41 +2,42 @@
 #include "GraphMananager.hpp"
 #include "ImguiHelpers.hpp"
 #include "Tools.hpp"
+#include <cstddef>
 
-void GraphTool::highlightGraph(std::size_t i) {
-    Graph& g = entities.graphs[i];
+void GraphTool::highlightGraph(GraphId i) {
+    Graph& g = entities.graphs[static_cast<std::size_t>(i)];
     if (g.type == ObjectType::Point) {
-        setPointColor(g.ref, selectedPColour);
-        if (g.diff == DiffState::Index) setPointColor(g.ref2, selectedPColour);
+        setColor(g.ref.p, selectedPColour);
+        if (g.diff == DiffState::Index) setColor(g.ref2.p, selectedPColour);
     } else {
-        setSpringColor(g.ref, selectedSColour);
-        if (g.diff == DiffState::Index) setSpringColor(g.ref2, selectedSColour);
+        setColor(g.ref.s, selectedSColour);
+        if (g.diff == DiffState::Index) setColor(g.ref2.s, selectedSColour);
     }
 }
 
-void GraphTool::resetGraphHighlight(std::size_t i) {
-    Graph& g = entities.graphs[i];
+void GraphTool::resetGraphHighlight(GraphId i) {
+    Graph& g = entities.graphs[static_cast<std::size_t>(i)];
     if (g.type == ObjectType::Point) {
-        resetPointColor(g.ref);
-        if (g.diff == DiffState::Index) resetPointColor(g.ref2);
+        resetColor(g.ref.p);
+        if (g.diff == DiffState::Index) resetColor(g.ref2.p);
     } else {
-        setSpringColor(g.ref, sf::Color::White);
-        if (g.diff == DiffState::Index) setSpringColor(g.ref2, sf::Color::White);
+        resetColor(g.ref.s);
+        if (g.diff == DiffState::Index) resetColor(g.ref2.s);
     }
 }
 
 void GraphTool::DrawGraphs() {
-    std::optional<std::size_t> newHover = std::nullopt;
+    std::optional<GraphId> newHover = std::nullopt;
     ImGui::Begin("Graphs");
     if (!ImGui::IsWindowCollapsed()) {
         for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
-            if (selectedG && i == *selectedG)
+            if (selectedG && static_cast<GraphId>(i) == *selectedG)
                 ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.0F, 1.0F, 0.537F, 0.27F});
-            else if (hoveredG && i == *hoveredG)
+            else if (hoveredG && static_cast<GraphId>(i) == *hoveredG)
                 ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.133F, 0.114F, 0.282F, 0.2F});
-            entities.graphs[i].draw(i, graphs.tValues);
-            if (ImGui::IsItemHovered()) newHover = i;
-            if ((hoveredG && i == *hoveredG) || (selectedG && i == *selectedG))
+            entities.graphs[i].draw(static_cast<GraphId>(i), graphs.tValues);
+            if (ImGui::IsItemHovered()) newHover = static_cast<GraphId>(i);
+            if ((hoveredG && static_cast<GraphId>(i) == *hoveredG) || (selectedG && static_cast<GraphId>(i) == *selectedG))
                 ImPlot::PopStyleColor();
         }
     }
@@ -46,11 +47,11 @@ void GraphTool::DrawGraphs() {
 
 void GraphTool::frame(Sim& sim, const sf::Vector2i& mousePixPos) {
     if (hoveredP) { // color resets
-        resetPointColor(*hoveredP);
+        resetColor(*hoveredP);
         hoveredP.reset();
     }
     if (hoveredS) {
-        setSpringColor(*hoveredS, sf::Color::White);
+        setColor(*hoveredS, sf::Color::White);
         hoveredS.reset();
     }
 
@@ -64,12 +65,12 @@ void GraphTool::frame(Sim& sim, const sf::Vector2i& mousePixPos) {
             auto [closestPoint, closestPDist] = sim.findClosestPoint(unvisualize(mousePos));
             // color close point for selection
             hoveredP = closestPoint;
-            setPointColor(*hoveredP, hoverPColour);
+            setColor(*hoveredP, hoverPColour);
         } else if (defGraph.type == ObjectType::Spring && !entities.springs.empty()) {
             auto [closestSpring, closestSDist] = sim.findClosestSpring(unvisualize(mousePos));
             // color close spring for selection
             hoveredS = closestSpring;
-            setSpringColor(*hoveredS, hoverSColour);
+            setColor(*hoveredS, hoverSColour);
         }
     }
     DrawGraphs();
@@ -115,11 +116,11 @@ void GraphTool::unequip() {
         selectedG.reset();
     }
     if (hoveredP) {
-        resetPointColor(*hoveredP);
+        resetColor(*hoveredP);
         hoveredP.reset();
     }
     if (hoveredS) {
-        setSpringColor(*hoveredS, sf::Color::White);
+        setColor(*hoveredS, sf::Color::White);
         hoveredS.reset();
     }
 }

@@ -1,9 +1,12 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
 #include "Fundamentals/Vector2.hpp"
+#include "SFML/Graphics.hpp"
+#include <cstddef>
 
 sf::Vector2f visualize(const Vec2& v);
+
+enum class PointId : std::size_t;
 
 struct Point {
   public:
