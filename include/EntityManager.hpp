@@ -74,16 +74,16 @@ class EntityManager {
         graphs.erase(GEnd, graphs.end()); // finish the deleting of the graphs
 
         // manual remove
-        std::size_t SEnd = springs.size();
-        for (std::size_t SCurr = 0; SCurr < SEnd; SCurr++) {
-            if (springs[SCurr].p1 == pos || springs[SCurr].p2 == pos) { // delete
-                rmvSpring(static_cast<SpringId>(SCurr));
-                SCurr--; // to still check the moved one
-                SEnd--;
+        SpringId SEnd = static_cast<SpringId>(springs.size());
+        for (SpringId SCurr{0}; SCurr < SEnd; ++SCurr) {
+            if (springs[static_cast<std::size_t>(SCurr)].p1 == pos || springs[static_cast<std::size_t>(SCurr)].p2 == pos) { // delete
+                rmvSpring(SCurr);
+                --SCurr; // to still check the moved one
+                --SEnd;
             } else {
-                if (springs[SCurr].p1 == old)
-                    springs[SCurr].p1 = pos; // spring was attatched to moved point
-                if (springs[SCurr].p2 == old) springs[SCurr].p2 = pos;
+                if (springs[static_cast<std::size_t>(SCurr)].p1 == old)
+                    springs[static_cast<std::size_t>(SCurr)].p1 = pos; // spring was attatched to moved point
+                if (springs[static_cast<std::size_t>(SCurr)].p2 == old) springs[static_cast<std::size_t>(SCurr)].p2 = pos;
             }
         }
     }
@@ -109,7 +109,7 @@ class EntityManager {
         while (GStart < GEnd) {
             if ((*GStart).checkDeleteIndex(pos)) { // remove invalid spring graphs
                 std::cout << "Graph of " << GStart->getYLabel()
-                          << " removed due to removal of spring " << static_cast<std::size_t>(pos)
+                          << " removed due to removal of spring " << pos
                           << "\n";
                 *GStart = std::move(*(--GEnd));
             } else {

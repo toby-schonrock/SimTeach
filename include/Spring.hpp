@@ -3,8 +3,6 @@
 #include "Fundamentals/Vector2.hpp"
 #include "Point.hpp"
 
-enum class SpringId : std::size_t;
-
 struct Spring {
     double  springConst;
     double  dampFact;
@@ -32,7 +30,7 @@ struct Spring {
     // represent spring as a string and push through stream
     friend std::ostream& operator<<(std::ostream& os, const Spring& s) {
         return os << s.springConst << ' ' << s.naturalLength << ' ' << s.dampFact << ' '
-                  << static_cast<std::size_t>(s.p1) << ' ' << static_cast<std::size_t>(s.p2);
+                  << s.p1 << ' ' << s.p2;
     }
 
     // create spring from string stream
@@ -48,3 +46,5 @@ struct Spring {
         return is;
     }
 };
+
+using SpringId = Index<Spring>;

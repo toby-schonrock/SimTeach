@@ -2,11 +2,11 @@
 
 #include "Fundamentals/Vector2.hpp"
 #include "SFML/Graphics.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <string>
 
 sf::Vector2f visualize(const Vec2& v);
-
-enum class PointId : std::size_t;
 
 struct Point {
   public:
@@ -55,3 +55,40 @@ struct Point {
         return is;
     }
 };
+
+template <typename T>
+struct Index {
+    std::size_t id    = 0;
+    constexpr Index() = default;
+    explicit Index(std::size_t id_) : id(std::move(id_)) {}
+    explicit         operator std::size_t() const { return id; }
+    explicit         operator long long() const { return static_cast<long long>(id); }
+    auto             operator<=>(const Index& obj) const = default;
+    constexpr Index& operator+=(const Index& obj) {
+        id += obj.id;
+        return *this;
+    }
+    constexpr Index& operator-=(const Index& obj) {
+        id -= obj.id;
+        return *this;
+    }
+    constexpr friend Index operator+(Index lhs, const Index& rhs) { return lhs += rhs; }
+    constexpr friend Index operator-(Index lhs, const Index& rhs) { return lhs -= rhs; }
+    constexpr Index&       operator++() {
+              ++id;
+              return *this;
+    }
+    constexpr Index& operator--() {
+        --id;
+        return *this;
+    }
+    friend std::ostream& operator<<(std::ostream& os, const Index& i) {
+        return os << std::to_string(i.id);
+    }
+    friend std::istream& operator>>(std::istream& is, Index& i) {
+        safeStreamRead(is, i.id);
+        return is;
+    }
+};
+
+using PointId = Index<Point>;

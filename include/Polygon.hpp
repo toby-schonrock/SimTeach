@@ -9,8 +9,6 @@
 
 sf::Vector2f visualize(const Vec2& v);
 
-enum class PolyId : std::size_t;
-
 class Polygon {
   private:
     Vec2 maxBounds{};
@@ -149,3 +147,5 @@ class Polygon {
         return Polygon({Vec2(1, 1) + pos, Vec2(-1, 1) + pos, Vec2(0, -1) + pos});
     }
 };
+
+using PolyId = Index<Polygon>;

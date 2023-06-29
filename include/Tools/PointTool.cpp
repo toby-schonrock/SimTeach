@@ -1,14 +1,16 @@
+#include "Point.hpp"
 #include "Tools.hpp"
 #include "ImguiHelpers.hpp"
+#include <cstddef>
 
-void PointTool::removePoint(const std::size_t& pos) {
+void PointTool::removePoint(PointId pos) {
     entities.rmvPoint(pos);
     if (*selectedP == pos) selectedP.reset();
     if (*hoveredP == pos) hoveredP.reset();
 }
 
 void PointTool::ImEdit(const sf::Vector2i& mousePixPos) {
-    Point&       point = entities.points[*selectedP];
+    Point&       point = entities.points[static_cast<std::size_t>(*selectedP)];
     sf::Vector2i pointPixPos;
 
     if (dragging == true) { // if dragging
@@ -42,7 +44,7 @@ void PointTool::ImEdit(const sf::Vector2i& mousePixPos) {
 
     // set as tools settings
     if (ImGui::Button("Set as default")) {
-        defPoint = entities.points[*selectedP];
+        defPoint = entities.points[static_cast<std::size_t>(*selectedP)];
     }
     ImGui::SameLine();
     HelpMarker("Copy settings to the spring tool");
@@ -104,7 +106,7 @@ void PointTool::frame(Sim& sim, const sf::Vector2i& mousePixPos) {
         ImEdit(mousePixPos);
     } else { // if none selected
         if (hoveredP) {
-            resetPointColor(*hoveredP); // reset last closest point color as it may
+            resetColor(*hoveredP); // reset last closest point color as it may
             hoveredP.reset();           // not be closest anymore
         }
 
@@ -114,7 +116,7 @@ void PointTool::frame(Sim& sim, const sf::Vector2i& mousePixPos) {
         // color close point for selection
         if (closestDist < toolRange) {
             hoveredP = closestPoint;
-            setPointColor(*hoveredP, hoverPColour);
+            setColor(*hoveredP, hoverPColour);
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                 ImGui::SetTooltip("Click to delete");
             else if (inside)
@@ -129,7 +131,7 @@ void PointTool::event(const sf::Event& event) {
             if (event.mouseButton.button != sf::Mouse::Middle)
                 dragging = false;        // drag ends on mouse click (except for move)
         } else if (selectedP) {          // click off edit
-            resetPointColor(*selectedP); // when click off return color to normal
+            resetColor(*selectedP); // when click off return color to normal
             selectedP.reset();
         } else if (event.mouseButton.button == sf::Mouse::Left) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { // fast delete
@@ -142,7 +144,7 @@ void PointTool::event(const sf::Event& event) {
         } else if (event.mouseButton.button == sf::Mouse::Right && hoveredP) { // select point
             selectedP = *hoveredP;
             hoveredP.reset();
-            setPointColor(*selectedP, selectedPColour);
+            setColor(*selectedP, selectedPColour);
         }
     } else if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Delete) { // delete key (works for hover and select)
@@ -158,11 +160,11 @@ void PointTool::event(const sf::Event& event) {
 void PointTool::unequip() {
     dragging = false;
     if (selectedP) {
-        resetPointColor(*selectedP);
+        resetColor(*selectedP);
         selectedP.reset();
     }
     if (hoveredP) {
-        resetPointColor(*hoveredP);
+        resetColor(*hoveredP);
         hoveredP.reset();
     }
 }

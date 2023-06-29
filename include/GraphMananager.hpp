@@ -26,9 +26,9 @@ class GraphManager {
     void updateDraw(float t) {
         ImGui::Begin("Graphs");
         tValues.add(t);
-        for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
-            entities.graphs[i].add(entities);
-            entities.graphs[i].draw(i, tValues);
+        for (GraphId i{}; i != static_cast<GraphId>(entities.graphs.size()); ++i) {
+            entities.graphs[static_cast<std::size_t>(i)].add(entities);
+            entities.graphs[static_cast<std::size_t>(i)].draw(i, tValues);
         }
         ImGui::End();
     }

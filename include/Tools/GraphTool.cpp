@@ -30,14 +30,14 @@ void GraphTool::DrawGraphs() {
     std::optional<GraphId> newHover = std::nullopt;
     ImGui::Begin("Graphs");
     if (!ImGui::IsWindowCollapsed()) {
-        for (std::size_t i = 0; i != entities.graphs.size(); ++i) {
-            if (selectedG && static_cast<GraphId>(i) == *selectedG)
+        for (GraphId i{}; i != static_cast<GraphId>(entities.graphs.size()); ++i) {
+            if (selectedG && i == *selectedG)
                 ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.0F, 1.0F, 0.537F, 0.27F});
-            else if (hoveredG && static_cast<GraphId>(i) == *hoveredG)
+            else if (hoveredG && i == *hoveredG)
                 ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0.133F, 0.114F, 0.282F, 0.2F});
-            entities.graphs[i].draw(static_cast<GraphId>(i), graphs.tValues);
+            entities.graphs[static_cast<std::size_t>(i)].draw(i, graphs.tValues);
             if (ImGui::IsItemHovered()) newHover = static_cast<GraphId>(i);
-            if ((hoveredG && static_cast<GraphId>(i) == *hoveredG) || (selectedG && static_cast<GraphId>(i) == *selectedG))
+            if ((hoveredG && i == *hoveredG) || (selectedG && i == *selectedG))
                 ImPlot::PopStyleColor();
         }
     }
@@ -92,12 +92,12 @@ void GraphTool::event(const sf::Event& event) {
                 }
                 if (defGraph.type == ObjectType::Point && hoveredP) { // point selected
                     if (defGraph.diff != DiffState::Index) {
-                        defGraph.ref = *hoveredP;
+                        defGraph.ref.p = *hoveredP;
                         entities.graphs.push_back(defGraph);
                     }                                                         // TODO index diff
                 } else if (defGraph.type == ObjectType::Spring && hoveredS) { // spring selected
                     if (defGraph.diff != DiffState::Index) {
-                        defGraph.ref = *hoveredS;
+                        defGraph.ref.s = *hoveredS;
                         entities.graphs.push_back(defGraph);
                     } // TODO index diff
                 }

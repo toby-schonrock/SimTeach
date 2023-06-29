@@ -1,10 +1,12 @@
+#include "Point.hpp"
 #include "Polygon.hpp"
 #include "Tools.hpp"
 #include "ImguiHelpers.hpp"
+#include <cstddef>
 
 void PolyTool::frame([[maybe_unused]] Sim& sim, const sf::Vector2i& mousePixPos){
     if (deletingP) {
-        entities.polys[*deletingP].shape.setFillColor(sf::Color::White);
+        entities.polys[static_cast<std::size_t>(*deletingP)].shape.setFillColor(sf::Color::White);
         deletingP.reset();
     }
 
@@ -12,14 +14,14 @@ void PolyTool::frame([[maybe_unused]] Sim& sim, const sf::Vector2i& mousePixPos)
     Vec2         newPos   = unvisualize(mousePos);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
-        for (std::size_t i = 0; i != entities.polys.size(); ++i) {
-            if (entities.polys[i].isBounded(unvisualize(mousePos)) &&
-                entities.polys[i].isContained(unvisualize(mousePos))) {
+        for (PolyId i{}; i != static_cast<PolyId>(entities.polys.size()); ++i) {
+            if (entities.polys[static_cast<std::size_t>(i)].isBounded(unvisualize(mousePos)) &&
+                entities.polys[static_cast<std::size_t>(i)].isContained(unvisualize(mousePos))) {
                 deletingP = i;
             }
         }
         if (deletingP) {
-            entities.polys[*deletingP].shape.setFillColor(sf::Color::Red);
+            entities.polys[static_cast<std::size_t>(*deletingP)].shape.setFillColor(sf::Color::Red);
             ImGui::SetTooltip("Click to delete");
             return;
         }
@@ -72,7 +74,7 @@ void PolyTool::unequip() {
     validPoly = Polygon{};
     verts     = {{}};
     if (deletingP) {
-        entities.polys[*deletingP].shape.setFillColor(sf::Color::White);
+        entities.polys[static_cast<std::size_t>(*deletingP)].shape.setFillColor(sf::Color::White);
         deletingP.reset();
     }
 }

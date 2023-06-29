@@ -99,7 +99,7 @@ class Sim {
             entities.springVerts.clear();
             entities.polys.clear();
         }
-        std::size_t pointOffset = entities.points.size();
+        PointId pointOffset = static_cast<PointId>(entities.points.size());
 
         std::ifstream file{path, std::ios_base::in};
         if (!file.is_open()) {
@@ -143,8 +143,8 @@ class Sim {
                 if (temp != index)
                     throw std::runtime_error("Non continous spring indicie - " + line);
                 safeStreamRead(ss, spring);
-                spring.p1 = static_cast<PointId>(static_cast<std::size_t>(spring.p1) + pointOffset);
-                spring.p2 = static_cast<PointId>(static_cast<std::size_t>(spring.p2) + pointOffset);
+                spring.p1 += pointOffset;
+                spring.p2 += pointOffset;
                 ++index;
                 entities.addSpring(spring);
             }
@@ -218,24 +218,24 @@ class Sim {
 
         for (std::size_t x = 0; x != size.x; ++x) {
             for (std::size_t y = 0; y != size.y; ++y) {
-                std::size_t p = x + y * size.x;
+                PointId p{x + y * size.x};
                 if (x < size.x - 1) {
                     if (y < size.y - 1) {
                         entities.addSpring({springConst, dampFact,
                                             std::numbers::sqrt2 * static_cast<double>(gap), p,
-                                            x + 1 + (y + 1) * size.x}); // down right
+                                            PointId{x + 1 + (y + 1) * size.x}}); // down right
                     }
                     entities.addSpring(
-                        {springConst, dampFact, gap, p, x + 1 + (y)*size.x}); // right
+                        {springConst, dampFact, gap, p, PointId{x + 1 + (y)*size.x}}); // right
                 }
                 if (y < size.y - 1) {
                     if (x > 0) {
                         entities.addSpring({springConst, dampFact,
                                             std::numbers::sqrt2 * static_cast<double>(gap), p,
-                                            x - 1 + (y + 1) * size.x}); // down left
+                                            PointId{x - 1 + (y + 1) * size.x}}); // down left
                     }
                     entities.addSpring(
-                        {springConst, dampFact, gap, p, x + (y + 1) * size.x}); // down
+                        {springConst, dampFact, gap, p, PointId{x + (y + 1) * size.x}}); // down
                 }
             }
         }

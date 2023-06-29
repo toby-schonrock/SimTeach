@@ -18,7 +18,6 @@ enum class ObjectType { Point, Spring };
 enum class Property { Position, Velocity, Length, Extension, Force };
 enum class Component { x, y, vec };
 enum class DiffState { None, Index, Const };
-enum class GraphId : std::size_t;
 
 constexpr static std::array ObjTypeLbl{"Point", "Spring"};
 constexpr static std::array PropLbl{"Position", "Velocity", "Length", "Extension", "Force"};
@@ -33,8 +32,12 @@ inline std::string getPropLbl(Property prop) { return PropLbl[static_cast<std::s
 
 inline std::string getCompLbl(Component comp) { return CompLbl[static_cast<std::size_t>(comp)]; }
 
-template <typename T>
-concept Index = std::is_same_v<T, PointId> || std::is_same_v<T, SpringId>;
+template<typename T>
+concept GraphableObj = std::is_same_v<T, Point> || std::is_same_v<T, Spring>;
+
+class Graph;
+
+using GraphId = Index<Graph>;
 
 class Graph {
   private:
@@ -73,31 +76,31 @@ class Graph {
 
     // three constructors for all diff types
     // no diff
-    template <Index IndexType>
-    Graph(IndexType ref_, Property prop_, Component comp_, std::size_t buffer)
-        : data(buffer), ref(ref_), prop(prop_), comp(comp_), diff(DiffState::None) {
-        if constexpr (std::is_same_v<IndexType, PointId>)
+    template <GraphableObj Type>
+    Graph(Index<Type> ref_, Property prop_, Component comp_, std::size_t buffer)
+        : data(buffer), ref(ref_), ref2(ref_), prop(prop_), comp(comp_), diff(DiffState::None) {
+        if constexpr (std::is_same_v<Type, Point>)
             type = ObjectType::Point;
         else
             type = ObjectType::Spring;
     }
 
     // index diff
-    template <Index IndexType>
-    Graph(IndexType ref_, IndexType ref2_, Property prop_, Component comp_, std::size_t buffer)
+    template <GraphableObj Type>
+    Graph(Index<Type> ref_, Index<Type> ref2_, Property prop_, Component comp_, std::size_t buffer)
         : data(buffer), ref(ref_), ref2(ref2_), prop(prop_), comp(comp_), diff(DiffState::Index) {
-        if constexpr (std::is_same_v<IndexType, PointId>)
+        if constexpr (std::is_same_v<Type, PointId>)
             type = ObjectType::Point;
         else
             type = ObjectType::Spring;
     }
 
     // const diff
-    template <Index IndexType>
-    Graph(IndexType ref_, Vec2F constDiff_, Property prop_, Component comp_, std::size_t buffer)
-        : data(buffer), ref(ref_), constDiff(constDiff_), prop(prop_), comp(comp_),
+    template <GraphableObj Type>
+    Graph(Index<Type> ref_, Vec2F constDiff_, Property prop_, Component comp_, std::size_t buffer)
+        : data(buffer), ref(ref_), ref2(ref_), constDiff(constDiff_), prop(prop_), comp(comp_),
           diff(DiffState::Const) {
-        if constexpr (std::is_same_v<IndexType, PointId>)
+        if constexpr (std::is_same_v<Type, Point>)
             type = ObjectType::Point;
         else
             type = ObjectType::Spring;
