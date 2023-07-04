@@ -11,14 +11,14 @@
 #include "EntityManager.hpp"
 #include "Graph.hpp"
 #include "GraphMananager.hpp"
-#include "Fundamentals/RingBuffer.hpp"
+#include "ImguiHelpers.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window.hpp"
 #include "Sim.hpp"
+#include "fundamentals/RingBuffer.hpp"
 #include "imgui.h"
 #include "implot.h"
-#include "ImguiHelpers.hpp"
 
 namespace fs = std::filesystem;
 
@@ -121,7 +121,7 @@ class GUI {
     void frame(const sf::Vector2i& mousePixPos, Sim& sim, GraphManager& graphs, bool running) {
         interface(mousePixPos, sim, graphs, running);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); 
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
             if (!mousePosLast)
                 mousePosLast = mousePixPos;
             else {
@@ -229,8 +229,7 @@ class GUI {
             ImGui_DragDouble("Gravity", &sim.gravity, 0.001F, -100, 100, "%.3f",
                              ImGuiSliderFlags_AlwaysClamp);
             ImGui::SetNextItemWidth(100.0F);
-            static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(
-                graphs.graphBuffer);
+            static std::uint32_t graphBufferTemp = static_cast<std::uint32_t>(graphs.graphBuffer);
             ImGui_DragUnsigned("Graph buffer", &graphBufferTemp, 1.0F, 100, 20000, "%zu",
                                ImGuiSliderFlags_AlwaysClamp);
             graphs.graphBuffer = graphBufferTemp;

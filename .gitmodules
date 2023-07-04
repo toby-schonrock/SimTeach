@@ -12,3 +12,6 @@
 [submodule "ext/implot"]
 	path = ext/implot
 	url = https://github.com/epezent/implot.git
+[submodule "ext/physics-envy"]
+	path = ext/physics-envy
+	url = https://github.com/toby-schonrock/physics-envy.git

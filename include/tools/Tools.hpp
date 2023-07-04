@@ -1,14 +1,9 @@
-#include "EntityManager.hpp"
-#include "Fundamentals/Vector2.hpp"
 #include "Graph.hpp"
 #include "GraphMananager.hpp"
-#include "Point.hpp"
-#include "Polygon.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/Graphics/Color.hpp"
 #include "SFML/Window.hpp"
-#include "Sim.hpp"
-#include "Spring.hpp"
+#include "EntityManager.hpp"
+#include "physics-envy/Sim.hpp"
 #include "imgui.h"
 #include <cstddef>
 #include <iostream>
@@ -60,10 +55,8 @@ class Tool {
     void resetColor(PointId index) {
         setColor(index, entities.points[static_cast<std::size_t>(index)].color);
     }
-    
-    void resetColor(SpringId index) {
-        setColor(index, sf::Color::White);
-    }
+
+    void resetColor(SpringId index) { setColor(index, sf::Color::White); }
 
     sf::RenderWindow& window;
     EntityManager&    entities;

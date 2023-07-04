@@ -1,6 +1,6 @@
 #include "ImguiHelpers.hpp"
-#include "Spring.hpp"
 #include "Tools.hpp"
+#include "physics-ency/Spring.hpp"
 #include <cstddef>
 
 void SpringTool::ImEdit([[maybe_unused]] const sf::Vector2i& mousePixPos) {
