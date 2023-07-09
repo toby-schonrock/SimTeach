@@ -1,13 +1,10 @@
 #pragma once
 
-#include "PhysicsEngine/Sim.hpp"
-#include "Point.hpp"
-#include "Spring.hpp"
+#include "physics-envy/Engine.hpp"
+#include "physics-envy/fundamentals/RingBuffer.hpp"
 #include "implot.h"
 #include <array>
 #include <cstddef>
-#include <cstdio>
-#include <optional>
 #include <string>
 #include <type_traits>
 
