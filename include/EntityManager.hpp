@@ -3,6 +3,7 @@
 #include "Graph.hpp"
 #include "SFML/Graphics.hpp"
 #include "physics-envy/Engine.hpp"
+#include "physics-envy/Spring.hpp"
 #include <cstddef>
 #include <filesystem>
 #include <iostream>
@@ -15,7 +16,7 @@ struct ObjectEnabled {
 
 class EntityManager {
   public:
-    Engine<float>           engine;
+    Engine                  engine;
     std::vector<sf::Vertex> pointVerts;
     std::vector<sf::Vertex> springVerts;
     std::vector<Graph>      graphs;
@@ -66,15 +67,9 @@ class EntityManager {
     }
 
     void rmvSpring(SpringId pos) {
-        SpringId old = static_cast<SpringId>(springs.size() - 1);
-        if (springs.empty() || pos > old) {
-            throw std::logic_error("Asking to remove non existant spring - " +
-                                   std::to_string(static_cast<std::size_t>(pos)));
-        }
+        engine.rmvSpring(pos);
+        SpringId old = static_cast<SpringId>(engine.springs.size() - 1);
 
-        // swap spring to the end and delete
-        springs[static_cast<std::size_t>(pos)] = std::move(springs.back()); // do the move
-        springs.pop_back();                                                 // delete
         springVerts[static_cast<std::size_t>(pos) * 2] =
             std::move(springVerts[springVerts.size() - 2]);
         springVerts[static_cast<std::size_t>(pos) * 2 + 1] =
