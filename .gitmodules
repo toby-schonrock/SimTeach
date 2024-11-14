@@ -15,3 +15,6 @@
 [submodule "ext/physics-envy"]
 	path = ext/physics-envy
 	url = https://github.com/toby-schonrock/physics-envy.git
+[submodule "ext/physenv"]
+	path = ext/physenv
+	url = https://github.com/toby-schonrock/physenv.git
