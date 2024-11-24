@@ -24,8 +24,6 @@ namespace fs = std::filesystem;
 
 extern const fs::path Previous;
 
-sf::Vector2f visualize(const Vec2& v);
-
 // checkbox ui for objects
 inline void enabledCheckBoxes(ObjectEnabled& enabled, const EntityManager& entities,
                               const std::string& uuid, bool forceLegit = false) {
@@ -72,7 +70,6 @@ class GUI {
 
     EntityManager&              entities;
     sf::RenderWindow&           window;
-    sf::Texture                 pointTexture;
     std::optional<sf::Vector2i> mousePosLast;
     float                       radius;
 
@@ -89,9 +86,6 @@ class GUI {
         : screen(desktop.width, desktop.height), vsScale(static_cast<float>(screen.x) / 20.0F),
           entities(entities_), window(window_), radius(radius_) {
         std::cout << "Scale: " << vsScale << "\n";
-        if (!pointTexture.loadFromFile("point.png"))
-            throw std::logic_error("failed to load point texture");
-        pointTexture.setSmooth(true);
         resetView();
     }
 
@@ -252,13 +246,10 @@ class GUI {
         }
 
         if (display.springs) {
-            entities.updateSpringVisPos();
-            window.draw(entities.springVerts.data(), entities.springVerts.size(), sf::Lines);
+            entities.drawSprings();
         }
         if (display.points) {
-            entities.updatePointVisPos(radius);
-            window.draw(entities.pointVerts.data(), entities.pointVerts.size(), sf::Quads,
-                        &pointTexture);
+            entities.drawPoints(radius);
         }
         if (display.polygons) {
             for (Polygon& poly: entities.polys) poly.draw(window, false);
