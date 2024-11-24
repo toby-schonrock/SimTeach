@@ -1,7 +1,7 @@
 #pragma once
 
-#include "physics-envy/Engine.hpp"
-#include "physics-envy/fundamentals/RingBuffer.hpp"
+#include "physenv/Engine.hpp"
+#include "physenv/details/RingBuffer.hpp"
 #include "implot.h"
 #include <array>
 #include <cstddef>

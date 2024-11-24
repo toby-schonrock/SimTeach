@@ -2,20 +2,30 @@ cmake_minimum_required(VERSION 3.15)
 project(SimTeach)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (MSVC)
-  set(PROJECT_COMPILE_OPTIONS /Wall /analyze)
-  string(APPEND CMAKE_CXX_FLAGS_DEBUG          " /fsanitize=address")
-  string(APPEND CMAKE_CXX_FLAGS_RELWITHDEBINFO " /fsanitize=address")
-else()
-  set(PROJECT_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -Wshadow -Wextra-semi
-    -Wmissing-noreturn -Wconversion -Wsign-conversion)
-  string(APPEND CMAKE_CXX_FLAGS_DEBUG          " -fsanitize=address,undefined,leak")
-  string(APPEND CMAKE_CXX_FLAGS_RELWITHDEBINFO " -fsanitize=address,undefined,leak")
+if(PROJECT_IS_TOP_LEVEL)
+  if(MSVC)
+    set(PROJECT_COMPILE_OPTIONS /Wall /analyze)
+    string(APPEND CMAKE_CXX_FLAGS_DEBUG " /fsanitize=address")
+    string(APPEND CMAKE_CXX_FLAGS_RELWITHDEBINFO " /fsanitize=address")
+  else()
+    set(PROJECT_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -Wshadow -Wextra-semi
+      # -ftime-trace # for compile time reporting
+      -Wmissing-noreturn -Wconversion -Wsign-conversion -Wno-ignored-attributes)
+    if(CMAKE_BUILD_TYPE STREQUAL "debug")
+      if(NOT MINGW) # sanitizers are not working under mingw
+        if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+          message(WARNING "FreeBSD detected: skipping santizers which cause weird errors in OpenSSL")
+        else()
+          string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=address,undefined,leak")
+          # string(APPEND CMAKE_CXX_FLAGS_DEBUG " -fsanitize=thread") # alternative to above
+        endif()
+      endif()
+    endif()
+  endif()
 endif()
 
 if (WIN32)
@@ -37,9 +47,10 @@ if (${FORCE_COLORED_OUTPUT})
   endif ()
 endif ()
 
-add_subdirectory(ext/physics-envy)
-add_library(envy INTERFACE)
-target_include_directories(envy INTERFACE ext/physics-envy/include)
+add_subdirectory(ext/physenv)
+add_library(phys INTERFACE)
+target_include_directories(phys INTERFACE ext/physenv/include)
+target_link_libraries(phys INTERFACE absl::flat_hash_map)
 
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
@@ -67,6 +78,6 @@ target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui implot)
 
 find_package(Threads REQUIRED)
 add_executable(SimTeach app/main.cpp include/Graph.cpp include/tools/GraphTool.cpp include/tools/PointTool.cpp include/tools/PolyTool.cpp include/tools/SpringTool.cpp)
-target_include_directories(SimTeach PRIVATE include)
-target_link_libraries(SimTeach PRIVATE envy imgui-sfml ${PROJECT_STATIC_OPTIONS})
+target_include_directories(SimTeach PRIVATE ./include)
+target_link_libraries(SimTeach PRIVATE phys imgui-sfml ${PROJECT_STATIC_OPTIONS})
 target_compile_options(SimTeach PRIVATE ${PROJECT_COMPILE_OPTIONS})

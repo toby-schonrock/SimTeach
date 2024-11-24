@@ -2,8 +2,8 @@
 
 #include "Graph.hpp"
 #include "SFML/Graphics.hpp"
-#include "physics-envy/Engine.hpp"
-#include "physics-envy/Spring.hpp"
+#include "physenv/Engine.hpp"
+#include "physenv/Spring.hpp"
 #include <cstddef>
 #include <filesystem>
 #include <iostream>

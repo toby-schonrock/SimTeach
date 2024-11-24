@@ -6,7 +6,7 @@ USAGE="Usage: $(basename $0) [-v | --verbose] [ gcc | clang ] [ reset | clean | 
 
 CMAKE=cmake
 BUILD=./build
-TYPE=Release
+TYPE=Debug
 COMPILER=gcc
 CLEAN=
 RESET=
@@ -63,4 +63,5 @@ $CMAKE -S . -B $BUILD_DIR $COMPILER_OPTIONS -DCMAKE_BUILD_TYPE=$TYPE
 
 $CMAKE --build $BUILD_DIR -- $GENERATOR_OPTIONS
 
-cd $BUILD_DIR
+## copy compile_commands.json for ease
+rm -f ./compile_commands.json && ln -s $BUILD_DIR/compile_commands.json .

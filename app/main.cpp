@@ -4,12 +4,11 @@
 #include <vector>
 
 #include "EntityManager.hpp"
-#include "Fundamentals/RingBuffer.hpp"
-#include "Fundamentals/Vector2.hpp"
+#include "physenv/detials/RingBuffer.hpp"
+#include "physenv/detials/Vector2.hpp"
 #include "GUI.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
-#include "Sim.hpp"
 #include "Tools/Tools.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
