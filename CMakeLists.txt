@@ -77,7 +77,7 @@ target_include_directories(imgui-sfml INTERFACE ext/imgui-sfml)
 target_link_libraries(imgui-sfml INTERFACE ImGui-SFML sfml imgui implot)
 
 find_package(Threads REQUIRED)
-add_executable(SimTeach app/main.cpp include/Graph.cpp include/tools/GraphTool.cpp include/tools/PointTool.cpp include/tools/PolyTool.cpp include/tools/SpringTool.cpp)
+add_executable(SimTeach app/main.cpp)
 target_include_directories(SimTeach PRIVATE ./include)
 target_link_libraries(SimTeach PRIVATE phys imgui-sfml ${PROJECT_STATIC_OPTIONS})
 target_compile_options(SimTeach PRIVATE ${PROJECT_COMPILE_OPTIONS})
